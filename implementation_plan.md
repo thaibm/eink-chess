@@ -7,6 +7,7 @@ Xây dựng ứng dụng web Chess tối ưu cho Kindle e-reader, domain **einkc
 > [!IMPORTANT]
 > **Kindle Experimental Browser & E-ink UX:**
 > - Không dùng animations/transitions nặng (tránh hiện tượng chớp màn e-ink liên tục).
+> - **Hiển thị nước vừa đi (Last Move Indicator):** Tự động đánh dấu **cả 2 ô cờ** vừa di chuyển (**ô xuất phát `from`** và **ô đích đến `to`**, áp dụng cho cả nước đi của người chơi, bot hay đối thủ) bằng **đường viền nét đứt rõ nét (`outline: 2px dashed #000; outline-offset: -2px;`)**. Giúp người dùng nhận biết ngay lập tức bot vừa đi quân nào từ đâu đến đâu mà không cần animation.
 > - Phản hồi tương tác thị giác (Visual Feedback) dùng ký hiệu đen trắng rõ nét: Icon Tick `✔` (thành công) và Icon Cross `✖` (nước đi sai).
 > - Action button quan trọng như **Đầu hàng (Resign)** cần có modal xác nhận (Confirm modal) dạng text đơn giản để tránh chạm nhầm do độ trễ cảm ứng của màn hình E-ink.
 > - **Điểm ELO luôn hiển thị trên Header** ở mọi trang.
@@ -92,7 +93,7 @@ Xây dựng ứng dụng web Chess tối ưu cho Kindle e-reader, domain **einkc
 
 #### Action Buttons:
 - **[🏳 Đầu hàng (Resign)]**: Hiện popup xác nhận. Khi xác nhận, gửi trạng thái `resigned` lên Supabase RPC, đối phương nhận thông báo thắng ngay trong chu kỳ poll tiếp theo.
-- **[🤝 Xin hòa (Offer Draw)]**: Gửi tín hiệu xin hòa cho đối phương (hiển thị popup chấp nhận/từ chối).
+- **[🤝 Xin hòa (Offer Draw)]**: Gửi tín hiệu đề nghị hòa cờ tới đối phương.
 - **[📋 Copy Code / Link]**: Sao chép mã phòng hoặc URL mời `einkchess.fun/play-friend.html?join=XXXXXX`.
 - **[🚪 Rời phòng (Leave Game)]**: Rời khỏi phòng chơi (ván cờ vẫn được lưu).
 
@@ -145,7 +146,7 @@ eink-chess/                             ← Repo: /Users/thaibuiminh/Projects/ei
 **Deliverables:**
 - `index.html`: Giao diện khởi đầu chọn thiết bị Kindle, hiển thị ELO Header, menu chế độ.
 - `play-bot.html`: Bàn cờ với action buttons: **[Undo]**, **[Đầu hàng (Resign)]**, **[Xoay bàn]**, **[Gợi ý]**, **[Ván mới]**.
-- `css/einkchess.css`: Bảng màu tương phản cao (quân trắng outline đen, quân đen solid black, ô trắng/xám), kích thước responsive theo thiết bị Kindle.
+- `css/einkchess.css`: Bảng màu tương phản cao (quân trắng outline đen, quân đen solid black, ô trắng/xám), kích thước responsive theo thiết bị Kindle. Cài đặt viền nét đứt cho 2 ô nước vừa đi (`.sq.last-from, .sq.last-to { outline: 2px dashed #000; outline-offset: -2px; }`).
 - `js/chess-engine.js`: Engine đầy đủ luật cờ vua, FEN, SAN, kiểm tra chiếu hết, hòa cờ.
 - `js/chess-ai.js`: Minimax + Alpha-Beta AI (3 cấp độ: ~400, ~800, ~1200 ELO).
 - `js/chess-board.js`: Render DOM gia tăng (Incremental), hiển thị nhãn nước đi, confirm dialogs.
@@ -220,8 +221,8 @@ eink-chess/                             ← Repo: /Users/thaibuiminh/Projects/ei
 > **Mục tiêu:** Hoàn thiện giao diện song ngữ, bảng thống kê và tối ưu trải nghiệm đọc trên e-ink.
 
 **Deliverables:**
-- `js/chess-i18n.js`: Hỗ trợ đầy đủ tiếng Việt & tiếng Anh, tự động phát hiện ngôn ngữ.
-- Dashboard thống kê trên `index.html`: Biểu đồ ELO, tổng số ván thắng/thua, puzzle streak kỷ lục.
+- `js/chess-i18n.js`: Hệ thống dịch song ngữ Tiếng Việt & Tiếng Anh.
+- Màn hình thống kê chi tiết trên `index.html`: Lịch sử đấu, tỷ lệ thắng, biểu đồ ELO, kỷ lục streak.
 - Tối ưu SEO, meta tags, favicon chuẩn e-ink.
 
 ---
@@ -233,5 +234,5 @@ Tôi sẽ tiến hành triển khai **Phase 1 (MVP)** trước:
 2. Viết `css/einkchess.css` và `js/chess-engine.js`.
 3. Viết `js/chess-ai.js` (Local Minimax Level 1-3).
 4. Viết `js/chess-storage.js` (Lưu game, lưu ELO Bot/Puzzle).
-5. Xây dựng `js/chess-board.js`, `index.html` và `play-bot.html` (đầy đủ các nút Undo, Resign modal, ELO Header).
+5. Xây dựng `js/chess-board.js`, `index.html` và `play-bot.html` (đầy đủ các nút Undo, Resign modal, ELO Header, viền nét đứt cho 2 ô nước vừa đi).
 6. Kiểm tra tương thích ES5 cho trình duyệt Kindle.

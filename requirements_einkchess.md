@@ -28,10 +28,10 @@
   - Quân Đen (Black pieces): Nền đen (hoặc viền đen nổi bật), ký hiệu quân cờ đặc màu trắng/đen (filled glyph: ♚, ♛, ♜, ♝, ♞, ♟).
 - **Phản hồi tương tác thị giác (Visual Feedback):**
   - **Không dùng animations / CSS transitions / gradient / box-shadow mờ / opacity animation** (tránh làm màn e-ink bị chớp nháy làm mới liên tục).
-  - Ô được chọn (Selected square): Đường viền nét liền đen đậm 3px (`outline: 3px solid #000`).
-  - Nước đi hợp lệ (Hints on): Vòng tròn viền xám hoặc inset ring nét đơn giản.
-  - Nước đi vừa thực hiện (Last move): Đường viền nét đứt (`outline: 2px dashed #888`).
-  - Ký hiệu trạng thái: Icon Tick lớn `✔` (chính xác/thành công) và Icon Cross lớn `✖` (sai/lỗi).
+  - **Ô được chọn (Selected square):** Đường viền nét liền đen đậm 3px (`outline: 3px solid #000; outline-offset: -3px;`).
+  - **Nước đi hợp lệ (Hints on):** Vòng tròn viền xám hoặc inset ring nét đơn giản.
+  - **Nước đi vừa thực hiện (Last move indicator):** Đánh dấu rõ ràng **cả 2 ô cờ** liên quan đến nước đi vừa thực hiện (gồm **ô xuất phát `from`** và **ô đích đến `to`**, áp dụng cho cả nước đi của người dùng, của Bot hoặc đối thủ) bằng **đường viền nét đứt đen/xám đậm rõ nét (`outline: 2px dashed #000; outline-offset: -2px;`)**. Điều này giúp người chơi trên màn hình E-ink ngay lập tức nhận diện được quân cờ vừa di chuyển từ đâu đến đâu mà không cần animation.
+  - **Ký hiệu trạng thái:** Icon Tick lớn `✔` (chính xác/thành công) và Icon Cross lớn `✖` (sai/lỗi).
 
 ### 2.2. Header chung (Persistent Header)
 - Xuất hiện trên tất cả các trang / chế độ:
@@ -222,7 +222,7 @@
 ### Phase 1 — MVP (Local Engine, Bot AI Level 1-3, Action Buttons, ELO)
 - Xây dựng `js/chess-engine.js`: Luật cờ vua hoàn chỉnh, FEN parser/serializer, SAN notation, kiểm tra chiếu hết / hòa cờ.
 - Xây dựng `js/chess-ai.js`: Minimax + Alpha-Beta pruning + PST table (Level 1: ~400, Level 2: ~800, Level 3: ~1200).
-- Xây dựng `css/einkchess.css`: Hệ màu đơn sắc tương phản cao, layout responsive theo các dòng Kindle.
+- Xây dựng `css/einkchess.css`: Hệ màu đơn sắc tương phản cao, layout responsive theo các dòng Kindle. Cài đặt viền nét đứt cho 2 ô nước vừa đi (`.sq.last-from, .sq.last-to { outline: 2px dashed #000; outline-offset: -2px; }`).
 - Xây dựng `js/chess-board.js`: Render DOM gia tăng (Incremental), xử lý touch, nút Undo, modal Đầu hàng.
 - Xây dựng `index.html` và `play-bot.html`: Giao diện trang chủ và màn hình chơi với bot có ELO Header.
 - Xây dựng `js/chess-storage.js`: Quản lý lưu game và tính toán ELO cơ bản.
