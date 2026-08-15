@@ -287,4 +287,8 @@
 
     root.ChessAI = ChessAI;
 
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = ChessAI;
+    }
+
 })(typeof window !== 'undefined' ? window : this);

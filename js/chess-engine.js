@@ -747,4 +747,8 @@
 
     root.ChessEngine = ChessEngine;
 
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = ChessEngine;
+    }
+
 })(typeof window !== 'undefined' ? window : this);
