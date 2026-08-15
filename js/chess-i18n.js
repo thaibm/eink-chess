@@ -62,6 +62,12 @@
             'game.setup_title': 'CÀI ĐẶT VÁN ĐẤU VỚI BOT',
             'game.btn_start_game': 'Bắt đầu Ván cờ',
 
+            'game.promotion_title': 'CHỌN QUÂN PHONG CẤP',
+            'game.promotion_queen': 'Hậu',
+            'game.promotion_rook': 'Xe',
+            'game.promotion_bishop': 'Tượng',
+            'game.promotion_knight': 'Mã',
+
             'game.resign_title': 'Xác nhận đầu hàng',
             'game.resign_body': 'Bạn có chắc chắn muốn nhận thua ván cờ này không?<br>Điểm ELO của bạn sẽ bị trừ theo kết quả thua cuộc.',
             'game.btn_cancel': 'Hủy',
@@ -141,6 +147,12 @@
 
             'game.setup_title': 'BOT MATCH SETUP',
             'game.btn_start_game': 'Start Match',
+
+            'game.promotion_title': 'PAWN PROMOTION',
+            'game.promotion_queen': 'Queen',
+            'game.promotion_rook': 'Rook',
+            'game.promotion_bishop': 'Bishop',
+            'game.promotion_knight': 'Knight',
 
             'game.resign_title': 'Confirm Resignation',
             'game.resign_body': 'Are you sure you want to resign this game?<br>Your ELO rating will be reduced for a loss.',

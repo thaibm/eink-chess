@@ -97,16 +97,22 @@
         // If square is already selected, try to move or deselect
         if (this.selectedSquare) {
             // Check if clicked one of the valid destination squares
-            var targetMove = null;
+            var matchingMoves = [];
             for (var i = 0; i < this.validMoves.length; i++) {
                 var m = this.validMoves[i];
                 if (m.to.r === logR && m.to.c === logC) {
-                    targetMove = m;
-                    break;
+                    matchingMoves.push(m);
                 }
             }
 
-            if (targetMove) {
+            if (matchingMoves.length > 0) {
+                // Check if this move requires pawn promotion piece selection
+                if (matchingMoves.length > 1 && matchingMoves[0].promotion) {
+                    this.showPromotionDialog(matchingMoves);
+                    return;
+                }
+
+                var targetMove = matchingMoves[0];
                 // Execute move
                 this.selectedSquare = null;
                 this.validMoves = [];
@@ -134,6 +140,82 @@
         }
 
         this.render();
+    };
+
+    ChessBoard.prototype.getPromotionModal = function() {
+        var modal = document.getElementById('chessboard-promo-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'chessboard-promo-modal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML =
+                '<div class="modal-box" style="max-width: 380px; text-align: center;">' +
+                    '<div class="modal-title" id="chessboard-promo-title" style="text-align: center;">' +
+                        (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.promotion_title') : 'CHỌN QUÂN PHONG CẤP') +
+                    '</div>' +
+                    '<div class="modal-body" style="padding: 6px 0;">' +
+                        '<div class="promo-options" id="chessboard-promo-options"></div>' +
+                    '</div>' +
+                    '<div class="modal-footer" style="text-align: center;">' +
+                        '<button class="btn" id="chessboard-promo-cancel" style="min-width: 100px;">' +
+                            (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.btn_cancel') : 'Hủy') +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(modal);
+        }
+        return modal;
+    };
+
+    ChessBoard.prototype.showPromotionDialog = function(matchingMoves) {
+        var self = this;
+        var modal = this.getPromotionModal();
+        var titleEl = document.getElementById('chessboard-promo-title');
+        var optionsEl = document.getElementById('chessboard-promo-options');
+        var cancelBtn = document.getElementById('chessboard-promo-cancel');
+
+        if (titleEl && typeof ChessI18n !== 'undefined') {
+            titleEl.innerHTML = ChessI18n.t('game.promotion_title');
+        }
+        if (cancelBtn && typeof ChessI18n !== 'undefined') {
+            cancelBtn.innerHTML = ChessI18n.t('game.btn_cancel');
+        }
+
+        optionsEl.innerHTML = '';
+
+        for (var i = 0; i < matchingMoves.length; i++) {
+            var move = matchingMoves[i];
+            var promoPiece = move.promotion;
+            var pUpper = promoPiece.toUpperCase();
+
+            var glyph = this.engine ? this.engine.getGlyph(promoPiece) : '';
+            var labelKey = 'game.promotion_' + (pUpper === 'Q' ? 'queen' : pUpper === 'R' ? 'rook' : pUpper === 'B' ? 'bishop' : 'knight');
+            var label = typeof ChessI18n !== 'undefined' ? ChessI18n.t(labelKey) : pUpper;
+
+            var btn = document.createElement('div');
+            btn.className = 'promo-btn';
+            btn.innerHTML = '<span class="promo-piece-glyph">' + glyph + '</span><span class="promo-piece-name">' + label + '</span>';
+
+            (function(selectedMove) {
+                btn.onclick = function() {
+                    modal.className = 'modal-overlay';
+                    self.selectedSquare = null;
+                    self.validMoves = [];
+                    self.onMove(selectedMove);
+                };
+            })(move);
+
+            optionsEl.appendChild(btn);
+        }
+
+        cancelBtn.onclick = function() {
+            modal.className = 'modal-overlay';
+            self.selectedSquare = null;
+            self.validMoves = [];
+            self.render();
+        };
+
+        modal.className = 'modal-overlay active';
     };
 
     ChessBoard.prototype.render = function() {

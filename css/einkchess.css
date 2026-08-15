@@ -598,3 +598,47 @@ button,
     margin-top: 4px;
     word-break: break-all;
 }
+
+/* --- 10. Pawn Promotion Modal (High-Contrast E-ink) --- */
+.promo-options {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 4px 0;
+    margin: 10px 0;
+}
+
+.promo-btn {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    padding: 8px 2px;
+    border: 2px solid #000000 !important;
+    background-color: #ffffff;
+    cursor: pointer;
+    min-height: 52px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.promo-btn:hover,
+.promo-btn:active {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.promo-piece-glyph {
+    font-size: 32px;
+    line-height: 1;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.promo-piece-name {
+    font-size: 12px;
+    font-weight: bold;
+    display: block;
+    line-height: 1.2;
+}
+
