@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=26">
+    <link rel="stylesheet" href="css/einkchess.css?v=27">
 </head>
 <body>
     <div class="app-container">
@@ -31,6 +31,12 @@
             <div class="status-text" id="status-text">Lượt Trắng (Bạn)</div>
             <div class="status-captured" id="captured-black"></div>
         </div>
+
+        <!-- Perf debug readout: hidden unless ?debug=1 is in the URL. Shows
+             the bot's actual think-time/search-depth/node-count per move,
+             so this can be read directly off a real device (Kindle has no
+             devtools/console access) instead of guessing from "felt slow". -->
+        <div id="debug-readout" class="debug-readout" style="display: none;"></div>
 
         <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
         <div class="board-container" id="board-container"></div>
@@ -119,8 +125,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=5"></script>
-    <script src="js/chess-ai.js?v=5"></script>
+    <script src="js/chess-engine.js?v=6"></script>
+    <script src="js/chess-ai.js?v=7"></script>
     <script src="js/chess-storage.js?v=8"></script>
     <script src="js/chess-i18n.js?v=3"></script>
     <script src="js/chess-backend.js?v=6"></script>
@@ -135,6 +141,7 @@
         var botElos = { 1: 400, 2: 800, 3: 1200 };
         var isThinking = false;
         var gameOver = false;
+        var debugMode = window.location.search.indexOf('debug=1') !== -1;
 
         // Pending setup values
         var pendingLevel = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotLevel() : 1;
@@ -142,7 +149,12 @@
 
         function initGame() {
             ChessStorage.applyAutoLayout();
-            
+
+            if (debugMode) {
+                var debugEl = document.getElementById('debug-readout');
+                if (debugEl) debugEl.style.display = 'block';
+            }
+
             if (typeof ChessI18n !== 'undefined') {
                 ChessI18n.init();
                 ChessI18n.onChange(function() {
@@ -213,6 +225,18 @@
             } else {
                 hintBtn.innerHTML = isHintsOn ? 'Gợi ý: Bật' : 'Gợi ý: Tắt';
             }
+        }
+
+        function updateDebugReadout() {
+            var debugEl = document.getElementById('debug-readout');
+            if (!debugEl || !ai) return;
+
+            var line = 'Lv' + botLevel + ' | ' +
+                (ai.lastUsedBook ? 'book move' : (
+                    ai.lastElapsedMs + 'ms | depth ' + ai.lastDepthReached +
+                    ' | ' + ai.nodeCount + ' nodes'
+                ));
+            debugEl.innerHTML = line;
         }
 
         function updateStatus() {
@@ -307,11 +331,12 @@
             botLevel = pendingLevel;
             playerSide = pendingSide;
             ai.level = botLevel;
+            ai.resetSearchState(); // fresh transposition table/killers for the new game
             board.orientation = playerSide;
 
             // Update URL to prevent stale query parameters on reload
             if (window.history && window.history.replaceState) {
-                var newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?lvl=' + botLevel + '&side=' + playerSide;
+                var newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?lvl=' + botLevel + '&side=' + playerSide + (debugMode ? '&debug=1' : '');
                 window.history.replaceState(null, '', newUrl);
             }
 
@@ -358,6 +383,8 @@
 
             var bestMove = ai.getBestMove(engine);
             isThinking = false;
+
+            if (debugMode) updateDebugReadout();
 
             if (bestMove) {
                 engine.makeMove(bestMove);

@@ -22,6 +22,36 @@
 
     var INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+    // --- Zobrist Hashing ---
+    // Used by the AI's transposition table to identify positions cheaply.
+    // Built once at load time from Math.random(); values are coerced to
+    // 32-bit signed ints by the XOR operator, so any random number works.
+    var ZOBRIST_PIECES = {};
+    (function buildZobristTables() {
+        var pieceChars = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k'];
+        var i, sq;
+        for (i = 0; i < pieceChars.length; i++) {
+            var table = [];
+            for (sq = 0; sq < 64; sq++) {
+                table.push((Math.random() * 0xFFFFFFFF) | 0);
+            }
+            ZOBRIST_PIECES[pieceChars[i]] = table;
+        }
+    })();
+    var ZOBRIST_SIDE = (Math.random() * 0xFFFFFFFF) | 0;
+    var ZOBRIST_CASTLING = {
+        K: (Math.random() * 0xFFFFFFFF) | 0,
+        Q: (Math.random() * 0xFFFFFFFF) | 0,
+        k: (Math.random() * 0xFFFFFFFF) | 0,
+        q: (Math.random() * 0xFFFFFFFF) | 0
+    };
+    var ZOBRIST_EP_FILE = [];
+    (function buildZobristEpFiles() {
+        for (var f = 0; f < 8; f++) {
+            ZOBRIST_EP_FILE.push((Math.random() * 0xFFFFFFFF) | 0);
+        }
+    })();
+
     function ChessEngine(fen) {
         this.board = [];
         this.turn = 'w';
@@ -158,6 +188,32 @@
     ChessEngine.prototype.recordPosition = function() {
         var key = this.getPosKey();
         this.positionCounts[key] = (this.positionCounts[key] || 0) + 1;
+    };
+
+    // Computes a 32-bit Zobrist hash identifying the current position
+    // (board + side to move + castling rights + en passant file).
+    // Recomputed from scratch each call rather than maintained incrementally
+    // inside makeMoveRaw/undoMoveRaw: it ties the hash directly to actual
+    // board state so it can never drift out of sync with it, at the cost of
+    // an O(64) scan per call instead of O(1). That trade-off is intentional —
+    // correctness over micro-optimization for a hobby-scale search.
+    ChessEngine.prototype.computeZobristKey = function() {
+        var key = 0;
+        for (var r = 0; r < 8; r++) {
+            for (var c = 0; c < 8; c++) {
+                var piece = this.board[r][c];
+                if (piece) {
+                    key ^= ZOBRIST_PIECES[piece][r * 8 + c];
+                }
+            }
+        }
+        if (this.turn === 'b') key ^= ZOBRIST_SIDE;
+        if (this.castling.K) key ^= ZOBRIST_CASTLING.K;
+        if (this.castling.Q) key ^= ZOBRIST_CASTLING.Q;
+        if (this.castling.k) key ^= ZOBRIST_CASTLING.k;
+        if (this.castling.q) key ^= ZOBRIST_CASTLING.q;
+        if (this.epSquare) key ^= ZOBRIST_EP_FILE[this.epSquare.c];
+        return key;
     };
 
     // --- Move Generation ---
@@ -462,6 +518,32 @@
                 var piece = this.board[r][c];
                 if (piece && this.getColor(piece) === color) {
                     var moves = this.getLegalMoves(r, c);
+                    for (var m = 0; m < moves.length; m++) {
+                        allMoves.push(moves[m]);
+                    }
+                }
+            }
+        }
+        return allMoves;
+    };
+
+    // Pseudo-legal moves only (does NOT filter out moves that leave the
+    // mover's own king in check). Intended for hot search loops (AI minimax/
+    // quiescence) that need to test-and-discard illegal moves themselves via
+    // makeMoveRaw + isCheck + undoMoveRaw as part of descending into the
+    // move anyway — that avoids doing the make/unmake pass twice per move
+    // (once to filter, once to actually search) the way getAllLegalMoves +
+    // getLegalMoves does. UI code (click handling, hint rendering, checkmate/
+    // stalemate detection) should keep using getLegalMoves/getAllLegalMoves,
+    // which are fully filtered and called far less often.
+    ChessEngine.prototype.getPseudoLegalMovesForColor = function(color) {
+        color = color || this.turn;
+        var allMoves = [];
+        for (var r = 0; r < 8; r++) {
+            for (var c = 0; c < 8; c++) {
+                var piece = this.board[r][c];
+                if (piece && this.getColor(piece) === color) {
+                    var moves = this.getPseudoMoves(r, c);
                     for (var m = 0; m < moves.length; m++) {
                         allMoves.push(moves[m]);
                     }
