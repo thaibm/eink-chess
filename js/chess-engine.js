@@ -139,6 +139,7 @@
         this.history = [];
         this.positionCounts = {};
         this.recordPosition();
+        this.zobristKey = this.computeZobristKey();
     };
 
     ChessEngine.prototype.toFEN = function() {
@@ -214,6 +215,14 @@
         if (this.castling.q) key ^= ZOBRIST_CASTLING.q;
         if (this.epSquare) key ^= ZOBRIST_EP_FILE[this.epSquare.c];
         return key;
+    };
+
+    // O(1) accessor for the incrementally-maintained hash (kept in sync by
+    // makeMoveRaw/undoMoveRaw below). Used by the AI's search hot path,
+    // where computeZobristKey()'s O(64) rescan at every node was the single
+    // largest avoidable per-node cost.
+    ChessEngine.prototype.getZobristKey = function() {
+        return this.zobristKey;
     };
 
     // --- Move Generation ---
@@ -565,54 +574,91 @@
         move.prevEp = this.epSquare;
         move.prevHalfmove = this.halfmoveClock;
         move.prevFullmove = this.fullmoveNumber;
+        // Snapshot-restore, not reverse-computed: undoMoveRaw just puts this
+        // back verbatim, so there's no separate "undo the hash" arithmetic
+        // that could drift out of sync with the "apply the hash" arithmetic
+        // below - the only place the key is actually computed is here.
+        move.prevZobristKey = this.zobristKey;
 
+        this.zobristKey ^= ZOBRIST_PIECES[piece][fromR * 8 + fromC];
         this.board[fromR][fromC] = null;
 
         // En passant capture
         if (move.isEnPassant) {
             var epCapR = piece === 'P' ? toR + 1 : toR - 1;
+            this.zobristKey ^= ZOBRIST_PIECES[move.captured][epCapR * 8 + toC];
             this.board[epCapR][toC] = null;
+        } else if (move.captured) {
+            // Normal capture: whatever's on the destination square is about
+            // to be overwritten below, so remove it from the hash now.
+            this.zobristKey ^= ZOBRIST_PIECES[move.captured][toR * 8 + toC];
         }
 
         // Promotion
         if (move.promotion) {
+            this.zobristKey ^= ZOBRIST_PIECES[move.promotion][toR * 8 + toC];
             this.board[toR][toC] = move.promotion;
         } else {
+            this.zobristKey ^= ZOBRIST_PIECES[piece][toR * 8 + toC];
             this.board[toR][toC] = piece;
         }
 
         // Castling rook move
         if (move.isCastling) {
             if (toR === 7 && toC === 6) { // White 0-0
+                this.zobristKey ^= ZOBRIST_PIECES['R'][7 * 8 + 7];
+                this.zobristKey ^= ZOBRIST_PIECES['R'][7 * 8 + 5];
                 this.board[7][5] = 'R';
                 this.board[7][7] = null;
             } else if (toR === 7 && toC === 2) { // White 0-0-0
+                this.zobristKey ^= ZOBRIST_PIECES['R'][7 * 8 + 0];
+                this.zobristKey ^= ZOBRIST_PIECES['R'][7 * 8 + 3];
                 this.board[7][3] = 'R';
                 this.board[7][0] = null;
             } else if (toR === 0 && toC === 6) { // Black 0-0
+                this.zobristKey ^= ZOBRIST_PIECES['r'][0 * 8 + 7];
+                this.zobristKey ^= ZOBRIST_PIECES['r'][0 * 8 + 5];
                 this.board[0][5] = 'r';
                 this.board[0][7] = null;
             } else if (toR === 0 && toC === 2) { // Black 0-0-0
+                this.zobristKey ^= ZOBRIST_PIECES['r'][0 * 8 + 0];
+                this.zobristKey ^= ZOBRIST_PIECES['r'][0 * 8 + 3];
                 this.board[0][3] = 'r';
                 this.board[0][0] = null;
             }
         }
 
-        // Update castling rights
-        if (piece === 'K') { this.castling.K = false; this.castling.Q = false; }
-        if (piece === 'k') { this.castling.k = false; this.castling.q = false; }
-        if (fromR === 7 && fromC === 0) this.castling.Q = false;
-        if (fromR === 7 && fromC === 7) this.castling.K = false;
-        if (fromR === 0 && fromC === 0) this.castling.q = false;
-        if (fromR === 0 && fromC === 7) this.castling.k = false;
-        if (toR === 7 && toC === 0) this.castling.Q = false;
-        if (toR === 7 && toC === 7) this.castling.K = false;
-        if (toR === 0 && toC === 0) this.castling.q = false;
-        if (toR === 0 && toC === 7) this.castling.k = false;
+        // Update castling rights. Each clear is guarded by "was it still
+        // true" so the XOR only fires on an actual true->false transition -
+        // makes this safe/idempotent even though several of these
+        // conditions can apply to the same move (e.g. a king move trips
+        // both the piece==='K' rule and, if it started on e1, nothing else;
+        // capturing a rook on its home square trips one of the to*/from*
+        // rules independently of who moved).
+        if (piece === 'K') {
+            if (this.castling.K) { this.zobristKey ^= ZOBRIST_CASTLING.K; this.castling.K = false; }
+            if (this.castling.Q) { this.zobristKey ^= ZOBRIST_CASTLING.Q; this.castling.Q = false; }
+        }
+        if (piece === 'k') {
+            if (this.castling.k) { this.zobristKey ^= ZOBRIST_CASTLING.k; this.castling.k = false; }
+            if (this.castling.q) { this.zobristKey ^= ZOBRIST_CASTLING.q; this.castling.q = false; }
+        }
+        if (fromR === 7 && fromC === 0 && this.castling.Q) { this.zobristKey ^= ZOBRIST_CASTLING.Q; this.castling.Q = false; }
+        if (fromR === 7 && fromC === 7 && this.castling.K) { this.zobristKey ^= ZOBRIST_CASTLING.K; this.castling.K = false; }
+        if (fromR === 0 && fromC === 0 && this.castling.q) { this.zobristKey ^= ZOBRIST_CASTLING.q; this.castling.q = false; }
+        if (fromR === 0 && fromC === 7 && this.castling.k) { this.zobristKey ^= ZOBRIST_CASTLING.k; this.castling.k = false; }
+        if (toR === 7 && toC === 0 && this.castling.Q) { this.zobristKey ^= ZOBRIST_CASTLING.Q; this.castling.Q = false; }
+        if (toR === 7 && toC === 7 && this.castling.K) { this.zobristKey ^= ZOBRIST_CASTLING.K; this.castling.K = false; }
+        if (toR === 0 && toC === 0 && this.castling.q) { this.zobristKey ^= ZOBRIST_CASTLING.q; this.castling.q = false; }
+        if (toR === 0 && toC === 7 && this.castling.k) { this.zobristKey ^= ZOBRIST_CASTLING.k; this.castling.k = false; }
 
         // Set en passant square
+        if (this.epSquare) {
+            this.zobristKey ^= ZOBRIST_EP_FILE[this.epSquare.c];
+        }
         if (piece.toUpperCase() === 'P' && Math.abs(toR - fromR) === 2) {
             this.epSquare = { r: (fromR + toR) / 2, c: fromC };
+            this.zobristKey ^= ZOBRIST_EP_FILE[this.epSquare.c];
         } else {
             this.epSquare = null;
         }
@@ -629,6 +675,7 @@
         }
 
         this.turn = this.turn === 'w' ? 'b' : 'w';
+        this.zobristKey ^= ZOBRIST_SIDE;
     };
 
     ChessEngine.prototype.undoMoveRaw = function(move) {
@@ -667,6 +714,7 @@
         this.epSquare = move.prevEp;
         this.halfmoveClock = move.prevHalfmove;
         this.fullmoveNumber = move.prevFullmove;
+        this.zobristKey = move.prevZobristKey;
     };
 
     ChessEngine.prototype.makeMove = function(move) {

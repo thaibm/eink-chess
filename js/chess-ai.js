@@ -359,9 +359,16 @@
     // ttMove/ply are optional — pass null/undefined when ordering a list
     // that has neither (e.g. quiescence's capture-only lists).
     ChessAI.prototype.orderMoves = function(moves, ttMove, ply) {
-        var self = this;
+        // Score each move once (O(n)) and sort by the cached score, rather
+        // than recomputing it inside the comparator - Array.sort calls the
+        // comparator O(n log n) times (twice per comparison), so computing
+        // moveOrderScore there recomputed the same value repeatedly for no
+        // reason. Pure speed change: produces an identical ordering.
+        for (var i = 0; i < moves.length; i++) {
+            moves[i]._orderScore = this.moveOrderScore(moves[i], ttMove, ply);
+        }
         moves.sort(function(a, b) {
-            return self.moveOrderScore(b, ttMove, ply) - self.moveOrderScore(a, ttMove, ply);
+            return b._orderScore - a._orderScore;
         });
         return moves;
     };
@@ -615,7 +622,7 @@
 
         var origAlpha = alpha;
         var origBeta = beta;
-        var zobristKey = engine.computeZobristKey();
+        var zobristKey = engine.getZobristKey();
         var ttEntry = this.probeTT(zobristKey);
         var ttMove = ttEntry ? ttEntry.move : null;
 
