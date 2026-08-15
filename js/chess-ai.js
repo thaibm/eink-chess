@@ -2,9 +2,9 @@
  * ====================================================================
  * CHESS AI (LOCAL MINIMAX — ES5 COMPLIANT) — EinkChess
  * Offline AI engine with Alpha-Beta pruning & Piece-Square Tables (PST)
- * Level 1: Beginner (~400 ELO)
- * Level 2: Casual (~800 ELO)
- * Level 3: Club (~1200 ELO)
+ * Level 1: Beginner (~600 ELO)
+ * Level 2: Casual (~1100 ELO)
+ * Level 3: Club (~1600 ELO)
  * 100% Free & Unlimited on Client
  * ====================================================================
  */

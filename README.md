@@ -13,7 +13,7 @@
   - **Thiết kế Zero-Scroll:** Toàn bộ bàn cờ, header và nút bấm vừa vặn 100% trong 1 khung hình, không có thanh cuộn.
   - Tương thích hoàn toàn JavaScript ES5 cho trình duyệt cũ **Kindle Experimental Web Browser**.
 - **Chơi với Bot AI (Offline & Miễn phí 100%):**
-  - 3 Cấp độ Bot Minimax offline: Cấp 1 (~400 ELO), Cấp 2 (~800 ELO), Cấp 3 (~1200 ELO).
+  - 3 Cấp độ Bot Minimax offline: Cấp 1 (~600 ELO), Cấp 2 (~1100 ELO), Cấp 3 (~1600 ELO).
   - Tự động tính toán và cập nhật điểm ELO chuẩn sau mỗi ván cờ.
   - Hỗ trợ nút **Đi lại (Undo)** và **Đầu hàng (Resign)** có popup xác nhận tránh chạm nhầm.
   - Popup chọn cấp độ & bên cầm quân trước khi vào bàn cờ.
