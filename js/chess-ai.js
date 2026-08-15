@@ -86,6 +86,7 @@
 
     function ChessAI(level) {
         this.level = level || 1; // 1, 2, or 3
+        this.nodes = 0; // For debugging/stats
     }
 
     ChessAI.prototype.evaluatePosition = function(engine) {
@@ -95,7 +96,7 @@
                 var p = engine.board[r][c];
                 if (!p) continue;
 
-                var val = PIECE_VALUES[p] || 0;
+                var val = Math.abs(PIECE_VALUES[p]) || 0;
                 var pType = p.toUpperCase();
                 var isW = p === pType;
                 var pstVal = 0;
@@ -110,15 +111,82 @@
                 else if (pType === 'Q') pstVal = PST_QUEEN[evalRow][evalCol];
                 else if (pType === 'K') pstVal = PST_KING_MID[evalRow][evalCol];
 
-                score += isW ? (val + pstVal) : (val - pstVal);
+                score += isW ? (val + pstVal) : -(val + pstVal);
             }
         }
         return score;
     };
 
+    // MVV-LVA Move Ordering
+    ChessAI.prototype.orderMoves = function(moves) {
+        for (var i = 0; i < moves.length; i++) {
+            var move = moves[i];
+            var score = 0;
+            if (move.captured) {
+                var victimValue = Math.abs(PIECE_VALUES[move.captured] || 0);
+                var attackerValue = Math.abs(PIECE_VALUES[move.piece] || 0);
+                // MVV-LVA score: 10 * Victim - Attacker
+                score = 10 * victimValue - attackerValue;
+            }
+            if (move.promotion) {
+                score += Math.abs(PIECE_VALUES[move.promotion] || 0);
+            }
+            move.sortScore = score;
+        }
+        moves.sort(function(a, b) {
+            return b.sortScore - a.sortScore;
+        });
+        return moves;
+    };
+
+    ChessAI.prototype.quiescenceSearch = function(engine, alpha, beta, isMaximizing) {
+        this.nodes++;
+        var standPat = this.evaluatePosition(engine);
+
+        if (isMaximizing) {
+            if (standPat >= beta) return beta;
+            if (alpha < standPat) alpha = standPat;
+        } else {
+            if (standPat <= alpha) return alpha;
+            if (beta > standPat) beta = standPat;
+        }
+
+        var moves = engine.getAllLegalMoves(engine.turn);
+        var captureMoves = [];
+        for (var i = 0; i < moves.length; i++) {
+            if (moves[i].captured || moves[i].promotion) {
+                captureMoves.push(moves[i]);
+            }
+        }
+        captureMoves = this.orderMoves(captureMoves);
+
+        if (isMaximizing) {
+            for (var j = 0; j < captureMoves.length; j++) {
+                engine.makeMoveRaw(captureMoves[j]);
+                var score = this.quiescenceSearch(engine, alpha, beta, false);
+                engine.undoMoveRaw(captureMoves[j]);
+
+                if (score >= beta) return beta;
+                if (score > alpha) alpha = score;
+            }
+            return alpha;
+        } else {
+            for (var k = 0; k < captureMoves.length; k++) {
+                engine.makeMoveRaw(captureMoves[k]);
+                var scoreMin = this.quiescenceSearch(engine, alpha, beta, true);
+                engine.undoMoveRaw(captureMoves[k]);
+
+                if (scoreMin <= alpha) return alpha;
+                if (scoreMin < beta) beta = scoreMin;
+            }
+            return beta;
+        }
+    };
+
     ChessAI.prototype.minimax = function(engine, depth, alpha, beta, isMaximizing) {
+        this.nodes++;
         if (depth === 0) {
-            return this.evaluatePosition(engine);
+            return this.quiescenceSearch(engine, alpha, beta, isMaximizing);
         }
 
         var moves = engine.getAllLegalMoves(engine.turn);
@@ -129,12 +197,7 @@
             return 0; // Stalemate
         }
 
-        // Move ordering: Prioritize captures
-        moves.sort(function(a, b) {
-            var valA = a.captured ? Math.abs(PIECE_VALUES[a.captured] || 0) : 0;
-            var valB = b.captured ? Math.abs(PIECE_VALUES[b.captured] || 0) : 0;
-            return valB - valA;
-        });
+        moves = this.orderMoves(moves);
 
         if (isMaximizing) {
             var maxEval = -999999;
@@ -164,6 +227,7 @@
     };
 
     ChessAI.prototype.getBestMove = function(engine) {
+        this.nodes = 0;
         var moves = engine.getAllLegalMoves(engine.turn);
         if (moves.length === 0) return null;
 
@@ -173,28 +237,31 @@
 
         if (this.level === 1) {
             depth = 1;
-            noise = 80; // High randomness
+            noise = 50; // Beginner
         } else if (this.level === 2) {
             depth = 2;
-            noise = 30; // Medium randomness
+            noise = 15; // Casual
         } else if (this.level === 3) {
             depth = 3;
-            noise = 0;  // Accurate
+            noise = 0;  // Club (Accurate)
         }
 
         var bestMove = null;
         var bestScore = isMaximizing ? -999999 : 999999;
 
-        // Shuffle moves to avoid repetitive games
+        // Shuffle moves to avoid repetitive games, then apply MVV-LVA
         moves.sort(function() { return 0.5 - Math.random(); });
+        moves = this.orderMoves(moves);
+
+        var alpha = -999999;
+        var beta = 999999;
 
         for (var i = 0; i < moves.length; i++) {
             var move = moves[i];
             engine.makeMoveRaw(move);
-            var score = this.minimax(engine, depth - 1, -999999, 999999, !isMaximizing);
+            var score = this.minimax(engine, depth - 1, alpha, beta, !isMaximizing);
             engine.undoMoveRaw(move);
 
-            // Add slight randomness based on level
             if (noise > 0) {
                 score += (Math.random() * noise * 2) - noise;
             }
@@ -204,14 +271,17 @@
                     bestScore = score;
                     bestMove = move;
                 }
+                if (score > alpha) alpha = score;
             } else {
                 if (score < bestScore) {
                     bestScore = score;
                     bestMove = move;
                 }
+                if (score < beta) beta = score;
             }
         }
-
+        
+        console.log('AI Level ' + this.level + ' searched ' + this.nodes + ' nodes. Best score: ' + bestScore);
         return bestMove;
     };
 

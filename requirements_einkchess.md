@@ -100,9 +100,9 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~400 | Local JS Minimax (Depth 1, Noise cao) | Offline |
-| **Level 2** | Dễ (Casual) | ~800 | Local JS Minimax (Depth 2, Noise vừa) | Offline |
-| **Level 3** | Câu lạc bộ (Club) | ~1200 | Local JS Minimax (Depth 3, Quiescence) | Offline |
+| **Level 1** | Người mới (Beginner) | ~600 | Local JS Minimax (Depth 1, Noise cao, Q-Search) | Offline |
+| **Level 2** | Dễ (Casual) | ~1100 | Local JS Minimax (Depth 2, Noise vừa, Q-Search) | Offline |
+| **Level 3** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Quiescence, MVV-LVA) | Offline |
 | **Level 4** | Trung cấp (Intermediate) | ~1500 | Chess-API.com (Stockfish 18, Depth 4) | Cần Internet (☁) |
 | **Level 5** | Nâng cao (Advanced) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
 | **Level 6** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |

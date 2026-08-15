@@ -93,16 +93,24 @@ eink-chess/
 2. Vào tab **SQL Editor** $\rightarrow$ Dán nội dung file `sql/schema.sql` $\rightarrow$ Nhấn **Run**.
 3. Copy `Project URL` và `anon public key` trong Settings > API và điền vào `js/chess-backend.js`.
 
-### 2. Frontend Hosting (Cloudflare Pages - Unlimited Bandwidth Free):
-1. Đẩy code lên GitHub repository:
-   ```bash
-   git add .
-   git commit -m "feat: complete Phase 1 EinkChess MVP"
-   git push origin main
-   ```
-2. Đăng nhập [dash.cloudflare.com](https://dash.cloudflare.com) $\rightarrow$ **Workers & Pages** $\rightarrow$ **Create application** $\rightarrow$ **Pages** $\rightarrow$ Chọn repo GitHub `eink-chess`.
-3. Bấm **Deploy**.
-4. Vào mục **Custom domains** gán tên miền `einkchess.fun` $\rightarrow$ Cloudflare tự động cấp phát chứng chỉ bảo mật HTTPS miễn phí.
+### 2. Frontend Hosting:
+
+#### Cách 1: Deploy lên GitHub Pages (Đơn Giản Nhất)
+Vì EinkChess là một trang web tĩnh (Static Web), bạn có thể deploy lên GitHub Pages hoàn toàn miễn phí chỉ trong vài bước:
+1. Đảm bảo mã nguồn đã được push lên GitHub (ví dụ: `git push origin main`).
+2. Truy cập vào Repository của bạn trên GitHub (ví dụ: `https://github.com/thaibm/eink-chess`).
+3. Chọn tab **Settings** ở menu trên cùng của repository.
+4. Ở sidebar bên trái, chọn **Pages** (trong mục *Code and automation*).
+5. Trong phần **Build and deployment**:
+   - **Source**: Chọn `Deploy from a branch`.
+   - **Branch**: Chọn `main` (hoặc nhánh chính của bạn) và thư mục `/ (root)`.
+6. Nhấp vào nút **Save**.
+7. Đợi 1-2 phút để GitHub chạy Action và deploy, sau đó tải lại trang. Bạn sẽ thấy một liên kết hiển thị ở đầu phần cài đặt Pages (ví dụ: `https://thaibm.github.io/eink-chess/`).
+
+#### Cách 2: Deploy lên Cloudflare Pages (Không giới hạn băng thông & Tên miền riêng)
+1. Đăng nhập vào [dash.cloudflare.com](https://dash.cloudflare.com) $\rightarrow$ **Workers & Pages** $\rightarrow$ **Create application** $\rightarrow$ **Pages** $\rightarrow$ Kết nối và chọn repo GitHub `eink-chess`.
+2. Bấm **Deploy**.
+3. (Tùy chọn) Vào mục **Custom domains** để gán tên miền của bạn (ví dụ: `einkchess.fun`), Cloudflare sẽ tự động cấp SSL miễn phí.
 
 ---
 
