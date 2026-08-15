@@ -272,11 +272,18 @@
   - Có thể chạy trực tiếp trên Supabase (hiện tại).
   - Khi cần scale-up, dễ dàng migrate 100% sang VPS riêng (Docker + Node.js/Go/Python + PostgreSQL + Redis) chỉ bằng việc thay đổi base URL `API_ENDPOINT` trong file config mà không phải sửa lại code client.
 
-### 5.6. Cấu hình Deploy (Cloudflare Pages)
-- **Vấn đề kích thước asset:** Để tránh tải lên các file không cần thiết và vượt giới hạn dung lượng của Cloudflare Workers/Pages (như `node_modules` chứa thư viện `workerd` nặng ~144MB, thư mục `tests/`, và các tệp cấu hình dev), dự án sử dụng quy trình build tách biệt:
+### 5.6. Cấu hình Deploy & Quy trình Đóng gói (Vercel & Cloudflare Pages)
+- **Quy trình build và đóng gói tách biệt:** Để tránh triển khai các file không cần thiết (như `node_modules`, `tests/` và các tệp cấu hình dev) lên hosting, dự án sử dụng quy trình build qua Node.js script:
   - Thư mục build đầu ra: `dist/`
-  - Lệnh build: `npm run build` (lệnh này sẽ tạo thư mục `dist` và sao chép các tệp tĩnh cần thiết bao gồm `*.html`, `css/`, và `js/` vào đó).
-  - Cấu hình trên Cloudflare Pages dashboard: Cần đặt **Build command** thành `npm run build` và **Build output directory** thành `dist`.
+  - Lệnh build: `npm run build` (lệnh này sẽ thực thi script `scripts/build.js`).
+  - Cơ chế nhúng biến môi trường khi build (Build-time Injection):
+    1. Trình build dọn dẹp và tạo thư mục `dist/`, sau đó sao chép toàn bộ các tệp tin tĩnh cần thiết bao gồm `*.html`, `css/`, và `js/` vào đó.
+    2. Đọc các biến môi trường `SUPABASE_URL` và `SUPABASE_ANON_KEY` từ môi trường build và thực hiện tìm kiếm - thay thế các chuỗi placeholder tương ứng (`%%SUPABASE_URL%%`, `%%SUPABASE_ANON_KEY%%`) trong file output `dist/js/chess-backend.js`. Điều này giúp bảo mật thông tin kết nối Supabase mà không cần phải ghi cứng hay commit key vào Git.
+    3. Trong môi trường phát triển cục bộ (Local Dev) mà không chạy qua tiến trình build, file gốc `js/chess-backend.js` vẫn giữ nguyên chuỗi placeholder. Hệ thống đã tích hợp cơ chế kiểm tra an toàn tự động phát hiện placeholder và vô hiệu hóa telemetry một cách êm thấm, tránh gây lỗi JavaScript trên trình duyệt.
+- **Cấu hình trên Vercel / Cloudflare Pages Dashboard:**
+  - **Build command:** `npm run build`
+  - **Build output directory / Publish directory:** `dist`
+  - **Environment Variables:** Đặt hai biến `SUPABASE_URL` và `SUPABASE_ANON_KEY` tương ứng với API Endpoint dự án Supabase của bạn trong Settings của Vercel Dashboard.
 
 ---
 

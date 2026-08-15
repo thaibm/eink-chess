@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "mkdir -p dist && cp -r *.html css js dist"
+    "build": "node scripts/build.js"
   },
   "repository": {
     "type": "git",

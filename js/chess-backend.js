@@ -12,8 +12,8 @@
     // CONFIGURATION (Default Supabase or Custom VPS endpoint)
     // Sửa các thông số dưới đây khi kết nối với dự án Supabase của bạn
     var CONFIG = {
-        SUPABASE_URL: '', // ví dụ: 'https://xyzcompany.supabase.co'
-        SUPABASE_ANON_KEY: '', // ví dụ: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        SUPABASE_URL: '%%SUPABASE_URL%%', // ví dụ: 'https://xyzcompany.supabase.co'
+        SUPABASE_ANON_KEY: '%%SUPABASE_ANON_KEY%%', // ví dụ: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         KOFI_URL: 'https://ko-fi.com/thaibm', // URL trang Ko-fi của tác giả
         KOFI_QR_IMAGE: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ko-fi.com/thaibm'
     };
@@ -35,8 +35,11 @@
                 page_url: pageUrl || window.location.pathname || '/'
             };
 
-            // Nếu chưa cấu hình Supabase URL, log ra console hoặc bỏ qua an toàn
-            if (!this.config.SUPABASE_URL || !this.config.SUPABASE_ANON_KEY) {
+            var url = this.config.SUPABASE_URL;
+            var key = this.config.SUPABASE_ANON_KEY;
+
+            // Nếu chưa cấu hình Supabase URL hoặc vẫn là placeholder, log ra console hoặc bỏ qua an toàn
+            if (!url || !key || url.indexOf('%%') === 0 || key.indexOf('%%') === 0) {
                 if (callback) callback(null, { offline: true });
                 return;
             }

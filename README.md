@@ -86,12 +86,14 @@ eink-chess/
 
 ---
 
-## ☁️ Hướng Dẫn Deploy Lên Cloudflare Pages & Supabase
+## ☁️ Hướng Dẫn Deploy Lên Cloud & Supabase
 
 ### 1. Database & Backend (Supabase Free Tier):
 1. Đăng ký/đăng nhập [supabase.com](https://supabase.com) $\rightarrow$ Tạo New Project.
 2. Vào tab **SQL Editor** $\rightarrow$ Dán nội dung file `sql/schema.sql` $\rightarrow$ Nhấn **Run**.
-3. Copy `Project URL` và `anon public key` trong Settings > API và điền vào `js/chess-backend.js`.
+3. Cấu hình Supabase credentials cho Frontend:
+   - **Cách trực tiếp:** Copy `Project URL` và `anon public key` trong Settings > API của Supabase và điền trực tiếp vào `js/chess-backend.js` (nếu deploy tĩnh hoàn toàn).
+   - **Cách qua Env Var (Khuyên dùng khi deploy Vercel):** Cấu hình các biến môi trường trên nền tảng hosting, script build sẽ tự động nhúng vào code trước khi xuất bản.
 
 ### 2. Frontend Hosting:
 
@@ -111,6 +113,19 @@ Vì EinkChess là một trang web tĩnh (Static Web), bạn có thể deploy lê
 1. Đăng nhập vào [dash.cloudflare.com](https://dash.cloudflare.com) $\rightarrow$ **Workers & Pages** $\rightarrow$ **Create application** $\rightarrow$ **Pages** $\rightarrow$ Kết nối và chọn repo GitHub `eink-chess`.
 2. Bấm **Deploy**.
 3. (Tùy chọn) Vào mục **Custom domains** để gán tên miền của bạn (ví dụ: `einkchess.fun`), Cloudflare sẽ tự động cấp SSL miễn phí.
+
+#### Cách 3: Deploy lên Vercel (Hỗ trợ Bảo Mật Credentials qua Env Var & Mua Domain Rẻ)
+Vercel là một nền tảng tuyệt vời để lưu trữ và quản lý tên miền riêng của bạn một cách tối ưu.
+1. Truy cập [vercel.com](https://vercel.com) $\rightarrow$ **Add New...** $\rightarrow$ **Project** $\rightarrow$ Kết nối và chọn repo GitHub `eink-chess`.
+2. Cấu hình Build Settings:
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+3. Cấu hình Biến môi trường (Environment Variables) để bảo mật Supabase credentials (không bị lộ trên Git):
+   - Mở rộng phần **Environment Variables**.
+   - Thêm biến `SUPABASE_URL` = `[URL dự án Supabase của bạn]` (ví dụ: `https://xyz.supabase.co`).
+   - Thêm biến `SUPABASE_ANON_KEY` = `[Mã anon public key của bạn]`.
+4. Nhấn **Deploy**. Quá trình build sẽ chạy script Node.js nhúng tự động thông tin này vào file `js/chess-backend.js` trước khi triển khai.
+5. (Tùy chọn) Vào project của bạn trên Vercel $\rightarrow$ **Settings** $\rightarrow$ **Domains** để gán và quản lý tên miền riêng.
 
 ---
 
