@@ -357,6 +357,19 @@ button,
     width: 48%;
 }
 
+.debug-readout {
+    border: 2px solid #000000;
+    border-top: none;
+    padding: 2px 4px;
+    margin: -3px 0 3px 0;
+    background-color: #ffffff;
+    font-family: monospace;
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
 .action-bar {
     text-align: center;
     margin: 4px 0 2px 0;
