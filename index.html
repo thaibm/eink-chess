@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description"
+        content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
+    <title>Kindle Chess</title>
+    <link rel="stylesheet" href="css/einkchess.css?v=23">
+</head>
+
+<body>
+    <div class="app-container home-container">
+        <!-- 1. PERSISTENT HEADER (1 LINE) -->
+        <div class="header home-header">
+            <div class="header-top">
+                <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
+                <div class="header-center">
+                    <span class="elo-badge" id="bot-elo-badge">ELO Đấu Máy: 1200</span>
+                    <span class="elo-badge" id="puzzle-elo-badge">ELO Cờ Thế: 1200</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()" data-i18n="header.donate">Ủng hộ</button>
+                    <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 3 GAME MODES (EACH TAKES ~30% SPACE) -->
+        <div class="home-modes-container">
+            <!-- Mode 1: Play vs Bot (AI) -->
+            <div class="home-card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="home.bot_card_title">Chơi với Máy (Bot AI)</div>
+                    <div class="card-tag" data-i18n="home.bot_card_tag">Free &amp; Unlimited</div>
+                </div>
+                <div class="card-desc" data-i18n="home.bot_card_desc">
+                    Tập luyện cờ vua với 3 cấp độ Bot Minimax offline (Người mới, Dễ, Câu lạc bộ). Tính điểm ELO sau mỗi ván đấu.
+                </div>
+                <button class="btn btn-primary card-btn" onclick="openHomeSetupModal()" data-i18n="home.bot_card_btn">Chơi với Bot AI</button>
+            </div>
+
+            <!-- Mode 2: Chess Puzzles -->
+            <div class="home-card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="home.puzzle_card_title">Giải Đố Cờ Thế (Puzzles)</div>
+                    <div class="card-tag" data-i18n="home.puzzle_card_tag">500+ Puzzles</div>
+                </div>
+                <div class="card-desc" data-i18n="home.puzzle_card_desc">
+                    Rèn luyện tư duy chiến thuật với kho câu đố phong phú từ Lichess. Tự động thích ứng theo điểm ELO.
+                </div>
+                <button class="btn card-btn" onclick="openFeatureModal('puzzle')" data-i18n="home.puzzle_card_btn">Bắt đầu Giải đố</button>
+            </div>
+
+            <!-- Mode 3: Play a Friend -->
+            <div class="home-card">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="home.friend_card_title">Chơi với Bạn Bè (PvP)</div>
+                    <div class="card-tag" data-i18n="home.friend_card_tag">Online 1 vs 1</div>
+                </div>
+                <div class="card-desc" data-i18n="home.friend_card_desc">
+                    Tạo phòng đấu hoặc tham gia qua mã Game Code 6 ký tự để so tài trực tiếp cùng bạn bè qua mạng.
+                </div>
+                <button class="btn card-btn" onclick="openFeatureModal('friend')" data-i18n="home.friend_card_btn">Đấu với Bạn bè</button>
+            </div>
+        </div>
+
+        <!-- 3. MATCH SETUP POPUP MODAL ON HOME -->
+        <div id="home-setup-modal" class="modal-overlay" onclick="if(event.target===this) closeHomeSetupModal()">
+            <div class="modal-box">
+                <div class="modal-title" data-i18n="home.setup_modal_title">CHỌN CẤU HÌNH VÁN CỜ</div>
+                <div class="modal-body">
+                    <div style="font-weight: bold; margin-bottom: 6px; font-size: 15px;" data-i18n="home.setup_level_label">1. Chọn Cấp độ Bot AI:</div>
+                    <div class="btn-group" id="home-level-group">
+                        <div class="btn-group-item active" onclick="selectHomeLevel(1)" data-i18n="home.level_1">Cấp 1 (~400)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(2)" data-i18n="home.level_2">Cấp 2 (~800)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(3)" data-i18n="home.level_3">Cấp 3 (~1200)</div>
+                    </div>
+
+                    <div style="font-weight: bold; margin-top: 14px; margin-bottom: 6px; font-size: 15px;" data-i18n="home.setup_side_label">2. Chọn Bên cầm quân:</div>
+                    <div class="btn-group" id="home-side-group">
+                        <div class="btn-group-item active" onclick="selectHomeSide('w')" data-i18n="home.side_white">Trắng (Đi trước)</div>
+                        <div class="btn-group-item" onclick="selectHomeSide('b')" data-i18n="home.side_black">Đen (Đi sau)</div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="display: table; width: 100%;">
+                    <div style="display: table-cell; width: 45%; padding-right: 4px;">
+                        <button class="btn btn-block" onclick="closeHomeSetupModal()"
+                            style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="game.btn_cancel">Hủy</button>
+                    </div>
+                    <div style="display: table-cell; width: 55%; padding-left: 4px;">
+                        <button class="btn btn-primary btn-block" onclick="launchGame()"
+                            style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="home.btn_launch">Vào Bàn Cờ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. FEATURE COMING SOON MODAL -->
+        <div id="feature-modal" class="modal-overlay" onclick="if(event.target===this) closeFeatureModal()">
+            <div class="modal-box">
+                <div class="modal-title" id="feature-modal-title">EinkChess</div>
+                <div class="modal-body" id="feature-modal-body" data-i18n="home.mode_coming_soon">
+                    Chế độ này đang được hoàn thiện và sẽ sớm ra mắt trong bản cập nhật kế tiếp!
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeFeatureModal()" data-i18n="donate.btn_close">Đóng</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. DONATE KO-FI MODAL -->
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
+            <div class="modal-box">
+                <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
+                <div class="modal-body">
+                    <span data-i18n="donate.body">EinkChess là dự án phi lợi nhuận tối ưu cho cộng đồng người dùng Kindle.<br><br>
+                    Bạn có thể dùng điện thoại <strong>quét mã QR bên dưới</strong> để mời tác giả một tách cà phê trên
+                    Ko-fi:</span>
+
+                    <div class="qr-container">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
+                            alt="Ko-fi QR Code" class="qr-image">
+                        <div class="qr-link-text">ko-fi.com/thaibm</div>
+                    </div>
+                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính năng mới!</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()" data-i18n="donate.btn_close">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/chess-storage.js?v=7"></script>
+    <script src="js/chess-i18n.js?v=3"></script>
+    <script src="js/chess-backend.js?v=6"></script>
+    <script>
+        var selectedLvl = 1;
+        var selectedSide = 'w';
+
+        function updateHomeBadges() {
+            if (typeof ChessStorage === 'undefined' || typeof ChessI18n === 'undefined') return;
+            var botElo = ChessStorage.getBotElo();
+            var puzzleElo = ChessStorage.getPuzzleElo();
+
+            var botBadge = document.getElementById('bot-elo-badge');
+            if (botBadge) botBadge.innerHTML = ChessI18n.t('header.bot_elo', { elo: botElo });
+
+            var puzBadge = document.getElementById('puzzle-elo-badge');
+            if (puzBadge) puzBadge.innerHTML = ChessI18n.t('header.puzzle_elo', { elo: puzzleElo });
+        }
+
+        function initHome() {
+            try {
+                if (typeof ChessStorage !== 'undefined') {
+                    ChessStorage.applyAutoLayout();
+                }
+
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.init();
+                    ChessI18n.onChange(function() {
+                        updateHomeBadges();
+                    });
+                }
+
+                updateHomeBadges();
+
+                if (typeof ChessBackend !== 'undefined') {
+                    ChessBackend.sendPing('pageview', '/index.html');
+                }
+            } catch (e) { }
+        }
+
+        function openHomeSetupModal() {
+            document.getElementById('home-setup-modal').className = 'modal-overlay active';
+        }
+
+        function closeHomeSetupModal() {
+            document.getElementById('home-setup-modal').className = 'modal-overlay';
+        }
+
+        function openFeatureModal(type) {
+            var titleEl = document.getElementById('feature-modal-title');
+            var bodyEl = document.getElementById('feature-modal-body');
+            if (titleEl && typeof ChessI18n !== 'undefined') {
+                if (type === 'puzzle') {
+                    titleEl.innerHTML = ChessI18n.t('home.puzzle_card_title');
+                } else if (type === 'friend') {
+                    titleEl.innerHTML = ChessI18n.t('home.friend_card_title');
+                }
+            }
+            if (bodyEl && typeof ChessI18n !== 'undefined') {
+                bodyEl.innerHTML = ChessI18n.t('home.mode_coming_soon');
+            }
+            document.getElementById('feature-modal').className = 'modal-overlay active';
+        }
+
+        function closeFeatureModal() {
+            document.getElementById('feature-modal').className = 'modal-overlay';
+        }
+
+        function selectHomeLevel(lvl) {
+            selectedLvl = lvl;
+            var items = document.getElementById('home-level-group').getElementsByTagName('div');
+            for (var i = 0; i < items.length; i++) {
+                items[i].className = 'btn-group-item' + (i + 1 === lvl ? ' active' : '');
+            }
+        }
+
+        function selectHomeSide(side) {
+            selectedSide = side;
+            var items = document.getElementById('home-side-group').getElementsByTagName('div');
+            items[0].className = 'btn-group-item' + (side === 'w' ? ' active' : '');
+            items[1].className = 'btn-group-item' + (side === 'b' ? ' active' : '');
+        }
+
+        function launchGame() {
+            location.href = 'play-bot.html?lvl=' + selectedLvl + '&side=' + selectedSide;
+        }
+
+        // Run safely once
+        var isHomeInitialized = false;
+        function safeInitHome() {
+            if (isHomeInitialized) return;
+            isHomeInitialized = true;
+            initHome();
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            safeInitHome();
+        } else {
+            if (window.addEventListener) {
+                window.addEventListener('DOMContentLoaded', safeInitHome);
+            }
+            window.onload = safeInitHome;
+        }
+    </script>
+</body>
+
+</html>

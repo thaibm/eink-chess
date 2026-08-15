@@ -1,238 +1,170 @@
-# ♟ EinkChess — einkchess.fun
+# ♟ EinkChess — Kế hoạch Triển khai (einkchess.fun)
 
-Xây dựng ứng dụng web Chess tối ưu cho Kindle e-reader, domain **einkchess.fun**, repo riêng tại `/Users/thaibuiminh/Projects/eink-chess/`. Hỗ trợ 3 chế độ chơi: vs Bot (đa cấp độ, tính ELO), Puzzle (giải đố thích ứng ELO), và PvP online (chơi với bạn).
+Xây dựng ứng dụng web Chess tối ưu cho Kindle e-reader và các thiết bị màn hình E-ink. Hỗ trợ 3 chế độ chơi: vs Bot (8 cấp độ, ELO), Puzzle (giải đố thích ứng ELO), và PvP online (chơi với bạn qua mã code).
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Kindle Experimental Browser & E-ink UX:**
-> - Không dùng animations/transitions nặng (tránh hiện tượng chớp màn e-ink liên tục).
-> - **Hiển thị nước vừa đi (Last Move Indicator):** Tự động đánh dấu **cả 2 ô cờ** vừa di chuyển (**ô xuất phát `from`** và **ô đích đến `to`**, áp dụng cho cả nước đi của người chơi, bot hay đối thủ) bằng **đường viền nét đứt rõ nét (`outline: 2px dashed #000; outline-offset: -2px;`)**. Giúp người dùng nhận biết ngay lập tức bot vừa đi quân nào từ đâu đến đâu mà không cần animation.
-> - Phản hồi tương tác thị giác (Visual Feedback) dùng ký hiệu đen trắng rõ nét: Icon Tick `✔` (thành công) và Icon Cross `✖` (nước đi sai).
-> - Action button quan trọng như **Đầu hàng (Resign)** cần có modal xác nhận (Confirm modal) dạng text đơn giản để tránh chạm nhầm do độ trễ cảm ứng của màn hình E-ink.
-> - **Điểm ELO luôn hiển thị trên Header** ở mọi trang.
-
-> [!NOTE]
-> **Đề xuất phân tách ELO (Rating System):**
-> Giống như Lichess & Chess.com, kỹ năng giải thế cờ và kỹ năng đánh cờ thực chiến có thước đo khác nhau. Đề xuất:
-> - **ELO Bot (Game Rating):** Khởi đầu 1200, tăng/giảm khi thắng/thua/hòa/đầu hàng Bot theo công thức Elo tiêu chuẩn.
-> - **ELO Puzzle (Tactics Rating):** Khởi đầu 1200, tăng/giảm khi giải đố đúng/sai/dùng gợi ý.
-> - Trên Header có thể hiển thị: `♟ EinkChess | ELO: 1200 (Puzzle: 1250)` hoặc hiển thị ELO tương ứng với mode đang chơi.
-
----
-
-## Gameplay & Action Buttons Chi Tiết
-
-### 1. Header Chung (Áp dụng cho tất cả các trang)
-- **Logo / Tên:** `♟ EinkChess` (Bấm vào để về Trang chủ)
-- **ELO Badge:** Hiển thị nổi bật `★ ELO: 1200` (hoặc `Bot ELO: 1200 | Puzzle ELO: 1250`)
-- **Nav Button:** [🏠 Home / Menu]
+> **Điểm mấu chốt kiến trúc & Quy tắc vận hành:**
+> 1. **Phase 1 MVP bao gồm:**
+>    - Core Engine + Board (ES5, tối ưu E-ink với viền nét đứt cho 2 ô vừa đi).
+>    - Bot Level 1-3 (Minimax offline, **hoàn toàn miễn phí & không giới hạn**).
+>    - **Active User & Traffic Tracking:** Đếm Realtime, DAU, WAU, MAU, YAU và tổng pageviews qua Beacon Ping siêu nhẹ (~500 bytes).
+>    - **Donate Ko-fi:** Nút donate và Modal hiển thị Mã QR rõ nét cho người dùng quét bằng điện thoại.
+> 2. **Hạn mức Free hàng ngày (Daily Quota - Reset 00:00):**
+>    - 🤖 **Bot Level 1-3:** Unlimited Free.
+>    - ☁ **Bot Level 4-8 (Cloud Stockfish):** 3 ván/ngày.
+>    - 🧩 **Puzzle (Cờ thế):** 3 câu đố/ngày.
+>    - 👥 **PvP (Chơi với bạn):** 3 trận/ngày.
+> 3. **Kiến trúc Portable Backend:** Tách riêng tầng API Adapter (`js/chess-backend.js`) và Database chuẩn PostgreSQL (`sql/schema.sql`). Hoạt động ngay trên Supabase Free tier và sẵn sàng di chuyển sang VPS riêng khi scale up chỉ cần đổi 1 dòng URL cấu hình.
 
 ---
 
-### 2. Chế độ Chơi với Bot (`play-bot.html`)
-
-#### Action Buttons:
-- **[↩ Đi lại (Undo)]**: Lùi lại 2 nước (nước của máy + nước của người chơi). Cho phép thử lại nước cờ.
-- **[🏳 Đầu hàng (Resign)]**: Hiện popup xác nhận: *"Bạn có chắc chắn muốn đầu hàng?"*
-  - Nếu xác nhận: Kết thúc ván, xử Thua cho người chơi, trừ ELO, hiện popup kết quả.
-- **[🔄 Xoay bàn (Flip)]**: Đổi góc nhìn quân Trắng / Đen.
-- **[💡 Gợi ý (Hints: On/Off)]**: Bật/tắt chấm hiển thị các ô hợp lệ khi chọn quân.
-- **[🆕 Ván mới (New Game)]**: Bắt đầu lại ván mới với setting tùy chọn.
-
-#### Cơ chế ELO vs Bot:
-- Mỗi level bot có ELO định danh (Level 1: 400, Level 2: 800, Level 3: 1200, ... Level 8: 2750).
-- Sau khi ván kết thúc (Chiếu hết, Đầu hàng, Hết giờ, Hòa cờ):
-  - **Thắng:** Cộng ELO $\Delta = K \times (1 - E)$ (thắng bot ELO cao cộng nhiều, bot thấp cộng ít).
-  - **Thua / Đầu hàng:** Trừ ELO $\Delta = K \times (0 - E)$.
-  - **Hòa:** Điều chỉnh nhẹ theo chênh lệch trình độ.
-- Popup kết thúc ván hiển thị: Kết quả, ELO thay đổi (Ví dụ: `+15 → 1215`), nút `[Chơi tiếp]` và `[Trang chủ]`.
-
----
-
-### 3. Chế độ Giải đố / Cờ thế (`puzzles.html`)
-
-#### Gameplay Flow chi tiết:
-1. **Khởi tạo & Ghép câu đố:**
-   - Hệ thống tự động chọn câu đố trong database có rating tương đương ELO Puzzle của người dùng (trong khoảng $\pm 100$ ELO).
-   - Bàn cờ hiển thị thế trận FEN.
-   - Bot tự động đi nước cờ đầu tiên (nước cờ của đối thủ tạo ra thế cờ cần giải).
-   - Status bar thông báo: *"Bên [Trắng/Đen] đi — Tìm nước cờ tối ưu nhất!"*
-
-2. **Người dùng thực hiện nước đi:**
-   - **Trường hợp ĐI ĐÚNG:**
-     - Hiển thị ký hiệu `✔` lớn / icon tick rõ nét trên status bar: *"Chính xác! ✔"*.
-     - Nếu câu đố còn các nước tiếp theo: Máy tự động phản hồi nước cờ đáp lại trong kịch bản puzzle sau 0.5s, người dùng tiếp tục giải nước tiếp theo.
-     - Nếu đã hoàn thành toàn bộ chuỗi nước đi:
-       - Hiển thị popup chiến thắng: *"Giải đố thành công! 🎉"*.
-       - **Tính điểm ELO Puzzle:**
-         - Nếu **KHÔNG dùng gợi ý**: Cộng điểm ELO (`+X ELO`), tăng chuỗi Streak (`Streak: 5`).
-         - Nếu **CÓ dùng gợi ý**: `+0 ELO`, giữ nguyên rating.
-       - Buttons trong popup: **[🧩 Câu tiếp theo]** | **[🏠 Trang chủ]**.
-   - **Trường hợp ĐI SAI:**
-     - Hiển thị ký hiệu `✖` / icon cross: *"Chưa chính xác! ✖"*.
-     - Tự động **Undo** nước vừa đi sai về vị trí trước đó để người chơi suy nghĩ lại.
-     - Đánh dấu trạng thái puzzle hiện tại là *Đã có lỗi* (khi hoàn thành sau đó sẽ chỉ nhận tối đa `+0 ELO`).
-     - Cho phép người chơi thử lại không giới hạn hoặc bấm xem đáp án.
-
-3. **Action Buttons trong màn Giải đố:**
-   - **[💡 Gợi ý (Hint)]**: 
-     - Nhấp lần 1: Highlight ô quân cờ cần đi (Piece hint).
-     - Nhấp lần 2: Highlight ô đích đến (Target hint).
-     - Ghi nhận trạng thái *"Đã dùng gợi ý"* (Kết quả khi giải xong sẽ là `+0 ELO`).
-   - **[👁 Xem đáp án (Show Solution)]**:
-     - Tự động đi từng nước chính xác trên bàn cờ.
-     - Xử Thất bại câu đố: **Trừ ELO Puzzle** (`-Y ELO`), Reset streak về 0.
-     - Hiện nút **[🧩 Câu tiếp theo]** | **[🏠 Trang chủ]**.
-   - **[⏭ Bỏ qua (Skip)]**: Chuyển sang puzzle khác (coi như không hoàn thành / trừ điểm nhẹ nếu muốn).
-   - **[🔄 Thử lại từ đầu (Retry)]**: Đặt lại thế cờ ban đầu.
-
----
-
-### 4. Chế độ Chơi với bạn (`play-friend.html`)
-
-#### Action Buttons:
-- **[🏳 Đầu hàng (Resign)]**: Hiện popup xác nhận. Khi xác nhận, gửi trạng thái `resigned` lên Supabase RPC, đối phương nhận thông báo thắng ngay trong chu kỳ poll tiếp theo.
-- **[🤝 Xin hòa (Offer Draw)]**: Gửi tín hiệu đề nghị hòa cờ tới đối phương.
-- **[📋 Copy Code / Link]**: Sao chép mã phòng hoặc URL mời `einkchess.fun/play-friend.html?join=XXXXXX`.
-- **[🚪 Rời phòng (Leave Game)]**: Rời khỏi phòng chơi (ván cờ vẫn được lưu).
-
----
-
-## Open Questions & Clarifications
-
-1. **Rating khởi đầu:** ELO khởi đầu mặc định là `1200` (chuẩn quốc tế). Có cho phép người dùng tự chọn mức ban đầu (Mới chơi 800 / Trung bình 1200 / Cao thủ 1600) trong màn setup lần đầu không?
-2. **Supabase PvP:** Sẽ cấu hình kết nối thông qua file config/storage khi triển khai Phase 4.
-
----
-
-## Proposed Changes
-
-### Kiến trúc tổng quan
+## Cấu trúc Dự án (Architecture Overview)
 
 ```
-eink-chess/                             ← Repo: /Users/thaibuiminh/Projects/eink-chess/
-├── index.html                          ← Trang chủ: Device setup, Mode selection, Stats, ELO display
-├── play-bot.html                       ← Chơi với bot: Undo, Resign, ELO update
-├── puzzles.html                        ← Giải đố: Tick/Cross feedback, Hint, Auto-undo, Puzzle ELO
-├── play-friend.html                    ← Chơi với bạn: Resign, Draw offer, Room Code
+eink-chess/                             ← Repo root
+├── index.html                          ← Trang chủ: Device setup, ELO Header, Menu, Donate Ko-fi QR, Ping tracking
+├── play-bot.html                       ← Chơi với bot: Level 1-3 (Unlimited), ELO, Undo, Resign, Donate QR
+├── puzzles.html                        ← Giải đố: 500 Puzzles Lichess, Tick/Cross feedback, Quota 3/ngày
+├── play-friend.html                    ← Chơi với bạn: Tạo/nhập mã phòng, Quota 3/ngày
 ├── css/
-│   └── einkchess.css                   ← Stylesheet tối ưu E-ink (Đen-Trắng tương phản cao)
+│   └── einkchess.css                   ← Giao diện Đen-Trắng tương phản cao tối ưu E-ink (Dashed outline)
 ├── js/
-│   ├── chess-engine.js                 ← Core engine, FEN parser, Move generator
-│   ├── chess-ai.js                     ← Local Minimax AI (Level 1-3)
-│   ├── chess-api-client.js             ← Chess-API.com REST client (Level 4-8)
-│   ├── chess-board.js                  ← Board renderer (Incremental DOM, Tick/Cross indicators)
-│   ├── chess-puzzles.js                ← Puzzle Manager (ELO matching, Hint logic, Solution check)
-│   ├── chess-pvp.js                    ← Supabase PvP client
-│   ├── chess-storage.js                ← Quản lý ELO (Bot & Puzzle), Stats, Auto-save
+│   ├── chess-engine.js                 ← Engine cờ vua thuần ES5, FEN, SAN, Move validation
+│   ├── chess-ai.js                     ← Local Minimax AI (Level 1-3, chạy offline, free)
+│   ├── chess-api-client.js             ← Chess-API.com REST client (Level 4-8 Stockfish)
+│   ├── chess-board.js                  ← Board renderer (Incremental DOM, Last move dashed outline)
+│   ├── chess-puzzles.js                ← Puzzle Manager (ELO matching, Hints, Solution check)
+│   ├── chess-pvp.js                    ← PvP client (Sync trạng thái phòng và nước đi)
+│   ├── chess-storage.js                ← Quản lý LocalStorage (Device ID, ELO, Local Quota cache)
+│   ├── chess-backend.js                ← [PHASE 1] Portable Backend Adapter (Active Ping, Traffic Count, Quota)
 │   └── chess-i18n.js                   ← Đa ngôn ngữ VI / EN
 ├── data/
 │   └── puzzles.json                    ← 500 Puzzles bundle (Phân bổ rating 600-2600)
 ├── build/
-│   └── build-puzzles.js                ← Script tải và trích xuất puzzles từ Lichess CSV
+│   └── build-puzzles.js                ← Script lọc và nén 500 puzzles từ Lichess CSV
 └── sql/
-    └── schema.sql                      ← Cấu trúc DB và PostgreSQL RPC cho PvP
+    └── schema.sql                      ← [PHASE 1] PostgreSQL Schema (active_pings, page_views, user_quotas, chess_games)
 ```
 
 ---
 
-## Phân pha triển khai chi tiết
+## Thiết kế Chi tiết: Tracking & Quota & Portable Backend
 
-### Phase 1 — MVP: Core Engine + Board + Chơi với Bot (Local AI) + ELO Header
+### 1. Database Schema Chuẩn (PostgreSQL) — Chạy được trên Supabase hoặc Custom VPS
+```sql
+-- 1. Bảng ghi nhận Lượt truy cập & Active Users (DAU/WAU/MAU/YAU/Realtime)
+CREATE TABLE IF NOT EXISTS active_pings (
+    id BIGSERIAL PRIMARY KEY,
+    device_id VARCHAR(64) NOT NULL,
+    device_type VARCHAR(32) DEFAULT 'kindle',
+    lang VARCHAR(8) DEFAULT 'vi',
+    action_type VARCHAR(32) DEFAULT 'ping', -- 'ping', 'pageview', 'play_bot', 'play_puzzle', 'play_pvp'
+    page_url VARCHAR(64) DEFAULT '/',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_active_pings_created_at ON active_pings(created_at);
+CREATE INDEX idx_active_pings_device ON active_pings(device_id, created_at);
 
-> **Mục tiêu:** Bản phát hành đầu tiên chơi hoàn chỉnh với Bot trên Kindle, có nút Undo, Resign và hệ thống tính ELO Header.
+-- View thống kê nhanh Realtime, DAU, WAU, MAU, YAU
+CREATE OR REPLACE VIEW v_traffic_stats AS
+SELECT
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN device_id END) AS realtime_active_10m,
+    COUNT(DISTINCT CASE WHEN created_at >= CURRENT_DATE THEN device_id END) AS dau_today,
+    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('week', CURRENT_DATE) THEN device_id END) AS wau_this_week,
+    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('month', CURRENT_DATE) THEN device_id END) AS mau_this_month,
+    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('year', CURRENT_DATE) THEN device_id END) AS yau_this_year,
+    COUNT(CASE WHEN created_at >= CURRENT_DATE THEN 1 END) AS pageviews_today,
+    COUNT(*) AS total_pageviews_all_time
+FROM active_pings;
 
-**Deliverables:**
-- `index.html`: Giao diện khởi đầu chọn thiết bị Kindle, hiển thị ELO Header, menu chế độ.
-- `play-bot.html`: Bàn cờ với action buttons: **[Undo]**, **[Đầu hàng (Resign)]**, **[Xoay bàn]**, **[Gợi ý]**, **[Ván mới]**.
-- `css/einkchess.css`: Bảng màu tương phản cao (quân trắng outline đen, quân đen solid black, ô trắng/xám), kích thước responsive theo thiết bị Kindle. Cài đặt viền nét đứt cho 2 ô nước vừa đi (`.sq.last-from, .sq.last-to { outline: 2px dashed #000; outline-offset: -2px; }`).
-- `js/chess-engine.js`: Engine đầy đủ luật cờ vua, FEN, SAN, kiểm tra chiếu hết, hòa cờ.
-- `js/chess-ai.js`: Minimax + Alpha-Beta AI (3 cấp độ: ~400, ~800, ~1200 ELO).
-- `js/chess-board.js`: Render DOM gia tăng (Incremental), hiển thị nhãn nước đi, confirm dialogs.
-- `js/chess-storage.js`: Lưu cấu hình máy, ván cờ dở dang, điểm ELO Bot.
+-- 2. Bảng Quản lý Quota Ngày & Trạng thái VIP / Donate
+CREATE TABLE IF NOT EXISTS user_quotas (
+    device_id VARCHAR(64) NOT NULL,
+    quota_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    bot_cloud_count INT DEFAULT 0,
+    puzzle_count INT DEFAULT 0,
+    pvp_count INT DEFAULT 0,
+    is_vip BOOLEAN DEFAULT FALSE,
+    vip_expire_at TIMESTAMPTZ,
+    PRIMARY KEY (device_id, quota_date)
+);
 
-**Verification Checklist Phase 1:**
-- [ ] Chơi hết ván cờ với bot mượt mà, không giật lag.
-- [ ] Nút **Undo** lùi 2 nước chính xác.
-- [ ] Nút **Đầu hàng** hiện modal xác nhận -> xác nhận thì xử thua, trừ ELO.
-- [ ] Điểm ELO trên Header cập nhật ngay sau khi kết thúc ván.
-- [ ] Tắt trình duyệt mở lại -> tự động hỏi tiếp tục ván cũ.
+-- 3. Bảng Phòng cờ PvP Online
+CREATE TABLE IF NOT EXISTS chess_games (
+    game_code VARCHAR(8) PRIMARY KEY,
+    white_pid VARCHAR(64) NOT NULL,
+    black_pid VARCHAR(64),
+    fen VARCHAR(128) NOT NULL,
+    last_move VARCHAR(16),
+    status VARCHAR(32) DEFAULT 'waiting', -- 'waiting', 'active', 'finished'
+    turn VARCHAR(2) DEFAULT 'w',
+    result VARCHAR(32),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
----
+### 2. Tầng Portable Adapter (`js/chess-backend.js`)
+File này đóng vai trò cầu nối duy nhất giữa Client và Server (chuẩn ES5 tương thích Kindle):
+- Cấu hình chỉ cần 1 dòng: `var BACKEND_URL = 'https://your-supabase-url.supabase.co' || 'https://api.einkchess.fun';`
+- Cung cấp:
+  - `sendPing(action, page)`: Gửi heartbeat đếm Active User & lượt xem trang.
+  - `checkQuota(mode)`: Kiểm tra xem thiết bị còn lượt chơi trong ngày không.
+  - `consumeQuota(mode)`: Tăng biến đếm quota khi bắt đầu ván.
+  - `getPvPState(code)` & `submitPvPMove(code, moveData)`: Đồng bộ ván đấu.
 
-### Phase 2 — Online AI: Chess-API.com (Level 4-8 Kiện Tướng)
-
-> **Mục tiêu:** Mở rộng lên 8 cấp độ, tích hợp Stockfish 18 NNUE online cho cấp độ cao.
-
-**Deliverables:**
-- `js/chess-api-client.js`: Gửi FEN qua `POST https://chess-api.com/v1`, xử lý timeout và fallback.
-- `play-bot.html`: Selector 8 cấp độ (~400 đến ~2750 ELO), gắn icon ☁ cho cấp độ cần mạng.
-- Xử lý trạng thái "Đang suy nghĩ..." mượt mà trên e-ink.
-
-**Verification Checklist Phase 2:**
-- [ ] Level 4-8 đánh chuẩn xác nước đi của Stockfish.
-- [ ] Thắng/thua bot cấp cao cộng/trừ ELO đúng công thức.
-- [ ] Xử lý mất mạng/lỗi API: thông báo thân thiện, cho phép retry.
-
----
-
-### Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO)
-
-> **Mục tiêu:** Chế độ luyện cờ thế với 500 câu đố Lichess, phản hồi Tick/Cross, gợi ý thông minh và hệ thống ELO Puzzle.
-
-**Deliverables:**
-- `puzzles.html`: Giao diện giải đố chuyên dụng. Action buttons: **[Gợi ý]**, **[Xem đáp án]**, **[Thử lại]**, **[Câu tiếp]**.
-- `js/chess-puzzles.js`: Quản lý logic giải đố, kiểm tra từng bước đi, cấp gợi ý 2 cấp độ (quân cờ / ô đến).
-- `data/puzzles.json`: Bộ dữ liệu 500 puzzles phân chia theo thang điểm ELO.
-- `build/build-puzzles.js`: Script Node.js lọc và xuất dữ liệu puzzle từ Lichess database.
-- Cập nhật `chess-storage.js`: Lưu Puzzle ELO, Chuỗi thắng (Streak), Tỷ lệ giải đúng.
-
-**Verification Checklist Phase 3:**
-- [ ] Nước đi đúng hiện icon `✔`, bot phản hồi nước đối phó tự động.
-- [ ] Nước đi sai hiện icon `✖`, tự động undo để người chơi đi lại.
-- [ ] Giải đúng không gợi ý -> Cộng Puzzle ELO, tăng streak.
-- [ ] Dùng gợi ý -> Giải xong cộng `+0 ELO`.
-- [ ] Bấm xem đáp án / bỏ cuộc -> Trừ Puzzle ELO, reset streak.
-- [ ] Popup hoàn thành hiển thị ELO mới và 2 nút [Câu tiếp theo] / [Trang chủ].
-
----
-
-### Phase 4 — PvP Online (Chơi với bạn qua Game Code)
-
-> **Mục tiêu:** Chơi cờ 2 người từ xa qua mã phòng 6 ký tự trên Supabase.
-
-**Deliverables:**
-- `play-friend.html`: Giao diện tạo phòng, nhập mã, hiển thị mã phòng to rõ.
-- Action buttons: **[Đầu hàng]**, **[Xin hòa]**, **[Sao chép link/mã]**, **[Rời phòng]**.
-- `js/chess-pvp.js`: Client giao tiếp Supabase PostgreSQL RPC (Polling 8s).
-- `sql/schema.sql`: Script khởi tạo database và RPC function trên Supabase.
-
-**Verification Checklist Phase 4:**
-- [ ] Tạo phòng -> Tạo mã code 6 ký tự.
-- [ ] Người thứ 2 nhập mã -> Vào bàn cờ đồng bộ.
-- [ ] Nút Đầu hàng gửi thông báo tức thì cho đối thủ.
-- [ ] Polling 8s cập nhật nước cờ mà không gây reload toàn bộ trang.
+### 3. Hiển thị QR Donate Ko-fi trên Kindle (Tối ưu E-ink)
+- Nút bấm `[☕ Ủng hộ (Donate)]` trên thanh Header và Footer.
+- Modal đơn giản, tương phản cao:
+  - Tiêu đề: `☕ Ủng hộ EinkChess trên Ko-fi`
+  - Hình ảnh: Mã QR tĩnh sắc nét đen-trắng dẫn tới trang Ko-fi.
+  - URL text rõ nét: `ko-fi.com/thaibm` (hoặc username của bạn).
+  - Lời nhắn cảm ơn và giải thích giúp duy trì hệ thống.
 
 ---
 
-### Phase 5 — Song Ngữ VI/EN + Thống Kê Chi Tiết + Polish
+## Lộ trình Triển khai 5 Giai đoạn
 
-> **Mục tiêu:** Hoàn thiện giao diện song ngữ, bảng thống kê và tối ưu trải nghiệm đọc trên e-ink.
+### Phase 1 — MVP: Core Engine + Board + Bot 1-3 + Active Tracking + Ko-fi Donate + ELO Header
+- Xây dựng `js/chess-engine.js`: Toàn bộ luật cờ vua, FEN, SAN, Move Generator (ES5).
+- Xây dựng `js/chess-ai.js`: Minimax + Alpha-Beta AI (Level 1: 400, Level 2: 800, Level 3: 1200) — **Chạy offline, hoàn toàn miễn phí & không giới hạn**.
+- Xây dựng `css/einkchess.css`: Layout responsive cho các dòng máy Kindle, đường viền nét đứt (`dashed outline`) cho 2 ô nước vừa đi.
+- Xây dựng `js/chess-storage.js`: Sinh & lưu `device_id` (UUID), ELO rating, Auto-save.
+- Xây dựng `sql/schema.sql`: Khởi tạo bảng tracking & views thống kê DAU/WAU/MAU/YAU.
+- Xây dựng `js/chess-backend.js`: Adapter gửi ping tracking & sync quota.
+- Xây dựng `js/chess-board.js`: Render DOM gia tăng (Incremental), Action buttons: Undo, Resign confirm modal, Flip, New game.
+- Xây dựng `index.html` và `play-bot.html`: Giao diện chính kèm Header ELO, nút Donate và Modal Mã QR Ko-fi.
 
-**Deliverables:**
-- `js/chess-i18n.js`: Hệ thống dịch song ngữ Tiếng Việt & Tiếng Anh.
-- Màn hình thống kê chi tiết trên `index.html`: Lịch sử đấu, tỷ lệ thắng, biểu đồ ELO, kỷ lục streak.
-- Tối ưu SEO, meta tags, favicon chuẩn e-ink.
+### Phase 2 — Online AI: Level 4-8 Kiện Tướng + Quota 3 ván/ngày
+- Xây dựng `js/chess-api-client.js`: Kết nối Chess-API.com (Stockfish 18 NNUE).
+- Tích hợp Quota 3 trận Cloud AI/ngày (kiểm tra `localStorage` và backend).
+- Xử lý thông báo khi hết lượt Cloud: gợi ý chơi tiếp Bot Level 1-3 hoặc Ko-fi donate.
+
+### Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO) + Quota 3 câu/ngày
+- Lọc và đóng gói 500 câu đố Lichess vào `data/puzzles.json`.
+- Xây dựng `puzzles.html` và `js/chess-puzzles.js` (Tick/Cross feedback, Hint 2 cấp độ, Puzzle ELO).
+- Quota 3 câu đố miễn phí/ngày.
+
+### Phase 4 — PvP Online + Portable Backend Adapter
+- Cập nhật module PvP trong `js/chess-backend.js` và `sql/schema.sql`.
+- Xây dựng `play-friend.html` và `js/chess-pvp.js` (Tạo/nhập mã 6 ký tự, Polling 8s, Quota 3 trận/ngày).
+
+### Phase 5 — Song Ngữ VI/EN, Dashboard Thống Kê & Polish Toàn Diện
+- Xây dựng `js/chess-i18n.js` (Song ngữ Tiếng Việt / Tiếng Anh).
+- Dashboard thống kê trên `index.html`, kiểm tra tương thích trình duyệt Kindle thực tế.
 
 ---
 
-## Kế hoạch Triển khai (Bắt đầu với Phase 1)
+## Kế hoạch Triển khai Phase 1 (MVP)
 
-Tôi sẽ tiến hành triển khai **Phase 1 (MVP)** trước:
-1. Tạo thư mục cấu trúc trong `/Users/thaibuiminh/Projects/eink-chess/`.
-2. Viết `css/einkchess.css` và `js/chess-engine.js`.
-3. Viết `js/chess-ai.js` (Local Minimax Level 1-3).
-4. Viết `js/chess-storage.js` (Lưu game, lưu ELO Bot/Puzzle).
-5. Xây dựng `js/chess-board.js`, `index.html` và `play-bot.html` (đầy đủ các nút Undo, Resign modal, ELO Header, viền nét đứt cho 2 ô nước vừa đi).
-6. Kiểm tra tương thích ES5 cho trình duyệt Kindle.
+Chúng ta sẽ bắt đầu thực hiện **Phase 1** ngay lập tức:
+1. Thiết lập cấu trúc thư mục repo `eink-chess/`.
+2. Tạo file `sql/schema.sql` (bảng tracking active_pings, views DAU/WAU/MAU/YAU, user_quotas).
+3. Tạo file `css/einkchess.css` (hệ màu monochrome, dashed outline, responsive Kindle).
+4. Tạo `js/chess-engine.js` (Core chess engine ES5).
+5. Tạo `js/chess-ai.js` (Local Minimax AI Level 1-3).
+6. Tạo `js/chess-storage.js` (Lưu device UUID, ELO, auto-save).
+7. Tạo `js/chess-backend.js` (Adapter gửi ping telemetry siêu nhẹ & quota).
+8. Tạo `js/chess-board.js` (DOM incremental, visual feedback).
+9. Tạo `index.html` và `play-bot.html` (đầy đủ Donate Ko-fi QR modal, ELO Header, Action buttons).

@@ -1,0 +1,614 @@
+/* ====================================================================
+   EINKCHESS.CSS — High Contrast Monochrome Stylesheet for E-ink & Kindle
+   No emojis/icons (pure text/glyphs for Kindle WebKit compatibility)
+   No select dropdowns (pure clickable button lists & segmented controls)
+   Auto-responsive & Device-specific Tuning (Kindle Basic 6", Paperwhite, Oasis, Scribe)
+   ==================================================================== */
+
+/* --- 1. CSS Reset & Typography --- */
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.25;
+    text-rendering: optimizeLegibility;
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* --- 2. Layout Container --- */
+.app-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2px 6px 2px 6px;
+    display: block;
+}
+
+/* --- 3. Persistent Header (Compact 1-Line) --- */
+.header {
+    border-bottom: 2px solid #000000;
+    padding: 2px 0;
+    margin-bottom: 2px;
+    display: block;
+    clear: both;
+}
+
+.header-top {
+    display: table;
+    width: 100%;
+    table-layout: auto;
+}
+
+.header-logo {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+    white-space: nowrap;
+    width: 1%;
+    padding-right: 6px;
+}
+
+.header-logo:hover,
+.header-logo:active {
+    text-decoration: underline;
+}
+
+.header-center {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.header-actions {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+}
+
+.elo-badge {
+    display: inline-block;
+    border: 1px solid #000000;
+    padding: 1px 5px;
+    background-color: #f0f0f0;
+    font-size: 12px;
+    margin: 0 1px;
+}
+
+/* --- 4. Buttons & Controls (Kindle Optimized) --- */
+button,
+.btn {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: none;
+}
+
+.btn {
+    display: inline-block;
+    padding: 5px 8px;
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000 !important;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    margin: 1px;
+    line-height: normal;
+}
+
+.btn:active {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #000000 !important;
+}
+
+.btn-primary:active {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+.btn-sm {
+    padding: 3px 6px;
+    font-size: 12px;
+    border: 2px solid #000000 !important;
+}
+
+.btn-donate {
+    border: 2px dashed #000000 !important;
+    background-color: #f0f0f0;
+}
+
+.btn-lang-toggle {
+    font-weight: bold;
+    min-width: 36px;
+    text-align: center;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* Button Group / Segmented Controls (Replaces <select>) */
+.btn-group {
+    display: table;
+    width: 100%;
+    margin: 4px 0;
+    table-layout: fixed;
+}
+
+.btn-group-item {
+    display: table-cell;
+    padding: 6px 2px;
+    text-align: center;
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000 !important;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.btn-group-item.active {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* --- 6. Chess Board Layout (Default / Basic 6") --- */
+.board-container {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto 3px auto;
+    position: relative;
+}
+
+.chess-board {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #000000;
+    display: table;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+
+.board-row {
+    display: table-row;
+    height: 12.5%;
+}
+
+.sq {
+    display: table-cell;
+    width: 12.5%;
+    height: 12.5%;
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Square Colors (E-ink High Contrast) */
+.sq.light {
+    background-color: #ffffff;
+}
+
+.sq.dark {
+    background-color: #b0b0b0;
+}
+
+/* Selected Square */
+.sq.selected {
+    outline: 3px solid #000000;
+    outline-offset: -3px;
+    background-color: #d8d8d8;
+}
+
+/* Last Move Indicator (Dashed outline on from & to squares) */
+.sq.last-from,
+.sq.last-to {
+    outline: 2px dashed #000000 !important;
+    outline-offset: -2px !important;
+}
+
+/* Valid Move Hint */
+.sq.hint-move::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 26%;
+    height: 26%;
+    margin-top: -13%;
+    margin-left: -13%;
+    background-color: #000000;
+    border-radius: 50%;
+    opacity: 0.75;
+}
+
+.sq.hint-capture::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70%;
+    height: 70%;
+    margin-top: -35%;
+    margin-left: -35%;
+    border: 2px solid #000000;
+    border-radius: 50%;
+}
+
+/* King in Check */
+.sq.in-check {
+    background-color: #555555 !important;
+    outline: 2px double #ffffff;
+    outline-offset: -2px;
+}
+
+/* Chess Piece Glyph Inside Square */
+.piece {
+    width: 100%;
+    height: 100%;
+    display: table;
+    table-layout: fixed;
+    text-align: center;
+    font-size: 36px;
+    line-height: 1;
+    font-weight: normal;
+    pointer-events: none;
+}
+
+.piece-inner {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 1;
+}
+
+/* White Pieces */
+.piece-w {
+    color: #ffffff;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        -2px 0 0 #000,
+        2px 0 0 #000,
+        0 -2px 0 #000,
+        0 2px 0 #000;
+}
+
+/* Black Pieces */
+.piece-b {
+    color: #000000;
+    text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff;
+}
+
+/* --- 7. Status & Controls Area --- */
+.status-bar {
+    border: 2px solid #000000;
+    padding: 2px 4px;
+    margin: 2px 0 3px 0;
+    background-color: #f9f9f9;
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    min-height: 26px;
+}
+
+.status-captured {
+    display: table-cell;
+    vertical-align: middle;
+    width: 26%;
+    font-size: 15px;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    letter-spacing: -1px;
+}
+
+#captured-white {
+    text-align: left;
+    padding-left: 2px;
+}
+
+#captured-black {
+    text-align: right;
+    padding-right: 2px;
+}
+
+.status-text {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.2;
+    width: 48%;
+}
+
+.action-bar {
+    text-align: center;
+    margin: 4px 0 2px 0;
+}
+
+.action-bar .btn {
+    min-height: 44px;
+    padding: 10px 8px;
+    line-height: 20px;
+    margin: 2px 2px;
+}
+
+/* --- 8. Cards & Menus (Home Screen) --- */
+.home-container {
+    max-width: 520px;
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    padding: 4px 8px;
+}
+
+.home-header {
+    padding: 2px 0 4px 0;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.home-header .header-logo {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.home-header .elo-badge {
+    font-size: 12px;
+    padding: 2px 6px;
+    font-weight: bold;
+}
+
+.home-header .btn-sm {
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
+.home-modes-container {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    justify-content: space-between;
+    margin: 2px 0;
+}
+
+.home-card {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    justify-content: space-between;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    min-height: 27vh;
+    border: 2px solid #000000;
+    padding: 10px 12px;
+    margin: 6px 0;
+    background-color: #ffffff;
+}
+
+.home-card .card-header {
+    border-bottom: 2px solid #000000;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    display: table;
+    width: 100%;
+}
+
+.home-card .card-title {
+    font-size: 17px;
+    font-weight: bold;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.home-card .card-tag {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    background-color: #f0f0f0;
+    border: 1px solid #000000;
+    white-space: nowrap;
+}
+
+.home-card .card-desc {
+    font-size: 14px;
+    line-height: 1.35;
+    color: #222222;
+    margin: 4px 0;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+}
+
+.home-card .card-btn {
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 8px 10px;
+    margin: 4px 0 0 0;
+    width: 100%;
+    display: block;
+}
+
+.card {
+    border: 2px solid #000000;
+    padding: 10px 12px;
+    margin: 6px 0;
+    background-color: #ffffff;
+}
+
+.card-header {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    display: table;
+    width: 100%;
+}
+
+.card-title {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.card-tag {
+    display: table-cell;
+    text-align: right;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.card-desc {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #222222;
+    line-height: 1.35;
+}
+
+/* --- 9. Modals (Confirm Resign, Game Over, Donate Ko-fi) --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000000;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 999;
+    text-align: center;
+    padding: 10px 6px;
+}
+
+.modal-overlay.active {
+    display: block;
+}
+
+.modal-box {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #000000;
+    padding: 16px;
+    max-width: 450px;
+    width: 95%;
+    text-align: left;
+    margin-top: 5vh;
+}
+
+.modal-title {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+}
+
+.modal-body {
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.35;
+}
+
+.modal-footer {
+    text-align: right;
+    border-top: 1px solid #000000;
+    padding-top: 8px;
+}
+
+/* QR Code Display for Ko-fi */
+.qr-container {
+    text-align: center;
+    margin: 6px 0;
+    padding: 6px;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.qr-image {
+    width: 140px;
+    height: 140px;
+    display: inline-block;
+    border: 2px solid #000000;
+}
+
+.qr-link-text {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+    word-break: break-all;
+}
