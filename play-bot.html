@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,6 +8,7 @@
     <title>Play vs Bot - Kindle Chess</title>
     <link rel="stylesheet" href="css/einkchess.css?v=27">
 </head>
+
 <body>
     <div class="app-container">
         <!-- 1. COMPACT 1-LINE PERSISTENT HEADER -->
@@ -14,13 +16,15 @@
             <div class="header-top">
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
                 <div class="header-center">
-                    <span class="elo-badge" id="bot-elo-badge">ELO: 1200</span>
-                    <span id="bot-level-name" style="font-weight: normal; font-size: 12px;">(Bot Cấp 1 - ELO ~400)</span>
+                    <span class="elo-badge" id="bot-elo-badge">ELO: 1600</span>
+                    <span id="bot-level-name" style="font-weight: normal; font-size: 12px;">(Bot Cấp 1 - ELO
+                        ~600)</span>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()" data-i18n="header.donate">Ủng hộ</button>
-                    <a href="index.html" class="btn btn-sm" data-i18n="header.menu">Menu</a>
+                    <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
+                        data-i18n="header.donate">Ủng hộ</button>
                     <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
+                    <a href="index.html" class="btn btn-sm" data-i18n="header.menu">Menu</a>
                 </div>
             </div>
         </div>
@@ -46,7 +50,8 @@
             <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
             <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
             <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
-            <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý: Bật</button>
+            <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý:
+                Bật</button>
             <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
         </div>
 
@@ -55,21 +60,26 @@
             <div class="modal-box">
                 <div class="modal-title" data-i18n="game.setup_title">CÀI ĐẶT VÁN ĐẤU VỚI BOT</div>
                 <div class="modal-body">
-                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;" data-i18n="home.setup_level_label">1. Chọn Cấp độ Bot AI:</div>
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;"
+                        data-i18n="home.setup_level_label">1. Chọn Cấp độ Bot AI:</div>
                     <div class="btn-group" id="setup-level-group">
-                        <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_1">Cấp 1 (~400)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_2">Cấp 2 (~800)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_3">Cấp 3 (~1200)</div>
+                        <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_1">Cấp 1 (~600)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_2">Cấp 2 (~1100)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_3">Cấp 3 (~1600)</div>
                     </div>
 
-                    <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;" data-i18n="home.setup_side_label">2. Chọn Bên cầm quân:</div>
+                    <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;"
+                        data-i18n="home.setup_side_label">2. Chọn Bên cầm quân:</div>
                     <div class="btn-group" id="setup-side-group">
-                        <div class="btn-group-item active" onclick="selectSetupSide('w')" data-i18n="home.side_white">Trắng (Đi trước)</div>
-                        <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Đen (Đi sau)</div>
+                        <div class="btn-group-item active" onclick="selectSetupSide('w')" data-i18n="home.side_white">
+                            Trắng (Đi trước)</div>
+                        <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Đen (Đi
+                            sau)</div>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center;">
-                    <button class="btn btn-primary btn-block" onclick="startConfiguredGame()" style="margin: 0; padding: 10px;" data-i18n="game.btn_start_game">Bắt đầu Ván cờ</button>
+                    <button class="btn btn-primary btn-block" onclick="startConfiguredGame()"
+                        style="margin: 0; padding: 10px;" data-i18n="game.btn_start_game">Bắt đầu Ván cờ</button>
                 </div>
             </div>
         </div>
@@ -84,7 +94,8 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Hủy</button>
-                    <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý đầu hàng</button>
+                    <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý
+                        đầu hàng</button>
                 </div>
             </div>
         </div>
@@ -97,8 +108,10 @@
                     <!-- Dynamic Result Message & ELO Update -->
                 </div>
                 <div class="modal-footer">
-                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Trang chủ</button>
-                    <button class="btn btn-primary" onclick="openSetupModal(); closeGameOverModal();" data-i18n="game.btn_new_game">Ván mới</button>
+                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Trang
+                        chủ</button>
+                    <button class="btn btn-primary" onclick="openSetupModal(); closeGameOverModal();"
+                        data-i18n="game.btn_new_game">Ván mới</button>
                 </div>
             </div>
         </div>
@@ -108,17 +121,22 @@
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
                 <div class="modal-body">
-                    <span data-i18n="donate.body">EinkChess là dự án phi lợi nhuận tối ưu cho cộng đồng người dùng Kindle.<br><br>
-                    Bạn có thể dùng điện thoại <strong>quét mã QR bên dưới</strong> để mời tác giả một tách cà phê trên Ko-fi:</span>
-                    
+                    <span data-i18n="donate.body">EinkChess là dự án phi lợi nhuận tối ưu cho cộng đồng người dùng
+                        Kindle.<br><br>
+                        Bạn có thể dùng điện thoại <strong>quét mã QR bên dưới</strong> để mời tác giả một tách cà phê
+                        trên Ko-fi:</span>
+
                     <div class="qr-container">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm" alt="Ko-fi QR Code" class="qr-image">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
+                            alt="Ko-fi QR Code" class="qr-image">
                         <div class="qr-link-text">ko-fi.com/thaibm</div>
                     </div>
-                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính năng mới!</span>
+                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính
+                        năng mới!</span>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()" data-i18n="donate.btn_close">Đóng</button>
+                    <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
+                        data-i18n="donate.btn_close">Đóng</button>
                 </div>
             </div>
         </div>
@@ -128,7 +146,7 @@
     <script src="js/chess-engine.js?v=6"></script>
     <script src="js/chess-ai.js?v=7"></script>
     <script src="js/chess-storage.js?v=8"></script>
-    <script src="js/chess-i18n.js?v=3"></script>
+    <script src="js/chess-i18n.js?v=4"></script>
     <script src="js/chess-backend.js?v=6"></script>
     <script src="js/chess-board.js?v=5"></script>
 
@@ -138,7 +156,7 @@
         var ai = null;
         var playerSide = 'w';
         var botLevel = 1;
-        var botElos = { 1: 400, 2: 800, 3: 1200 };
+        var botElos = { 1: 600, 2: 1100, 3: 1600 };
         var isThinking = false;
         var gameOver = false;
         var debugMode = window.location.search.indexOf('debug=1') !== -1;
@@ -157,7 +175,7 @@
 
             if (typeof ChessI18n !== 'undefined') {
                 ChessI18n.init();
-                ChessI18n.onChange(function() {
+                ChessI18n.onChange(function () {
                     updateEloBadge();
                     updateBotLevelLabel();
                     updateHintButtonText();
@@ -263,10 +281,10 @@
             if (gameOver || !statusTextEl) return;
 
             var isPlayerTurn = engine.turn === playerSide;
-            var turnName = engine.turn === 'w' 
+            var turnName = engine.turn === 'w'
                 ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_white') : 'Trắng')
                 : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_black') : 'Đen');
-            var playerName = isPlayerTurn 
+            var playerName = isPlayerTurn
                 ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_you') : 'Bạn')
                 : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_bot') : 'Bot');
 
@@ -523,4 +541,5 @@
         }
     </script>
 </body>
+
 </html>
