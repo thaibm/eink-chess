@@ -150,6 +150,57 @@
         return fen;
     };
 
+    ChessEngine.prototype.exportState = function() {
+        return {
+            fen: this.toFEN(),
+            history: this.history.slice(0),
+            positionCounts: JSON.parse(JSON.stringify(this.positionCounts)),
+            turn: this.turn,
+            castling: {
+                K: this.castling.K,
+                Q: this.castling.Q,
+                k: this.castling.k,
+                q: this.castling.q
+            },
+            epSquare: this.epSquare ? { r: this.epSquare.r, c: this.epSquare.c } : null,
+            halfmoveClock: this.halfmoveClock,
+            fullmoveNumber: this.fullmoveNumber
+        };
+    };
+
+    ChessEngine.prototype.importState = function(state) {
+        if (!state || !state.fen) return;
+        this.loadFEN(state.fen);
+        if (state.history && state.history instanceof Array) {
+            this.history = state.history.slice(0);
+        }
+        if (state.positionCounts) {
+            this.positionCounts = JSON.parse(JSON.stringify(state.positionCounts));
+        }
+        if (state.castling) {
+            this.castling = {
+                K: !!state.castling.K,
+                Q: !!state.castling.Q,
+                k: !!state.castling.k,
+                q: !!state.castling.q
+            };
+        }
+        if (state.epSquare) {
+            this.epSquare = { r: state.epSquare.r, c: state.epSquare.c };
+        } else {
+            this.epSquare = null;
+        }
+        if (typeof state.halfmoveClock === 'number') {
+            this.halfmoveClock = state.halfmoveClock;
+        }
+        if (typeof state.fullmoveNumber === 'number') {
+            this.fullmoveNumber = state.fullmoveNumber;
+        }
+        if (state.turn) {
+            this.turn = state.turn;
+        }
+    };
+
     ChessEngine.prototype.getPosKey = function() {
         var parts = this.toFEN().split(' ');
         return parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3];

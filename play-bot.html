@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=27">
+    <link rel="stylesheet" href="css/einkchess.css?v=28">
 </head>
 
 <body>
@@ -139,12 +139,12 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=5"></script>
+    <script src="js/chess-engine.js?v=6"></script>
     <script src="js/chess-ai.js?v=10"></script>
-    <script src="js/chess-storage.js?v=8"></script>
-    <script src="js/chess-i18n.js?v=7"></script>
+    <script src="js/chess-storage.js?v=9"></script>
+    <script src="js/chess-i18n.js?v=8"></script>
     <script src="js/chess-backend.js?v=6"></script>
-    <script src="js/chess-board.js?v=6"></script>
+    <script src="js/chess-board.js?v=7"></script>
 
     <script>
         var engine = null;
@@ -159,6 +159,73 @@
         // Pending setup values
         var pendingLevel = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotLevel() : 1;
         var pendingSide = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultSide() : 'w';
+
+        function saveCurrentGame() {
+            if (!engine || gameOver) return;
+            try {
+                var state = {
+                    engine: engine.exportState(),
+                    botLevel: botLevel,
+                    playerSide: playerSide,
+                    lastMove: board ? board.lastMove : null,
+                    updatedAt: new Date().getTime()
+                };
+                if (typeof ChessStorage !== 'undefined') {
+                    ChessStorage.saveBotGame(state);
+                }
+            } catch (e) { }
+        }
+
+        function restoreSavedGame(saved) {
+            if (!saved || !saved.engine) return false;
+            try {
+                botLevel = parseInt(saved.botLevel || 1, 10);
+                playerSide = saved.playerSide || 'w';
+                pendingLevel = botLevel;
+                pendingSide = playerSide;
+
+                ai = new ChessAI(botLevel);
+                engine = new ChessEngine();
+                engine.importState(saved.engine);
+
+                gameOver = false;
+                isThinking = false;
+
+                board = new ChessBoard('board-container', {
+                    engine: engine,
+                    orientation: playerSide,
+                    showHints: true,
+                    onMove: handlePlayerMove
+                });
+
+                if (saved.lastMove && saved.lastMove.from && saved.lastMove.to) {
+                    board.setLastMove(saved.lastMove.from, saved.lastMove.to);
+                }
+
+                updateBotLevelLabel();
+                updateEloBadge();
+                updateHintButtonText();
+                updateStatus();
+
+                // Check if game was already finished in saved state
+                var status = engine.isGameOver();
+                if (status.over) {
+                    checkGameEnd();
+                    return true;
+                }
+
+                // If it's Bot's turn when resumed, trigger bot move after brief delay
+                if (engine.turn !== playerSide) {
+                    isThinking = true;
+                    updateStatus();
+                    setTimeout(makeBotMove, 400);
+                }
+
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
 
         function initGame() {
             ChessStorage.applyAutoLayout();
@@ -175,6 +242,23 @@
 
             updateEloBadge();
             updateBotLevelLabel();
+
+            var query = window.location.search || '';
+            var isNewGameRequested = query.indexOf('new=1') !== -1;
+            var hasLvlParam = query.indexOf('lvl=') !== -1;
+
+            var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGame() : null;
+
+            // If there is an active saved game and user did not explicitly request a new game or pass new params
+            if (!isNewGameRequested && !hasLvlParam && savedGame && savedGame.engine) {
+                var restored = restoreSavedGame(savedGame);
+                if (restored) {
+                    ChessBackend.sendPing('play_bot_resume', '/play-bot.html');
+                    return;
+                }
+            }
+
+            // Otherwise standard setup
             engine = new ChessEngine();
             ai = new ChessAI(botLevel);
 
@@ -185,10 +269,8 @@
                 onMove: handlePlayerMove
             });
 
-            // Parse URL parameters if any (e.g., ?lvl=2&side=b)
-            var query = window.location.search;
-            if (query && query.indexOf('lvl=') !== -1) {
-                var lvlMatch = query.match(/lvl=([1-3])/);
+            if (hasLvlParam) {
+                var lvlMatch = query.match(/lvl=([1-5])/);
                 var sideMatch = query.match(/side=([wb])/);
                 if (lvlMatch) pendingLevel = parseInt(lvlMatch[1], 10);
                 if (sideMatch) pendingSide = sideMatch[1];
@@ -198,7 +280,6 @@
                 }
                 startConfiguredGame();
             } else {
-                // Open setup modal on first launch
                 openSetupModal();
             }
 
@@ -331,7 +412,7 @@
 
             // Update URL to prevent stale query parameters on reload
             if (window.history && window.history.replaceState) {
-                var newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?lvl=' + botLevel + '&side=' + playerSide;
+                var newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
                 window.history.replaceState(null, '', newUrl);
             }
 
@@ -343,6 +424,8 @@
             engine = new ChessEngine();
             board.setEngine(engine);
             board.setLastMove(null, null);
+
+            saveCurrentGame();
 
             if (playerSide === 'b') {
                 isThinking = true;
@@ -361,6 +444,7 @@
             engine.makeMove(move);
             board.setLastMove(move.from, move.to);
 
+            saveCurrentGame();
             checkGameEnd();
 
             if (!gameOver && engine.turn !== playerSide) {
@@ -384,6 +468,7 @@
                 board.setLastMove(bestMove.from, bestMove.to);
             }
 
+            saveCurrentGame();
             checkGameEnd();
             updateStatus();
         }
@@ -392,6 +477,10 @@
             var status = engine.isGameOver();
             if (status.over) {
                 gameOver = true;
+                if (typeof ChessStorage !== 'undefined') {
+                    ChessStorage.clearSavedBotGame();
+                }
+
                 var oppElo = botElos[botLevel] || 800;
                 var eloResult = null;
 
@@ -462,6 +551,7 @@
 
             var last = engine.history.length > 0 ? engine.history[engine.history.length - 1] : null;
             board.setLastMove(last ? last.from : null, last ? last.to : null);
+            saveCurrentGame();
             updateStatus();
         }
 
@@ -479,6 +569,10 @@
             if (gameOver) return;
 
             gameOver = true;
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.clearSavedBotGame();
+            }
+
             var oppElo = botElos[botLevel] || 800;
             var eloResult = ChessStorage.updateBotElo(oppElo, 0.0);
             updateEloBadge();

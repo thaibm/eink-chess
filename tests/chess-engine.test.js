@@ -110,4 +110,43 @@ describe('ChessEngine Rules', () => {
         expect(engine.isCheckmate()).toBe(false);
         expect(engine.isStalemate()).toBe(true);
     });
+
+    test('Export and Import State with Move History and Undo', () => {
+        // Play 3 moves: e2-e4, e7-e5, g1-f3
+        moveAlg(engine, 'e2', 'e4');
+        moveAlg(engine, 'e7', 'e5');
+        moveAlg(engine, 'g1', 'f3');
+
+        expect(engine.history.length).toBe(3);
+        const originalFEN = engine.toFEN();
+
+        // Export state (JSON serialization simulation)
+        const state = engine.exportState();
+        const jsonString = JSON.stringify(state);
+        const parsedState = JSON.parse(jsonString);
+
+        // Create fresh engine and import
+        const restoredEngine = new ChessEngine();
+        restoredEngine.importState(parsedState);
+
+        expect(restoredEngine.toFEN()).toBe(originalFEN);
+        expect(restoredEngine.history.length).toBe(3);
+        expect(restoredEngine.turn).toBe('b');
+
+        // Test Undo on restored engine
+        const undoneMove1 = restoredEngine.undoMove();
+        expect(undoneMove1).not.toBeNull();
+        expect(undoneMove1.from.r).toBe(7); // g1
+        expect(undoneMove1.from.c).toBe(6);
+        expect(undoneMove1.to.r).toBe(5);   // f3
+        expect(undoneMove1.to.c).toBe(5);
+        expect(restoredEngine.turn).toBe('w');
+        expect(restoredEngine.history.length).toBe(2);
+
+        // Make another move on restored engine
+        const newMove = moveAlg(restoredEngine, 'd2', 'd4');
+        expect(newMove).not.toBeNull();
+        expect(restoredEngine.history.length).toBe(3);
+        expect(restoredEngine.turn).toBe('b');
+    });
 });
