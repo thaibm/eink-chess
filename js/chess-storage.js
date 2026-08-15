@@ -76,6 +76,10 @@
             return pid;
         },
 
+        getDeviceType: function() {
+            return this.get(STORAGE_KEYS.DEVICE, 'kindle');
+        },
+
         applyAutoLayout: function() {
             if (typeof window === 'undefined' || typeof document === 'undefined') return;
             
