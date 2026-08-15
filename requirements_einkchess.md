@@ -100,16 +100,26 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~800 | Local JS Minimax (Depth 2, Noise 50) | Offline |
-| **Level 2** | Tập sự (Novice) | ~1000 | Local JS Minimax (Depth 2, Noise 10) | Offline |
-| **Level 3** | Dễ (Casual) | ~1200 | Local JS Minimax (Depth 3, Noise 15) | Offline |
-| **Level 4** | Trung bình (Intermediate) | ~1400 | Local JS Minimax (Depth 3, Noise 5) | Offline |
-| **Level 5** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Noise 0) | Offline |
+| **Level 1** | Người mới (Beginner) | ~800 | Local JS Minimax (Depth 1, Không Quiescence) | Offline |
+| **Level 2** | Tập sự (Novice) | ~1000 | Local JS Minimax (Depth 2, Không Quiescence) | Offline |
+| **Level 3** | Dễ (Casual) | ~1200 | Local JS Minimax (Depth 2, Có Quiescence) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1400 | Local JS Minimax (Depth 3, Không Quiescence) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Có Quiescence) | Offline |
 | **Level 6** | Bán chuyên (Semi-Pro) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
 | **Level 7** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
 | **Level 8** | Dự bị Kiện tướng (Candidate) | ~2200 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
 | **Level 9** | Kiện tướng (Master) | ~2400 | Chess-API.com (Stockfish 18, Depth 14) | Cần Internet (☁) |
 | **Level 10** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
+
+***Giải thích về thuật toán tạo độ khó tự nhiên cho Offline Bot:***
+- **Khái niệm Depth (Độ sâu tìm kiếm):** Số lượng nửa-nước đi (Ply) mà bot nhìn trước được. Depth càng cao, bot càng giỏi về dàn quân chiến lược và thế trận.
+- **Khái niệm Quiescence Search (Tính toán ăn quân tĩnh):** Một thuật toán bổ trợ bắt buộc để giải quyết lỗi "Horizon Effect". Nếu không có Quiescence, bot có thể ăn 1 con Tượng đang được bảo vệ ở cuối độ sâu tìm kiếm vì nó tưởng nó "lãi" (không nhìn thấy nước tiếp theo kẻ thù sẽ ăn lại).
+- **Mô phỏng tư duy con người qua từng Level:**
+  - **Level 1 (Depth 1):** Rất thiển cận, chỉ nhìn 1 bước. Chỉ quan tâm ăn quân ngay lập tức, dính mọi bẫy cờ 2 nước.
+  - **Level 2 (Depth 2, No Quiescence):** Nhìn được 1 lượt đi (mình đi, địch đi). Có thể thấy trước một số mối đe dọa cơ bản nhưng vẫn tính toán sai trong các chuỗi đổi quân (Horizon Effect).
+  - **Level 3 (Depth 2, With Quiescence):** Cẩn thận hơn, không bị dính bẫy đổi quân cơ bản nhưng tư duy chiến lược ngắn hạn.
+  - **Level 4 (Depth 3, No Quiescence):** Nhìn sâu hơn về thế trận (điều quân tốt hơn), nhưng thỉnh thoảng tính nhầm/tính sót ở nước thứ 4 của một pha đổi quân phức tạp. Đây là lỗi cực kỳ đặc trưng của người chơi hệ trung bình-khá.
+  - **Level 5 (Depth 3, With Quiescence):** Bot offline mạnh nhất, tính toán sâu cả về thế trận lẫn chuỗi trao đổi quân. Đạt ELO ổn định ~1600.
 
 #### B. Giao diện Status Bar & Quân cờ bị ăn:
 - **Thanh trạng thái 3 phần (Compact 3-column table):**

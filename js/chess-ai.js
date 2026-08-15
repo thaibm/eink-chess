@@ -183,10 +183,10 @@
         }
     };
 
-    ChessAI.prototype.minimax = function(engine, depth, alpha, beta, isMaximizing) {
+    ChessAI.prototype.minimax = function(engine, depth, alpha, beta, isMaximizing, useQuiescence) {
         this.nodes++;
         if (depth === 0) {
-            return this.quiescenceSearch(engine, alpha, beta, isMaximizing);
+            return useQuiescence ? this.quiescenceSearch(engine, alpha, beta, isMaximizing) : this.evaluatePosition(engine);
         }
 
         var moves = engine.getAllLegalMoves(engine.turn);
@@ -203,7 +203,7 @@
             var maxEval = -999999;
             for (var i = 0; i < moves.length; i++) {
                 engine.makeMoveRaw(moves[i]);
-                var evalScore = this.minimax(engine, depth - 1, alpha, beta, false);
+                var evalScore = this.minimax(engine, depth - 1, alpha, beta, false, useQuiescence);
                 engine.undoMoveRaw(moves[i]);
 
                 if (evalScore > maxEval) maxEval = evalScore;
@@ -215,7 +215,7 @@
             var minEval = 999999;
             for (var j = 0; j < moves.length; j++) {
                 engine.makeMoveRaw(moves[j]);
-                var evalScoreMin = this.minimax(engine, depth - 1, alpha, beta, true);
+                var evalScoreMin = this.minimax(engine, depth - 1, alpha, beta, true, useQuiescence);
                 engine.undoMoveRaw(moves[j]);
 
                 if (evalScoreMin < minEval) minEval = evalScoreMin;
@@ -233,23 +233,23 @@
 
         var isMaximizing = engine.turn === 'w';
         var depth = 1;
-        var noise = 0;
+        var useQuiescence = false;
 
         if (this.level === 1) {
-            depth = 2;
-            noise = 50; // Beginner (~800)
+            depth = 1;
+            useQuiescence = false; // Beginner: Rất thiển cận, không tính được trao đổi quân dài hạn
         } else if (this.level === 2) {
             depth = 2;
-            noise = 10; // Novice (~1000)
+            useQuiescence = false; // Novice: Nhìn được 1 lượt nhưng hay dính bẫy "Horizon Effect"
         } else if (this.level === 3) {
-            depth = 3;
-            noise = 15; // Casual (~1200)
+            depth = 2;
+            useQuiescence = true;  // Casual: Cẩn thận hơn, không bị bẫy đổi quân cơ bản
         } else if (this.level === 4) {
             depth = 3;
-            noise = 5;  // Intermediate (~1400)
+            useQuiescence = false; // Intermediate: Tính sâu về vị trí nhưng thỉnh thoảng tính sót ở nước thứ 4
         } else if (this.level === 5) {
             depth = 3;
-            noise = 0;  // Club (Accurate ~1600)
+            useQuiescence = true;  // Club: Tính sâu và không bị sót các pha đổi quân liên hoàn
         }
 
         var bestMove = null;
@@ -265,12 +265,8 @@
         for (var i = 0; i < moves.length; i++) {
             var move = moves[i];
             engine.makeMoveRaw(move);
-            var score = this.minimax(engine, depth - 1, alpha, beta, !isMaximizing);
+            var score = this.minimax(engine, depth - 1, alpha, beta, !isMaximizing, useQuiescence);
             engine.undoMoveRaw(move);
-
-            if (noise > 0) {
-                score += (Math.random() * noise * 2) - noise;
-            }
 
             if (isMaximizing) {
                 if (score > bestScore) {
@@ -287,7 +283,7 @@
             }
         }
         
-        console.log('AI Level ' + this.level + ' searched ' + this.nodes + ' nodes. Best score: ' + bestScore);
+        console.log('AI Level ' + this.level + ' (d:' + depth + ', q:' + useQuiescence + ') searched ' + this.nodes + ' nodes. Best score: ' + bestScore);
         return bestMove;
     };
 

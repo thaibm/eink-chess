@@ -35,8 +35,8 @@ describe('ChessAI AI Engine', () => {
         expect(centerScore).toBeGreaterThan(edgeScore);
     });
 
-    test('Mate in 1 (Level 5 should find it)', () => {
-        const ai = new ChessAI(5);
+    test('Mate in 1 (Level 3 should find it)', () => {
+        const ai = new ChessAI(3);
         
         // White to move, Qh7# is mate
         engine.loadFEN('r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1'); 
@@ -63,16 +63,17 @@ describe('ChessAI AI Engine', () => {
 
     test('Level Scaling - Depth vs Nodes', () => {
         const aiLvl1 = new ChessAI(1);
-        const aiLvl3 = new ChessAI(5);
+        const aiLvl5 = new ChessAI(5);
 
         engine.loadFEN('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
         
         aiLvl1.getBestMove(engine);
         const nodesLvl1 = aiLvl1.nodes;
 
-        aiLvl3.getBestMove(engine);
-        const nodesLvl3 = aiLvl3.nodes;
+        aiLvl5.getBestMove(engine);
+        const nodesLvl5 = aiLvl5.nodes;
 
-        expect(nodesLvl3).toBeGreaterThan(nodesLvl1);
+        // Level 5 (Depth 3 + QS) should evaluate significantly more nodes than Level 1 (Depth 1)
+        expect(nodesLvl5).toBeGreaterThan(nodesLvl1);
     });
 });
