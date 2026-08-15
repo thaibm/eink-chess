@@ -51,10 +51,17 @@ function copyDirSync(srcDir, destDir) {
   });
 }
 
-// Copy css and js directories
-console.log('Copying css and js assets...');
+// Copy css, js and images directories
+console.log('Copying css, js and images assets...');
 copyDirSync(path.join(__dirname, '../css'), path.join(distDir, 'css'));
 copyDirSync(path.join(__dirname, '../js'), path.join(distDir, 'js'));
+
+const imagesSrcDir = path.join(__dirname, '../images');
+if (fs.existsSync(imagesSrcDir)) {
+  copyDirSync(imagesSrcDir, path.join(distDir, 'images'));
+  console.log('Copied images directory to dist/');
+}
+
 
 // Inject Environment Variables into dist/js/chess-backend.js
 const backendJsPath = path.join(distDir, 'js/chess-backend.js');
