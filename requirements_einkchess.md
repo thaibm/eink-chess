@@ -272,6 +272,12 @@
   - Có thể chạy trực tiếp trên Supabase (hiện tại).
   - Khi cần scale-up, dễ dàng migrate 100% sang VPS riêng (Docker + Node.js/Go/Python + PostgreSQL + Redis) chỉ bằng việc thay đổi base URL `API_ENDPOINT` trong file config mà không phải sửa lại code client.
 
+### 5.6. Cấu hình Deploy (Cloudflare Pages)
+- **Vấn đề kích thước asset:** Để tránh tải lên các file không cần thiết và vượt giới hạn dung lượng của Cloudflare Workers/Pages (như `node_modules` chứa thư viện `workerd` nặng ~144MB, thư mục `tests/`, và các tệp cấu hình dev), dự án sử dụng quy trình build tách biệt:
+  - Thư mục build đầu ra: `dist/`
+  - Lệnh build: `npm run build` (lệnh này sẽ tạo thư mục `dist` và sao chép các tệp tĩnh cần thiết bao gồm `*.html`, `css/`, và `js/` vào đó).
+  - Cấu hình trên Cloudflare Pages dashboard: Cần đặt **Build command** thành `npm run build` và **Build output directory** thành `dist`.
+
 ---
 
 ## 6. LỘ TRÌNH TRIỂN KHAI THEO GIAI ĐOẠN (5 PHASES)

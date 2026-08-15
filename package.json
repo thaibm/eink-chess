@@ -4,7 +4,8 @@
   "description": "Ứng dụng web chơi cờ vua tối ưu hóa đặc biệt dành riêng cho máy đọc sách màn hình mực điện tử E-ink (Amazon Kindle Basic, Paperwhite, Oasis, Scribe, Kobo, Boox, v.v.).",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "mkdir -p dist && cp -r *.html css js dist"
   },
   "repository": {
     "type": "git",
