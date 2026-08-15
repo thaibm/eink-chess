@@ -15,7 +15,9 @@
         BOT_ELO: 'einkchess_bot_elo',
         PUZZLE_ELO: 'einkchess_puzzle_elo',
         SAVED_BOT_GAME: 'einkchess_saved_bot_game',
-        QUOTA: 'einkchess_quota'
+        QUOTA: 'einkchess_quota',
+        DEFAULT_BOT_LEVEL: 'einkchess_default_bot_lvl',
+        DEFAULT_SIDE: 'einkchess_default_side'
     };
 
     function generateUUID() {
@@ -183,6 +185,23 @@
 
         clearSavedBotGame: function() {
             return this.remove(STORAGE_KEYS.SAVED_BOT_GAME);
+        },
+
+        // --- Default Bot Match Config ---
+        getDefaultBotLevel: function() {
+            return parseInt(this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL, 1), 10);
+        },
+
+        setDefaultBotLevel: function(lvl) {
+            return this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL, parseInt(lvl, 10));
+        },
+
+        getDefaultSide: function() {
+            return this.get(STORAGE_KEYS.DEFAULT_SIDE, 'w');
+        },
+
+        setDefaultSide: function(side) {
+            return this.set(STORAGE_KEYS.DEFAULT_SIDE, side);
         },
 
         // --- Local Quota Management ---

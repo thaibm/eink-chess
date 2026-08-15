@@ -306,26 +306,12 @@ button,
 
 /* White Pieces */
 .piece-w {
-    color: #ffffff;
-    text-shadow:
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000,
-        -2px 0 0 #000,
-        2px 0 0 #000,
-        0 -2px 0 #000,
-        0 2px 0 #000;
+    color: #000000;
 }
 
 /* Black Pieces */
 .piece-b {
     color: #000000;
-    text-shadow:
-        -1px -1px 0 #fff,
-        1px -1px 0 #fff,
-        -1px 1px 0 #fff,
-        1px 1px 0 #fff;
 }
 
 /* --- 7. Status & Controls Area --- */

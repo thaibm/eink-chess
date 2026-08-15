@@ -19,8 +19,8 @@
   - Ô sáng (Light squares): Màu trắng / xám rất nhạt (`#f0f0f0`).
   - Ô tối (Dark squares): Màu xám (`#888888` hoặc `#2a2a2a`), không dùng màu đen tuyền để tránh làm chìm quân cờ đen.
 - **Quân cờ:**
-  - Quân Trắng (White pieces): Nền trắng, viền ngoài đen 2px, ký hiệu quân cờ nét đen (outline glyph: ♔, ♕, ♖, ♗, ♘, ♙).
-  - Quân Đen (Black pieces): Nền đen (hoặc viền đen nổi bật), ký hiệu quân cờ đặc màu trắng/đen (filled glyph: ♚, ♛, ♜, ♝, ♞, ♟).
+  - Quân Trắng (White pieces): Sử dụng ký hiệu quân cờ nét đen rỗng ruột (outline glyph: ♔, ♕, ♖, ♗, ♘, ♙) màu đen, không sử dụng đổ bóng (text-shadow) hoặc viền phụ để đảm bảo độ sắc nét cao nhất.
+  - Quân Đen (Black pieces): Sử dụng ký hiệu quân cờ đặc màu đen (filled glyph: ♚, ♛, ♜, ♝, ♞, ♟) màu đen, không sử dụng đổ bóng (text-shadow) hoặc viền phụ.
 - **Phản hồi tương tác thị giác (Visual Feedback):**
   - **Không dùng animations / CSS transitions / gradient / box-shadow mờ / opacity animation** (tránh làm màn e-ink bị chớp nháy làm mới liên tục).
   - **Ô được chọn (Selected square):** Đường viền nét liền đen đậm 3px (`outline: 3px solid #000; outline-offset: -3px;`).
@@ -217,6 +217,8 @@
   - `einkchess_pid`: UUID định danh thiết bị duy nhất.
   - `einkchess_pvp_code`: Mã phòng PvP đang hoạt động.
   - `einkchess_quota`: Object lưu trữ số lượt chơi đã dùng trong ngày (`{ date: 'YYYY-MM-DD', bot_cloud: 0, puzzle: 0, pvp: 0 }`).
+  - `einkchess_default_bot_lvl`: Cấu hình độ khó của Bot AI được chọn gần nhất (Mặc định: 1).
+  - `einkchess_default_side`: Bên cầm quân được chọn gần nhất (Trắng `w` / Đen `b`, mặc định: `w`).
 
 ### 5.3. Tracking Active Users (DAU / MAU / Realtime)
 - **Mục tiêu:** Đếm người dùng thực tế và phân tích lưu lượng mà không gây nặng máy Kindle.
