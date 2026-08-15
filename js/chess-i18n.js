@@ -98,7 +98,9 @@
             'game.elo_update_label': 'Điểm ELO cập nhật:',
 
             'donate.title': 'Ủng hộ tác giả EinkChess',
-            'donate.body': 'EinkChess là dự án phi lợi nhuận tối ưu cho cộng đồng người dùng Kindle.<br><br>Bạn có thể dùng điện thoại <strong>quét mã QR bên dưới</strong> để mời tác giả một tách cà phê trên Ko-fi:',
+            'donate.body': 'Bạn có thể quét mã QR bên dưới bằng điện thoại để mời tác giả một tách cà phê qua <strong>Ko-fi</strong> hoặc quét <strong>Momo</strong> để ủng hộ trực tiếp:',
+            'donate.kofi_label': 'Ko-fi (Quốc tế)',
+            'donate.momo_label': 'Momo (Việt Nam)',
             'donate.note': 'Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính năng mới!',
             'donate.btn_close': 'Đóng'
         },
@@ -191,7 +193,9 @@
             'game.elo_update_label': 'Updated ELO Rating:',
 
             'donate.title': 'Support EinkChess',
-            'donate.body': 'EinkChess is a non-profit chess app optimized for Kindle e-readers.<br><br>You can scan the <strong>QR code below</strong> with your phone to buy me a coffee on Ko-fi:',
+            'donate.body': 'You can scan the QR codes below to buy me a coffee via <strong>Ko-fi</strong> or use <strong>Momo</strong> to support directly:',
+            'donate.kofi_label': 'Ko-fi (International)',
+            'donate.momo_label': 'Momo (Vietnam)',
             'donate.note': 'Your support helps maintain servers and build more features!',
             'donate.btn_close': 'Close'
         }

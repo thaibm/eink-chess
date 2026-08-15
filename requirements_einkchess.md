@@ -258,9 +258,9 @@
    - 👥 **Đấu với bạn (PvP Online):** Miễn phí **3 trận/ngày**.
    - Khi hết lượt, hiển thị thông báo thân thiện và gợi ý chuyển sang Bot Level 1-3 hoặc ủng hộ tác giả.
 3. **Lộ trình Tính phí & Ủng hộ (Monetization):**
-   - **Giai đoạn 1 (Hiện tại): Donate — Support me on Ko-fi:**
+   - **Giai đoạn 1 (Hiện tại): Donate — Support me on Ko-fi & Momo:**
      - Tích hợp nút **`[☕ Ủng hộ tác giả (Support on Ko-fi)]`** trên Header / Footer / Popup khi hết lượt.
-     - Hiển thị **Mã QR Ko-fi** rõ nét để người dùng dùng điện thoại quét và donate nhanh chóng.
+     - Hiển thị **Mã QR Ko-fi & Momo** rõ nét để người dùng dùng điện thoại quét và donate nhanh chóng.
    - **Giai đoạn 2 (Tương lai khi SEO & User Base lớn): Gói Đăng ký định kỳ (Subscription):**
      - Đăng ký theo tháng/năm qua kích hoạt thiết bị bằng QR Code từ điện thoại.
      - Mở khóa chơi không giới hạn mọi chế độ.
@@ -317,9 +317,9 @@
 - **[TÍCH HỢP NGAY TỪ PHASE 1] Active User & Traffic Tracking:**
   - [x] Xây dựng `sql/schema.sql`: Bảng `active_pings` / `page_views` và PostgreSQL functions tính Realtime, DAU, WAU, MAU, YAU và tổng lượt truy cập.
   - [x] Xây dựng `js/chess-backend.js`: Tầng adapter gửi Beacon Ping tự động siêu nhẹ (~500 bytes) mỗi khi mở trang hoặc thực hiện ván cờ.
-- **[TÍCH HỢP NGAY TỪ PHASE 1] Donate Ko-fi QR:**
+- **[TÍCH HỢP NGAY TỪ PHASE 1] Donate Ko-fi & Momo QR:**
   - [x] Tích hợp nút `[☕ Donate / Ủng hộ]` trên Header và Footer.
-  - [x] Xây dựng Modal hiển thị Mã QR Ko-fi độ nét cao (tối ưu màn hình E-ink) để người dùng quét ủng hộ qua điện thoại.
+  - [x] Xây dựng Modal hiển thị Mã QR song song (Ko-fi và Momo) độ nét cao, tối ưu hóa hiển thị side-by-side trên màn hình E-ink.
 
 ### Phase 2 — Online AI (Level 4-8 Kiện Tướng + Quota 3 trận/ngày)
 - Xây dựng `js/chess-api-client.js`: Giao tiếp API `POST https://chess-api.com/v1` qua XHR.
