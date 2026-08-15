@@ -100,14 +100,26 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~600 | Local JS Minimax (Depth 1, Noise cao, Q-Search) | Offline |
-| **Level 2** | Dễ (Casual) | ~1100 | Local JS Minimax (Depth 2, Noise vừa, Q-Search) | Offline |
-| **Level 3** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Quiescence, MVV-LVA) | Offline |
-| **Level 4** | Trung cấp (Intermediate) | ~1500 | Chess-API.com (Stockfish 18, Depth 4) | Cần Internet (☁) |
-| **Level 5** | Nâng cao (Advanced) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
-| **Level 6** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
-| **Level 7** | Kiện tướng (Master) | ~2350 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
-| **Level 8** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
+| **Level 1** | Người mới (Beginner) | ~800 | Local JS Minimax (Depth 1, Không Quiescence) | Offline |
+| **Level 2** | Tập sự (Novice) | ~1000 | Local JS Minimax (Depth 2, Không Quiescence) | Offline |
+| **Level 3** | Dễ (Casual) | ~1200 | Local JS Minimax (Depth 2, Có Quiescence) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1400 | Local JS Minimax (Depth 3, Không Quiescence) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Có Quiescence) | Offline |
+| **Level 6** | Bán chuyên (Semi-Pro) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
+| **Level 7** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
+| **Level 8** | Dự bị Kiện tướng (Candidate) | ~2200 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
+| **Level 9** | Kiện tướng (Master) | ~2400 | Chess-API.com (Stockfish 18, Depth 14) | Cần Internet (☁) |
+| **Level 10** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
+
+***Giải thích về thuật toán tạo độ khó tự nhiên cho Offline Bot:***
+- **Khái niệm Depth (Độ sâu tìm kiếm):** Số lượng nửa-nước đi (Ply) mà bot nhìn trước được. Depth càng cao, bot càng giỏi về dàn quân chiến lược và thế trận.
+- **Khái niệm Quiescence Search (Tính toán ăn quân tĩnh):** Một thuật toán bổ trợ bắt buộc để giải quyết lỗi "Horizon Effect". Nếu không có Quiescence, bot có thể ăn 1 con Tượng đang được bảo vệ ở cuối độ sâu tìm kiếm vì nó tưởng nó "lãi" (không nhìn thấy nước tiếp theo kẻ thù sẽ ăn lại).
+- **Mô phỏng tư duy con người qua từng Level:**
+  - **Level 1 (Depth 1):** Rất thiển cận, chỉ nhìn 1 bước. Chỉ quan tâm ăn quân ngay lập tức, dính mọi bẫy cờ 2 nước.
+  - **Level 2 (Depth 2, No Quiescence):** Nhìn được 1 lượt đi (mình đi, địch đi). Có thể thấy trước một số mối đe dọa cơ bản nhưng vẫn tính toán sai trong các chuỗi đổi quân (Horizon Effect).
+  - **Level 3 (Depth 2, With Quiescence):** Cẩn thận hơn, không bị dính bẫy đổi quân cơ bản nhưng tư duy chiến lược ngắn hạn.
+  - **Level 4 (Depth 3, No Quiescence):** Nhìn sâu hơn về thế trận (điều quân tốt hơn), nhưng thỉnh thoảng tính nhầm/tính sót ở nước thứ 4 của một pha đổi quân phức tạp. Đây là lỗi cực kỳ đặc trưng của người chơi hệ trung bình-khá.
+  - **Level 5 (Depth 3, With Quiescence):** Bot offline mạnh nhất, tính toán sâu cả về thế trận lẫn chuỗi trao đổi quân. Đạt ELO ổn định ~1600.
 
 #### B. Giao diện Status Bar & Quân cờ bị ăn:
 - **Thanh trạng thái 3 phần (Compact 3-column table):**
@@ -125,7 +137,14 @@
 - **`[💡 Gợi ý (Hints: Bật/Tắt)]`**: Bật/tắt hiển thị các ô đi hợp lệ khi chạm vào quân cờ.
 - **`[🆕 Ván mới (New Game)]`**: Bắt đầu lại ván cờ mới.
 
-#### C. Quy tắc tính ELO & Kết thúc ván:
+#### D. Phong cấp Tốt (Pawn Promotion Selection):
+- Khi tốt di chuyển đến hàng cuối cùng (hàng 8 đối với quân Trắng, hàng 1 đối với quân Đen), hệ thống **không tự động phong Hậu** mà hiển thị modal chọn quân phong cấp tương tác tối ưu cho E-ink:
+  - **4 lựa chọn phong cấp:** Hậu (Queen `♕`/`♛`), Xe (Rook `♖`/`♜`), Tượng (Bishop `♗`/`♝`), Mã (Knight `♘`/`♞`).
+  - **Giao diện Touch Target:** Mỗi nút quân phong cấp có kích thước lớn (chiều cao tối thiểu 52px, viền kép đậm 2px), glyph rõ nét và tên quân cờ đa ngữ (VI/EN).
+  - **Nút Hủy (Cancel):** Cho phép người chơi hủy nước đi nếu chạm nhầm ô đích và chọn lại nước đi khác.
+  - Tương thích 100% với bàn cờ xoay (Flipped board) và hỗ trợ đa ngôn ngữ.
+
+#### E. Quy tắc tính ELO & Kết thúc ván:
 - Điểm ELO cập nhật theo công thức Elo chuẩn dựa trên kết quả ván đấu và mức chênh lệch trình độ giữa người chơi và Bot:
   - **Thắng:** $+ \Delta ELO$ (Thắng bot ELO cao cộng nhiều, bot thấp cộng ít).
   - **Thua / Đầu hàng:** $- \Delta ELO$.

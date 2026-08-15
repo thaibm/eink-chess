@@ -2,9 +2,13 @@
  * ====================================================================
  * CHESS AI (LOCAL MINIMAX — ES5 COMPLIANT) — EinkChess
  * Offline AI engine with Alpha-Beta pruning & Piece-Square Tables (PST)
- * Level 1: Beginner (~400 ELO)
- * Level 2: Casual (~800 ELO)
- * Level 3: Club (~1200 ELO)
+ * Level 1: Beginner     (~800 ELO)  - depth 1, no quiescence
+ * Level 2: Novice        (~1000 ELO) - depth 2, no quiescence
+ * Level 3: Casual        (~1200 ELO) - depth 2, quiescence
+ * Level 4: Intermediate  (~1400 ELO) - depth 3, no quiescence
+ * Level 5: Club          (~1600 ELO) - time-boxed iterative deepening,
+ *                                      transposition table, killer moves,
+ *                                      opening book, bounded quiescence
  * 100% Free & Unlimited on Client
  * ====================================================================
  */
@@ -205,21 +209,25 @@
     // genuine bug surfacing as some other thrown value.
     var TIME_UP = { timeUp: true };
 
-    // Per-level search configuration. Levels 1/2 stay on a fixed shallow
-    // depth with score noise (deliberately weak/inconsistent play). Level 3
-    // uses time-boxed iterative deepening with no noise (play as well as
-    // the time budget allows).
+    // Per-level search configuration. Levels 1-4 use a deterministic fixed
+    // depth (no randomness - difficulty comes purely from how far/well the
+    // bot looks ahead, not from deliberately injected mistakes). Level 5 is
+    // the "smart" tier: time-boxed iterative deepening, so it plays as well
+    // as the time budget allows rather than stopping at a fixed depth.
     var LEVEL_CONFIG = {
-        1: { fixedDepth: 1, noise: 80 },
-        2: { fixedDepth: 2, noise: 30 },
-        3: { maxDepth: 8, timeBudgetMs: 1200 }
+        1: { fixedDepth: 1, useQuiescence: false },
+        2: { fixedDepth: 2, useQuiescence: false },
+        3: { fixedDepth: 2, useQuiescence: true },
+        4: { fixedDepth: 3, useQuiescence: false },
+        5: { maxDepth: 8, timeBudgetMs: 1200, useQuiescence: true }
     };
 
     function ChessAI(level) {
-        this.level = level || 1; // 1, 2, or 3
+        this.level = level || 1; // 1-5
         this.tt = new Array(TT_SIZE);
         this.killers = [];
-        this.nodeCount = 0;
+        this.nodes = 0;
+        this.useQuiescence = false;
         this.deadline = Infinity;
 
         // Stats from the most recent getBestMove() call, for diagnostics
@@ -251,8 +259,8 @@
     // reading overhead for a much tighter worst-case bound until this has
     // been measured on real hardware.
     ChessAI.prototype.checkTime = function() {
-        this.nodeCount++;
-        if ((this.nodeCount & 255) === 0 && new Date().getTime() >= this.deadline) {
+        this.nodes++;
+        if ((this.nodes & 255) === 0 && new Date().getTime() >= this.deadline) {
             throw TIME_UP;
         }
     };
@@ -641,8 +649,10 @@
         }
 
         if (depth === 0) {
-            // For level 3, we use quiescence search to avoid horizon effect
-            if (this.level === 3) {
+            // this.useQuiescence is set per search by whichever of
+            // getBestMoveFixedDepth/getBestMoveIterativeDeepening is
+            // driving this call, from the current level's LEVEL_CONFIG.
+            if (this.useQuiescence) {
                 return this.quiescence(engine, alpha, beta, isMaximizing, 4); // Max 4 plies of quiescence
             } else {
                 return this.evaluatePosition(engine);
@@ -744,8 +754,10 @@
         this.lastDepthReached = 0;
         this.lastUsedBook = false;
 
-        // Try opening book first
-        if (this.level === 3) {
+        // Try opening book first (level 5 only: the deep/time-boxed tier -
+        // instant, well-known opening moves so it doesn't burn its search
+        // budget re-deriving theory every game).
+        if (this.level === 5) {
             var bookMove = this.getOpeningMove(engine);
             if (bookMove) {
                 this.lastUsedBook = true;
@@ -763,21 +775,21 @@
         // then let move ordering push the strongest candidates to the front.
         rootMoves.sort(function() { return 0.5 - Math.random(); });
 
-        if (this.level === 3) {
+        if (this.level === 5) {
             return this.getBestMoveIterativeDeepening(engine, rootMoves, isMaximizing);
         }
         return this.getBestMoveFixedDepth(engine, rootMoves, isMaximizing);
     };
 
-    // Levels 1-2: unchanged behavior from before this upgrade — a single
-    // fixed-depth full-width search per root move, with per-move random
-    // noise added afterward so the bot plays deliberately weak/inconsistent
-    // (that's the point of these levels, not a bug). No time budget needed:
-    // depth 1-2 completes essentially instantly.
+    // Levels 1-4: a deterministic fixed-depth full-width search per root
+    // move (no randomness - difficulty comes from depth/quiescence alone,
+    // per LEVEL_CONFIG). No time budget needed: depth 1-3 completes
+    // essentially instantly.
     ChessAI.prototype.getBestMoveFixedDepth = function(engine, rootMoves, isMaximizing) {
         var config = LEVEL_CONFIG[this.level] || LEVEL_CONFIG[1];
         this.deadline = Infinity;
-        this.killers = []; // don't let a prior level-3 search's killers leak in here
+        this.killers = []; // don't let a prior level-5 search's killers leak in here
+        this.useQuiescence = config.useQuiescence;
         var searchStart = new Date().getTime();
 
         rootMoves = this.orderMoves(rootMoves, null, 0);
@@ -795,10 +807,6 @@
                 engine.undoMoveRaw(move);
             }
 
-            if (config.noise > 0) {
-                score += (Math.random() * config.noise * 2) - config.noise;
-            }
-
             if (isMaximizing ? score > bestScore : score < bestScore) {
                 bestScore = score;
                 bestMove = move;
@@ -810,7 +818,7 @@
         return bestMove;
     };
 
-    // Level 3: iterative deepening within a wall-clock time budget. Each
+    // Level 5: iterative deepening within a wall-clock time budget. Each
     // iteration searches one ply deeper than the last, feeding the previous
     // iteration's best move to the front of the root move list so alpha-beta
     // starts with its tightest possible window — this is what lets the same
@@ -819,9 +827,10 @@
     // iteration's incomplete result is discarded and the last fully-
     // completed iteration's move is returned — never a partial answer.
     ChessAI.prototype.getBestMoveIterativeDeepening = function(engine, rootMoves, isMaximizing) {
-        var config = LEVEL_CONFIG[3];
+        var config = LEVEL_CONFIG[5];
         this.killers = [];
-        this.nodeCount = 0;
+        this.nodes = 0;
+        this.useQuiescence = config.useQuiescence;
         var searchStart = new Date().getTime();
         this.deadline = searchStart + config.timeBudgetMs;
 
@@ -903,5 +912,9 @@
     };
 
     root.ChessAI = ChessAI;
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = ChessAI;
+    }
 
 })(typeof window !== 'undefined' ? window : this);

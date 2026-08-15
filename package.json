@@ -1,0 +1,23 @@
+{
+  "name": "eink-chess",
+  "version": "1.0.0",
+  "description": "Ứng dụng web chơi cờ vua tối ưu hóa đặc biệt dành riêng cho máy đọc sách màn hình mực điện tử E-ink (Amazon Kindle Basic, Paperwhite, Oasis, Scribe, Kobo, Boox, v.v.).",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thaibm/eink-chess.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thaibm/eink-chess/issues"
+  },
+  "homepage": "https://github.com/thaibm/eink-chess#readme",
+  "devDependencies": {
+    "jest": "^30.4.2"
+  }
+}

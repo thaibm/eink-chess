@@ -7,7 +7,7 @@
     <meta name="description"
         content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
     <title>Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=27">
+    <link rel="stylesheet" href="css/einkchess.css?v=28">
 </head>
 
 <body>
@@ -33,12 +33,14 @@
             <div class="home-card">
                 <div class="card-header">
                     <div class="card-title" data-i18n="home.bot_card_title">Chơi với Máy (Bot AI)</div>
-                    <div class="card-tag" data-i18n="home.bot_card_tag">Free &amp; Unlimited</div>
+                    <div class="card-tag" id="bot-card-tag" data-i18n="home.bot_card_tag">Free &amp; Unlimited</div>
                 </div>
                 <div class="card-desc" data-i18n="home.bot_card_desc">
                     Tập luyện cờ vua với 3 cấp độ Bot Minimax offline (Người mới, Dễ, Câu lạc bộ). Tính điểm ELO sau mỗi ván đấu.
                 </div>
-                <button class="btn btn-primary card-btn" onclick="openHomeSetupModal()" data-i18n="home.bot_card_btn">Chơi với Bot AI</button>
+                <div id="bot-card-actions">
+                    <button class="btn btn-primary card-btn" onclick="openHomeSetupModal()" data-i18n="home.bot_card_btn">Chơi với Bot AI</button>
+                </div>
             </div>
 
             <!-- Mode 2: Chess Puzzles -->
@@ -73,9 +75,11 @@
                 <div class="modal-body">
                     <div style="font-weight: bold; margin-bottom: 6px; font-size: 15px;" data-i18n="home.setup_level_label">1. Chọn Cấp độ Bot AI:</div>
                     <div class="btn-group" id="home-level-group">
-                        <div class="btn-group-item active" onclick="selectHomeLevel(1)" data-i18n="home.level_1">Cấp 1 (~600)</div>
-                        <div class="btn-group-item" onclick="selectHomeLevel(2)" data-i18n="home.level_2">Cấp 2 (~1100)</div>
-                        <div class="btn-group-item" onclick="selectHomeLevel(3)" data-i18n="home.level_3">Cấp 3 (~1600)</div>
+                        <div class="btn-group-item active" onclick="selectHomeLevel(1)" data-i18n="home.level_1">Cấp 1 (~800)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(2)" data-i18n="home.level_2">Cấp 2 (~1000)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(3)" data-i18n="home.level_3">Cấp 3 (~1200)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(4)" data-i18n="home.level_4">Cấp 4 (~1400)</div>
+                        <div class="btn-group-item" onclick="selectHomeLevel(5)" data-i18n="home.level_5">Cấp 5 (~1600)</div>
                     </div>
 
                     <div style="font-weight: bold; margin-top: 14px; margin-bottom: 6px; font-size: 15px;" data-i18n="home.setup_side_label">2. Chọn Bên cầm quân:</div>
@@ -134,8 +138,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=8"></script>
-    <script src="js/chess-i18n.js?v=4"></script>
+    <script src="js/chess-storage.js?v=9"></script>
+    <script src="js/chess-i18n.js?v=8"></script>
     <script src="js/chess-backend.js?v=6"></script>
     <script>
         var selectedLvl = 1;
@@ -153,6 +157,48 @@
             if (puzBadge) puzBadge.innerHTML = ChessI18n.t('header.puzzle_elo', { elo: puzzleElo });
         }
 
+        function updateBotCard() {
+            var saved = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGame() : null;
+            var tagEl = document.getElementById('bot-card-tag');
+            var actionsEl = document.getElementById('bot-card-actions');
+            if (!actionsEl) return;
+
+            if (saved && saved.engine) {
+                var lvl = saved.botLevel || 1;
+                if (tagEl) {
+                    tagEl.removeAttribute('data-i18n');
+                    if (typeof ChessI18n !== 'undefined') {
+                        tagEl.innerHTML = ChessI18n.t('home.saved_game_tag', { lvl: lvl });
+                    } else {
+                        tagEl.innerHTML = 'Đang có ván dở (Cấp ' + lvl + ')';
+                    }
+                }
+                var resumeText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.bot_card_btn_resume') : 'Tiếp tục ván đấu';
+                var newText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.bot_card_btn_new') : 'Ván mới';
+
+                actionsEl.innerHTML =
+                    '<div style="display: table; width: 100%;">' +
+                        '<div style="display: table-cell; width: 55%; padding-right: 3px;">' +
+                            '<button class="btn btn-primary card-btn" style="margin: 0; width: 100%;" onclick="location.href=\'play-bot.html\'">' + resumeText + '</button>' +
+                        '</div>' +
+                        '<div style="display: table-cell; width: 45%; padding-left: 3px;">' +
+                            '<button class="btn card-btn" style="margin: 0; width: 100%;" onclick="openHomeSetupModal()">' + newText + '</button>' +
+                        '</div>' +
+                    '</div>';
+            } else {
+                if (tagEl) {
+                    tagEl.setAttribute('data-i18n', 'home.bot_card_tag');
+                    if (typeof ChessI18n !== 'undefined') {
+                        tagEl.innerHTML = ChessI18n.t('home.bot_card_tag');
+                    } else {
+                        tagEl.innerHTML = 'Free &amp; Không giới hạn';
+                    }
+                }
+                var btnText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.bot_card_btn') : 'Chơi với Bot AI';
+                actionsEl.innerHTML = '<button class="btn btn-primary card-btn" onclick="openHomeSetupModal()" data-i18n="home.bot_card_btn">' + btnText + '</button>';
+            }
+        }
+
         function initHome() {
             try {
                 if (typeof ChessStorage !== 'undefined') {
@@ -167,10 +213,12 @@
                     ChessI18n.init();
                     ChessI18n.onChange(function() {
                         updateHomeBadges();
+                        updateBotCard();
                     });
                 }
 
                 updateHomeBadges();
+                updateBotCard();
 
                 if (typeof ChessBackend !== 'undefined') {
                     ChessBackend.sendPing('pageview', '/index.html');
@@ -234,7 +282,7 @@
         }
 
         function launchGame() {
-            location.href = 'play-bot.html?lvl=' + selectedLvl + '&side=' + selectedSide;
+            location.href = 'play-bot.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide;
         }
 
         // Run safely once
