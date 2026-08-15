@@ -236,14 +236,20 @@
         var noise = 0;
 
         if (this.level === 1) {
-            depth = 1;
-            noise = 50; // Beginner
+            depth = 2;
+            noise = 50; // Beginner (~800)
         } else if (this.level === 2) {
             depth = 2;
-            noise = 15; // Casual
+            noise = 10; // Novice (~1000)
         } else if (this.level === 3) {
             depth = 3;
-            noise = 0;  // Club (Accurate)
+            noise = 15; // Casual (~1200)
+        } else if (this.level === 4) {
+            depth = 3;
+            noise = 5;  // Intermediate (~1400)
+        } else if (this.level === 5) {
+            depth = 3;
+            noise = 0;  // Club (Accurate ~1600)
         }
 
         var bestMove = null;

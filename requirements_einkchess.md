@@ -100,14 +100,16 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~600 | Local JS Minimax (Depth 1, Noise cao, Q-Search) | Offline |
-| **Level 2** | Dễ (Casual) | ~1100 | Local JS Minimax (Depth 2, Noise vừa, Q-Search) | Offline |
-| **Level 3** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Quiescence, MVV-LVA) | Offline |
-| **Level 4** | Trung cấp (Intermediate) | ~1500 | Chess-API.com (Stockfish 18, Depth 4) | Cần Internet (☁) |
-| **Level 5** | Nâng cao (Advanced) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
-| **Level 6** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
-| **Level 7** | Kiện tướng (Master) | ~2350 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
-| **Level 8** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
+| **Level 1** | Người mới (Beginner) | ~800 | Local JS Minimax (Depth 2, Noise 50) | Offline |
+| **Level 2** | Tập sự (Novice) | ~1000 | Local JS Minimax (Depth 2, Noise 10) | Offline |
+| **Level 3** | Dễ (Casual) | ~1200 | Local JS Minimax (Depth 3, Noise 15) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1400 | Local JS Minimax (Depth 3, Noise 5) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Noise 0) | Offline |
+| **Level 6** | Bán chuyên (Semi-Pro) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
+| **Level 7** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
+| **Level 8** | Dự bị Kiện tướng (Candidate) | ~2200 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
+| **Level 9** | Kiện tướng (Master) | ~2400 | Chess-API.com (Stockfish 18, Depth 14) | Cần Internet (☁) |
+| **Level 10** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
 
 #### B. Giao diện Status Bar & Quân cờ bị ăn:
 - **Thanh trạng thái 3 phần (Compact 3-column table):**
