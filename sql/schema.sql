@@ -23,6 +23,8 @@ CREATE INDEX IF NOT EXISTS idx_active_pings_action ON active_pings(action_type);
 CREATE OR REPLACE VIEW v_traffic_stats AS
 SELECT
     COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN device_id END) AS realtime_active_10m,
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '30 minutes' THEN device_id END) AS realtime_active_30m,
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '60 minutes' THEN device_id END) AS realtime_active_60m,
     COUNT(DISTINCT CASE WHEN created_at >= CURRENT_DATE THEN device_id END) AS dau_today,
     COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('week', CURRENT_DATE) THEN device_id END) AS wau_this_week,
     COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('month', CURRENT_DATE) THEN device_id END) AS mau_this_month,
@@ -85,6 +87,8 @@ BEGIN
     RETURN json_build_object(
         'success', true,
         'realtime_10m', v_stats.realtime_active_10m,
+        'realtime_30m', v_stats.realtime_active_30m,
+        'realtime_60m', v_stats.realtime_active_60m,
         'dau_today', v_stats.dau_today
     );
 END;

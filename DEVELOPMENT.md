@@ -110,13 +110,18 @@ Vercel là một nền tảng tuyệt vời để lưu trữ và quản lý tên
 
 Hệ thống ghi nhận lưu lượng qua bảng `active_pings` và tổng hợp tự động qua SQL View `v_traffic_stats` (trong `sql/schema.sql`).
 
-### Cách 1: Xem qua SQL Editor (Supabase / DBeaver / TablePlus)
+### Cách 1: Xem qua trang web hoặc SQL Editor
 
-1. **Xem toàn bộ chỉ số tổng hợp (Realtime 10 phút, DAU, WAU, MAU, YAU, Pageviews):**
+1. **Xem qua giao diện web của EinkChess:**
+   * Truy cập trực tiếp trang `/stats.html` (có liên kết tại chân trang Trang chủ `index.html`) để xem báo cáo thống kê trực quan.
+
+2. **Xem qua SQL Editor (Supabase / DBeaver / TablePlus):**
    ```sql
    SELECT * FROM v_traffic_stats;
    ```
    * `realtime_active_10m`: Số thiết bị hoạt động trong 10 phút gần nhất.
+   * `realtime_active_30m`: Số thiết bị hoạt động trong 30 phút gần nhất.
+   * `realtime_active_60m`: Số thiết bị hoạt động trong 60 phút (1 giờ) gần nhất.
    * `dau_today`: Daily Active Users (thiết bị duy nhất hôm nay).
    * `wau_this_week`: Weekly Active Users (tuần này).
    * `mau_this_month`: Monthly Active Users (tháng này).

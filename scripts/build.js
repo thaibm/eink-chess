@@ -1,6 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
+// Load environment variables from .env file if it exists
+const envPath = path.join(__dirname, '../.env');
+if (fs.existsSync(envPath)) {
+  console.log('Loading environment variables from local .env file...');
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  const lines = envContent.split(/\r?\n/);
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && trimmed.indexOf('#') !== 0) {
+      const parts = trimmed.split('=');
+      if (parts.length >= 2) {
+        const key = parts[0].trim();
+        const value = parts.slice(1).join('=').trim().replace(/^['"]|['"]$/g, '');
+        process.env[key] = value;
+      }
+    }
+  });
+}
+
 const distDir = path.join(__dirname, '../dist');
 
 // Helper to delete directory recursively
@@ -24,7 +43,7 @@ deleteDirSync(distDir);
 fs.mkdirSync(distDir, { recursive: true });
 
 // Copy root HTML files
-const filesToCopy = ['index.html', 'play-bot.html', 'settings.html'];
+const filesToCopy = ['index.html', 'play-bot.html', 'settings.html', 'stats.html'];
 filesToCopy.forEach((file) => {
   const src = path.join(__dirname, '..', file);
   if (fs.existsSync(src)) {

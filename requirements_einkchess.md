@@ -239,15 +239,20 @@
   - `einkchess_default_bot_lvl`: Cấu hình độ khó của Bot AI được chọn gần nhất (Mặc định: 1).
   - `einkchess_default_side`: Bên cầm quân được chọn gần nhất (Trắng `w` / Đen `b`, mặc định: `w`).
 
-### 5.3. Tracking Active Users (DAU / MAU / Realtime)
+### 5.3. Tracking Active Users & Trang Thống Kê (DAU / MAU / Realtime)
 - **Mục tiêu:** Đếm người dùng thực tế và phân tích lưu lượng mà không gây nặng máy Kindle.
 - **Cơ chế hoạt động:**
   - Client gửi **Beacon Ping** siêu nhẹ (~500 bytes XHR) khi khởi động app và khi bắt đầu ván cờ mới.
   - Gửi kèm: `device_id` (UUID), `device_type` (Kindle Basic, Paperwhite, Oasis, Scribe, Desktop), `lang`, `action_type`.
-  - Backend lưu vào bảng `active_pings` / tổng hợp số liệu:
-    - **Realtime Users:** Số thiết bị active trong 10 phút gần nhất.
-    - **DAU / MAU:** Số thiết bị duy nhất trong ngày / tháng.
-    - **Thống kê thiết bị & chế độ chơi:** Báo cáo tỉ lệ máy đọc sách và mức độ yêu thích từng chế độ.
+  - Backend lưu vào bảng `active_pings` / tổng hợp số liệu qua SQL View `v_traffic_stats`:
+    - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
+    - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất trong ngày / tuần / tháng / năm.
+    - **Pageviews:** Số lượt tải trang hôm nay và tổng tích lũy.
+- **Trang Thống Kê (`stats.html`):**
+  - Cung cấp trang xem thống kê traffic công khai, liên kết từ chân trang (Footer) Trang chủ `index.html`.
+  - Thiết kế tối giản, độ tương phản cao, phông chữ lớn và tối ưu hóa touch targets (min 44px) cho thiết bị E-ink.
+  - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng.
+  - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key.
 
 ### 5.4. Cơ chế Quota Freemium & Lộ trình Tính phí
 1. **Chế độ Miễn phí Hoàn toàn (Free & Unlimited):**

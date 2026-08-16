@@ -102,7 +102,30 @@
             'donate.kofi_label': 'Ko-fi (Quốc tế)',
             'donate.momo_label': 'Momo (Việt Nam)',
             'donate.note': 'Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính năng mới!',
-            'donate.btn_close': 'Đóng'
+            'donate.btn_close': 'Đóng',
+
+            'footer.stats': 'Thống kê traffic',
+            'stats.page_title': 'Thống Kê Traffic',
+            'stats.btn_refresh': 'Làm mới',
+            'stats.loading': 'Đang tải dữ liệu...',
+            'stats.offline_msg': 'Chế độ ngoại tuyến: Supabase chưa được cấu hình. Thống kê lưu lượng chỉ hiển thị khi đã cấu hình đầy đủ biến môi trường.',
+            'stats.no_data': 'Không có dữ liệu thống kê.',
+            'stats.error_parse': 'Lỗi định dạng dữ liệu.',
+            'stats.error_fetch': 'Lỗi tải dữ liệu từ máy chủ: ',
+            'stats.error_xhr': 'Lỗi kết nối mạng: ',
+            'stats.overview_title': 'TỔNG QUAN LƯU LƯỢNG',
+            'stats.metric_name': 'Chỉ số',
+            'stats.metric_value': 'Giá trị',
+            'stats.realtime_active_10m': 'Thiết bị hoạt động (10 phút qua)',
+            'stats.realtime_active_30m': 'Thiết bị hoạt động (30 phút qua)',
+            'stats.realtime_active_60m': 'Thiết bị hoạt động (60 phút / 1 giờ qua)',
+            'stats.dau_today': 'Người chơi hoạt động hôm nay (DAU)',
+            'stats.wau_this_week': 'Người chơi hoạt động tuần này (WAU)',
+            'stats.mau_this_month': 'Người chơi hoạt động tháng này (MAU)',
+            'stats.yau_this_year': 'Người chơi hoạt động năm nay (YAU)',
+            'stats.pageviews_today': 'Lượt truy cập hôm nay',
+            'stats.total_pageviews_all_time': 'Tổng lượt truy cập tích lũy',
+            'stats.desc_info': 'Dữ liệu được thống kê tự động thông qua SQL View từ bảng active_pings trên hệ thống Supabase của EinkChess.'
         },
         en: {
             'header.logo': 'EinkChess',
@@ -197,7 +220,30 @@
             'donate.kofi_label': 'Ko-fi (International)',
             'donate.momo_label': 'Momo (Vietnam)',
             'donate.note': 'Your support helps maintain servers and build more features!',
-            'donate.btn_close': 'Close'
+            'donate.btn_close': 'Close',
+
+            'footer.stats': 'Traffic Stats',
+            'stats.page_title': 'Traffic Statistics',
+            'stats.btn_refresh': 'Refresh',
+            'stats.loading': 'Loading statistics...',
+            'stats.offline_msg': 'Offline mode: Supabase is not configured. Traffic statistics are only available when environment variables are set.',
+            'stats.no_data': 'No statistical data found.',
+            'stats.error_parse': 'Error parsing data format.',
+            'stats.error_fetch': 'Error fetching data from server: ',
+            'stats.error_xhr': 'Network connection error: ',
+            'stats.overview_title': 'TRAFFIC OVERVIEW',
+            'stats.metric_name': 'Metric',
+            'stats.metric_value': 'Value',
+            'stats.realtime_active_10m': 'Active Devices (last 10m)',
+            'stats.realtime_active_30m': 'Active Devices (last 30m)',
+            'stats.realtime_active_60m': 'Active Devices (last 60m / 1h)',
+            'stats.dau_today': 'Active Users Today (DAU)',
+            'stats.wau_this_week': 'Active Users This Week (WAU)',
+            'stats.mau_this_month': 'Active Users This Month (MAU)',
+            'stats.yau_this_year': 'Active Users This Year (YAU)',
+            'stats.pageviews_today': 'Pageviews Today',
+            'stats.total_pageviews_all_time': 'Total Pageviews (All time)',
+            'stats.desc_info': 'Data is compiled automatically via a database view in the Supabase instance of EinkChess.'
         }
     };
 
