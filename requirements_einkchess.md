@@ -134,6 +134,7 @@
   - Mở popup xác nhận: *"Bạn có chắc chắn muốn đầu hàng?"*
   - Nếu xác nhận: Kết thúc ván, xử Thua cho người chơi, trừ điểm ELO Bot.
 - **`[🔄 Xoay bàn (Flip)]`**: Đảo chiều góc nhìn bàn cờ 180 độ.
+- **`[🔄 Làm mới (Refresh)]`**: Hiển thị overlay trắng toàn màn hình trong 200ms để kích hoạt E-ink refresh vật lý, giúp xóa hiện tượng ám màn (ghosting), sau đó tự động ẩn đi và vẽ lại bàn cờ sắc nét.
 - **`[💡 Gợi ý (Hints: Bật/Tắt)]`**: Bật/tắt hiển thị các ô đi hợp lệ khi chạm vào quân cờ.
 - **`[🆕 Ván mới (New Game)]`**: Bắt đầu lại ván cờ mới.
 

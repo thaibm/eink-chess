@@ -44,6 +44,7 @@
             <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
             <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
             <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
+            <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Làm mới</button>
             <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý:
                 Bật</button>
             <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
@@ -148,7 +149,7 @@
     <script src="js/chess-engine.js?v=6"></script>
     <script src="js/chess-ai.js?v=10"></script>
     <script src="js/chess-storage.js?v=12"></script>
-    <script src="js/chess-i18n.js?v=15"></script>
+    <script src="js/chess-i18n.js?v=16"></script>
     <script src="js/chess-backend.js?v=9"></script>
     <script src="js/chess-board.js?v=7"></script>
 
@@ -596,6 +597,27 @@
             board.showHints = !board.showHints;
             updateHintButtonText();
             board.render();
+        }
+
+        function handleRefresh() {
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '99999';
+            overlay.style.backgroundColor = '#ffffff';
+            document.body.appendChild(overlay);
+
+            setTimeout(function () {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+                if (board) {
+                    board.render();
+                }
+            }, 200);
         }
 
         // Run safely once
