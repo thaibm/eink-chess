@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:calibration": "node tests/calibration-level5.js",
     "build": "node scripts/build.js",
     "puzzles:fetch": "node scripts/build-puzzles.js --fetch-lichess",
     "puzzles:build": "node scripts/build-puzzles.js",
