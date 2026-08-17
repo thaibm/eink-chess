@@ -159,8 +159,13 @@
 
 #### A. Nguồn dữ liệu & Ghép câu đố:
 - **Nguồn dữ liệu:** Lichess Open Database (`lichess_db_puzzle.csv.zst`, ~6 triệu câu đố, lưu Git LFS).
-- **Kiến trúc Folder-Based:** Dữ liệu puzzle được tổ chức theo folder `data/puzzles/{ELO}/`, mỗi folder chứa các file JSON 100 câu. File `manifest.js` khai báo số lượng file mỗi bucket.
-- **Weekly Rotation:** GitHub Actions tự động xoay vòng 5,000 puzzles mỗi tuần (reservoir sampling từ ~5.3M câu đố đạt tiêu chuẩn RD ≤ 100).
+- **Kiến trúc Folder-Based:** Dữ liệu puzzle được tổ chức theo folder `data/puzzles/{ELO}/`, mỗi folder chứa các file JSON 100 câu. File `manifest.js` khai báo số lượng file mỗi bucket và mã `PUZZLE_MANIFEST_VERSION` (timestamp).
+- **Clean & Replace Triệt Để:** Script `scripts/build-puzzles.js` dọn dẹp sạch sẽ 100% thư mục `data/puzzles/` trước khi sinh mới, tránh tồn đọng file cũ.
+- **Weekly Rotation & Manual Trigger:**
+  - Tự động xoay vòng qua GitHub Actions mỗi thứ Hai (`0 2 * * 1`).
+  - Hỗ trợ kích hoạt thủ công (Manual Trigger) trên GitHub Actions qua `workflow_dispatch` với tùy chỉnh `puzzles_per_bucket` và `clean_only`.
+  - Hỗ trợ lệnh CLI cục bộ: `npm run puzzles:fetch` (tải trực tiếp từ Lichess), `npm run puzzles:build` (build từ file `.zst` local), và `npm run puzzles:clean`.
+  - Tự động cập nhật query param version trong `puzzles.html` (`manifest.js?v=TIMESTAMP`) và gắn query param `?v=` khi XHR fetch JSON để chống cache trên trình duyệt E-ink/Kindle.
 - Phân bổ dải ELO câu đố rộng từ **400 đến 2800** (25 dải, Đủ mọi cấp từ dễ đến siêu khó).
 - **Cơ chế ghép thế cờ & Tự động đổi bucket theo ELO:** Hệ thống tự động lấy câu đố có rating xấp xỉ điểm **Puzzle ELO** hiện tại của người dùng (làm tròn xuống mốc 100). Mỗi khi tải trang hoặc chuyển sang câu đố tiếp theo (`nextPuzzle()`), hệ thống đọc lại điểm ELO mới nhất trong Storage, tự động tính lại bucket (`Math.floor(elo / 100) * 100`) và thực hiện tải file JSON mới tương ứng với dải ELO mới nếu người dùng tăng/giảm vượt mốc 100 điểm. Client random chọn 1 file ~28KB từ folder bucket tương ứng.
 
@@ -370,8 +375,8 @@
   - [x] Sử dụng Lichess Open Database (`https://database.lichess.org/#puzzles`) — file `lichess_db_puzzle.csv.zst` (~6 triệu câu đố, nén Zstandard, lưu Git LFS).
   - [x] Viết script `scripts/build-puzzles.js` (Node.js): reservoir sampling từ ~5.3M câu đố (RD ≤ 100), tạo kiến trúc folder `data/puzzles/{ELO}/{NNN}.json` + `manifest.js`.
   - [x] Output: 25 folders (400→2800), mỗi folder 2 file × 100 puzzles = 5,000 puzzles tổng, ~1.2MB.
-  - [x] Hỗ trợ 2 chế độ: `node scripts/build-puzzles.js` (đọc .zst local) hoặc `--fetch-lichess` (download từ Lichess).
-  - [x] GitHub Actions weekly cron (`.github/workflows/refresh-puzzles.yml`): tự động xoay vòng bộ puzzle mỗi thứ Hai.
+  - [x] Hỗ trợ các chế độ: `node scripts/build-puzzles.js` (đọc .zst local), `--fetch-lichess` (download từ Lichess), `--count=N` (tùy biến số lượng), `--clean-only` (xóa sạch thư mục).
+  - [x] GitHub Actions weekly cron & manual trigger (`.github/workflows/refresh-puzzles.yml`): tự động xoay vòng bộ puzzle mỗi thứ Hai hoặc bấm nút Run workflow thủ công với các tham số tùy chọn.
 - **Giao diện `puzzles.html`:**
   - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, status bar hiển thị lượt đi, board container, action bar).
   - [x] Nút hành động: Gợi ý (♙ Hint), Bỏ qua (Skip), Tiếp theo (Next). Không dùng emoji tránh lỗi font Kindle.

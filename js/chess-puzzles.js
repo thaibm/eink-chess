@@ -341,6 +341,8 @@
 
             // Read manifest to find number of files in this bucket
             var manifest = (typeof PUZZLE_MANIFEST !== 'undefined') ? PUZZLE_MANIFEST : null;
+            var manifestVer = (typeof PUZZLE_MANIFEST_VERSION !== 'undefined') ? PUZZLE_MANIFEST_VERSION : '';
+            var cacheBust = manifestVer ? ('?v=' + encodeURIComponent(manifestVer)) : '';
             var fileCount = 0;
             var url = '';
 
@@ -350,7 +352,7 @@
                 var fileNum = Math.floor(Math.random() * fileCount) + 1;
                 var fileStr = String(fileNum);
                 while (fileStr.length < 3) fileStr = '0' + fileStr;
-                url = 'data/puzzles/' + bucket + '/' + fileStr + '.json';
+                url = 'data/puzzles/' + bucket + '/' + fileStr + '.json' + cacheBust;
             } else {
                 // Fallback: try to find the nearest bucket with puzzles
                 var nearest = this.findNearestBucket(bucket, manifest);
@@ -359,11 +361,11 @@
                     var nFileNum = Math.floor(Math.random() * fileCount) + 1;
                     var nFileStr = String(nFileNum);
                     while (nFileStr.length < 3) nFileStr = '0' + nFileStr;
-                    url = 'data/puzzles/' + nearest + '/' + nFileStr + '.json';
+                    url = 'data/puzzles/' + nearest + '/' + nFileStr + '.json' + cacheBust;
                     bucket = nearest;
                 } else {
                     // Last resort: fallback to old flat file format
-                    url = 'data/puzzles/' + bucket + '.json';
+                    url = 'data/puzzles/' + bucket + '.json' + cacheBust;
                 }
             }
 

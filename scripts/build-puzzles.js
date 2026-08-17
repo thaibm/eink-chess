@@ -6,15 +6,16 @@ var childProcess = require('child_process');
 // ============================================================
 // PUZZLE BUILD SCRIPT — Folder-Based Weekly Rotation
 // Reads lichess_db_puzzle.csv.zst (local or remote),
-// filters by RatingDeviation, reservoir-samples 200/bucket,
+// filters by RatingDeviation, reservoir-samples 200/bucket (configurable),
 // outputs data/puzzles/{ELO}/{NNN}.json + manifest.js
 // ============================================================
 
 var OUTPUT_DIR = path.join(__dirname, '..', 'data', 'puzzles');
+var HTML_FILE = path.join(__dirname, '..', 'puzzles.html');
 var ZST_FILE = path.join(__dirname, '..', 'lichess_db_puzzle.csv.zst');
 
-// --- Configuration ---
-var PUZZLES_PER_BUCKET = 200;   // Total puzzles per ELO bucket
+// --- Configuration Defaults ---
+var PUZZLES_PER_BUCKET = 200;   // Default puzzles per ELO bucket
 var PUZZLES_PER_FILE = 100;     // Puzzles per JSON file
 var MIN_ELO = 400;
 var MAX_ELO = 2800;
@@ -22,6 +23,57 @@ var MAX_RD = 100;               // RatingDeviation <= 100
 
 // --- Parse CLI args ---
 var fetchLichess = process.argv.indexOf('--fetch-lichess') !== -1;
+var cleanOnly = process.argv.indexOf('--clean-only') !== -1;
+
+for (var a = 0; a < process.argv.length; a++) {
+    var arg = process.argv[a];
+    if (arg.indexOf('--count=') === 0) {
+        var parsedCount = parseInt(arg.substring(8), 10);
+        if (!isNaN(parsedCount) && parsedCount > 0) {
+            PUZZLES_PER_BUCKET = parsedCount;
+        }
+    }
+}
+
+function deleteFolderRecursive(folderPath) {
+    if (fs.existsSync(folderPath)) {
+        var files = fs.readdirSync(folderPath);
+        for (var fi = 0; fi < files.length; fi++) {
+            var curPath = path.join(folderPath, files[fi]);
+            if (fs.statSync(curPath).isDirectory()) {
+                deleteFolderRecursive(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        }
+        fs.rmdirSync(folderPath);
+    }
+}
+
+function cleanOutputDir() {
+    if (fs.existsSync(OUTPUT_DIR)) {
+        // Clean all files and subdirectories inside data/puzzles
+        var entries = fs.readdirSync(OUTPUT_DIR);
+        for (var idx = 0; idx < entries.length; idx++) {
+            var entryPath = path.join(OUTPUT_DIR, entries[idx]);
+            var stat = fs.statSync(entryPath);
+            if (stat.isDirectory()) {
+                deleteFolderRecursive(entryPath);
+            } else {
+                fs.unlinkSync(entryPath);
+            }
+        }
+    } else {
+        fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+    }
+    console.log('Cleaned output directory: ' + OUTPUT_DIR);
+}
+
+if (cleanOnly) {
+    cleanOutputDir();
+    console.log('Clean-only mode complete.');
+    process.exit(0);
+}
 
 // --- Reservoir Sampling Buckets ---
 var buckets = {};       // { '1200': [puzzle1, puzzle2, ...] }
@@ -59,38 +111,18 @@ function addToBucket(bucket, puzzle) {
     }
 }
 
-function cleanOutputDir() {
-    if (fs.existsSync(OUTPUT_DIR)) {
-        // Remove all subdirectories and manifest.js, keep directory itself
-        var entries = fs.readdirSync(OUTPUT_DIR);
-        for (var idx = 0; idx < entries.length; idx++) {
-            var entryPath = path.join(OUTPUT_DIR, entries[idx]);
-            var stat = fs.statSync(entryPath);
-            if (stat.isDirectory()) {
-                // Remove directory recursively
-                deleteFolderRecursive(entryPath);
-            } else if (entries[idx] === 'manifest.js') {
-                fs.unlinkSync(entryPath);
-            }
-            // Keep old flat .json files until migration is confirmed
+function updatePuzzlesHtmlVersion(versionStr) {
+    if (!fs.existsSync(HTML_FILE)) return;
+    try {
+        var content = fs.readFileSync(HTML_FILE, 'utf8');
+        var regex = /(<script\s+src=["']data\/puzzles\/manifest\.js)(\?v=[^"']*)?(["']><\/script>)/i;
+        if (regex.test(content)) {
+            var updated = content.replace(regex, '$1?v=' + versionStr + '$3');
+            fs.writeFileSync(HTML_FILE, updated, 'utf8');
+            console.log('Updated manifest.js version query parameter in puzzles.html (?v=' + versionStr + ')');
         }
-    } else {
-        fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-    }
-}
-
-function deleteFolderRecursive(folderPath) {
-    if (fs.existsSync(folderPath)) {
-        var files = fs.readdirSync(folderPath);
-        for (var fi = 0; fi < files.length; fi++) {
-            var curPath = path.join(folderPath, files[fi]);
-            if (fs.statSync(curPath).isDirectory()) {
-                deleteFolderRecursive(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
-        }
-        fs.rmdirSync(folderPath);
+    } catch (e) {
+        console.warn('Warning: Could not update puzzles.html version query parameter:', e.message);
     }
 }
 
@@ -116,7 +148,7 @@ function writeOutput() {
             continue;
         }
 
-        // Shuffle for extra randomness (reservoir sampling already random, but shuffle file assignment)
+        // Shuffle for extra randomness
         shuffle(puzzles);
 
         // Create bucket directory
@@ -146,14 +178,22 @@ function writeOutput() {
         console.log('  ' + key + pad + ' |  ' + padNum(puzzles.length, 5) + '  |   ' + fileCount + '   | ' + bucketCounts[key]);
     }
 
+    // Generate version timestamp YYYYMMDD_HHMMSS
+    var now = new Date();
+    var versionStr = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
+
     // Write manifest.js
-    var manifestContent = '// Auto-generated by build-puzzles.js — ' + new Date().toISOString().split('T')[0] + '\n';
+    var manifestContent = '// Auto-generated by build-puzzles.js — ' + now.toISOString().split('T')[0] + '\n';
+    manifestContent += 'var PUZZLE_MANIFEST_VERSION = ' + JSON.stringify(versionStr) + ';\n';
     manifestContent += 'var PUZZLE_MANIFEST = ' + JSON.stringify(manifest) + ';\n';
     fs.writeFileSync(path.join(OUTPUT_DIR, 'manifest.js'), manifestContent);
 
+    // Sync version to puzzles.html
+    updatePuzzlesHtmlVersion(versionStr);
+
     console.log('-------|---------|-------|------------------------');
     console.log('Total: ' + totalPuzzles + ' puzzles in ' + totalFiles + ' files across ' + sortedKeys.length + ' buckets');
-    console.log('Manifest written to: data/puzzles/manifest.js');
+    console.log('Manifest written to: data/puzzles/manifest.js (Version: ' + versionStr + ')');
     console.log('Done!\n');
 }
 

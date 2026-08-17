@@ -1,10 +1,21 @@
-name: 🧩 Weekly Puzzle Refresh
+name: 🧩 Weekly & Manual Puzzle Refresh
 
 on:
   schedule:
     # Run every Monday at 2:00 AM UTC
     - cron: '0 2 * * 1'
   workflow_dispatch:
+    inputs:
+      puzzles_per_bucket:
+        description: 'Number of puzzles per ELO bucket'
+        required: false
+        default: '200'
+        type: string
+      clean_only:
+        description: 'Only clean data/puzzles directory (no download)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   refresh-puzzles:
@@ -25,28 +36,35 @@ jobs:
 
       - name: Build puzzle data from Lichess
         run: |
-          echo "Building puzzle data streaming directly from Lichess..."
-          node scripts/build-puzzles.js --fetch-lichess
-          echo ""
-          echo "Output:"
-          find data/puzzles -name "*.json" | wc -l
-          echo "files generated"
-          du -sh data/puzzles/
-          cat data/puzzles/manifest.js
+          if [ "${{ github.event.inputs.clean_only }}" = "true" ]; then
+            echo "Cleaning data/puzzles directory..."
+            node scripts/build-puzzles.js --clean-only
+          else
+            COUNT="${{ github.event.inputs.puzzles_per_bucket || '200' }}"
+            echo "Building puzzle data streaming directly from Lichess (Count: $COUNT per bucket)..."
+            node scripts/build-puzzles.js --fetch-lichess --count=$COUNT
+            echo ""
+            echo "Output:"
+            find data/puzzles -name "*.json" | wc -l
+            echo "files generated"
+            du -sh data/puzzles/
+            cat data/puzzles/manifest.js
+          fi
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Add puzzle data files
-          git add data/puzzles/
+          # Stage all changes in puzzle data directory (including deletions) and updated puzzles.html
+          git add -A data/puzzles/ puzzles.html
           
           # Check if there are changes to commit
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🧩 Weekly puzzle refresh ($(date +'%Y-%m-%d'))"
+            git commit -m "🧩 Refresh puzzle library ($(date +'%Y-%m-%d %H:%M UTC'))"
             git push
           fi
+
 

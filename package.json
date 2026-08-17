@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "puzzles:fetch": "node scripts/build-puzzles.js --fetch-lichess",
+    "puzzles:build": "node scripts/build-puzzles.js",
+    "puzzles:clean": "node scripts/build-puzzles.js --clean-only"
   },
   "repository": {
     "type": "git",
