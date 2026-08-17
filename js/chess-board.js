@@ -151,14 +151,14 @@
             modal.innerHTML =
                 '<div class="modal-box" style="max-width: 380px; text-align: center;">' +
                     '<div class="modal-title" id="chessboard-promo-title" style="text-align: center;">' +
-                        (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.promotion_title') : 'CHỌN QUÂN PHONG CẤP') +
+                        (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.promotion_title') : 'PROMOTION') +
                     '</div>' +
                     '<div class="modal-body" style="padding: 6px 0;">' +
                         '<div class="promo-options" id="chessboard-promo-options"></div>' +
                     '</div>' +
                     '<div class="modal-footer" style="text-align: center;">' +
                         '<button class="btn" id="chessboard-promo-cancel" style="min-width: 100px;">' +
-                            (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.btn_cancel') : 'Hủy') +
+                            (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.btn_cancel') : 'Cancel') +
                         '</button>' +
                     '</div>' +
                 '</div>';

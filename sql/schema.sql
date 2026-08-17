@@ -1,9 +1,9 @@
 -- ====================================================================
 -- EINKCHESS DATABASE SCHEMA (PostgreSQL / Supabase)
--- Hệ thống cơ sở dữ liệu cho einkchess.fun
+-- Database backend schema for einkchess.fun
 -- ====================================================================
 
--- 1. BẢNG GHI NHẬN ACTIVE USERS VÀ LƯỢT TRUY CẬP (TELEMETRY)
+-- 1. ACTIVE USERS AND TRAFFIC LOGS (TELEMETRY)
 CREATE TABLE IF NOT EXISTS active_pings (
     id BIGSERIAL PRIMARY KEY,
     device_id VARCHAR(64) NOT NULL,
@@ -14,12 +14,12 @@ CREATE TABLE IF NOT EXISTS active_pings (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index tối ưu tốc độ đếm và thống kê
+-- Index optimization for aggregation and statistics
 CREATE INDEX IF NOT EXISTS idx_active_pings_created_at ON active_pings(created_at);
 CREATE INDEX IF NOT EXISTS idx_active_pings_device_time ON active_pings(device_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_active_pings_action ON active_pings(action_type);
 
--- 2. VIEW THỐNG KÊ TRAFFIC (REALTIME, DAU, WAU, MAU, YAU)
+-- 2. TRAFFIC STATS VIEW (REALTIME, DAU, WAU, MAU, YAU)
 CREATE OR REPLACE VIEW v_traffic_stats AS
 SELECT
     COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN device_id END) AS realtime_active_10m,
@@ -33,7 +33,7 @@ SELECT
     COUNT(*) AS total_pageviews_all_time
 FROM active_pings;
 
--- 3. BẢNG QUẢN LÝ QUOTA NGÀY VÀ TRẠNG THÁI VIP
+-- 3. DAILY QUOTA AND VIP STATUS TABLE
 CREATE TABLE IF NOT EXISTS user_quotas (
     device_id VARCHAR(64) NOT NULL,
     quota_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS user_quotas (
 
 CREATE INDEX IF NOT EXISTS idx_user_quotas_device ON user_quotas(device_id);
 
--- 4. BẢNG PHÒNG CỜ ĐẤU BẠN BÈ (PVP ONLINE)
+-- 4. PVP ONLINE ROOM TABLE
 CREATE TABLE IF NOT EXISTS chess_games (
     game_code VARCHAR(8) PRIMARY KEY,
     white_pid VARCHAR(64) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS chess_games (
 CREATE INDEX IF NOT EXISTS idx_chess_games_code ON chess_games(game_code);
 CREATE INDEX IF NOT EXISTS idx_chess_games_status ON chess_games(status);
 
--- 5. FUNCTION RPC: GỬI PING NHANH
+-- 5. FUNCTION RPC: SEND PING
 CREATE OR REPLACE FUNCTION rpc_ping(
     p_device_id VARCHAR(64),
     p_device_type VARCHAR(32),
@@ -77,11 +77,11 @@ RETURNS JSON AS $$
 DECLARE
     v_stats RECORD;
 BEGIN
-    -- Ghi nhận ping
+    -- Record ping
     INSERT INTO active_pings (device_id, device_type, lang, action_type, page_url, created_at)
     VALUES (p_device_id, p_device_type, p_lang, p_action_type, p_page_url, NOW());
 
-    -- Lấy thống kê cơ bản trả về cho client nếu cần
+    -- Fetch summary stats to return to client if needed
     SELECT * INTO v_stats FROM v_traffic_stats;
 
     RETURN json_build_object(

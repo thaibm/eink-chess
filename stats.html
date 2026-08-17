@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="EinkChess - Traffic Statistics and Usage Reports.">
     <title>EinkChess - Traffic Statistics</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=42">
+    <link rel="stylesheet" href="css/einkchess.css?v=43">
     <style>
         .stats-table {
             width: 100%;
@@ -67,8 +67,7 @@
             <div class="header-top">
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
                 <div class="header-center">
-                    <span id="stats-page-title" style="font-weight: bold;" data-i18n="stats.page_title">Thống Kê
-                        Traffic</span>
+                    <span id="stats-page-title" style="font-weight: bold;" data-i18n="stats.page_title">Traffic Statistics</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
@@ -81,57 +80,57 @@
                 <div style="display: table-cell; width: 50%; padding-right: 4px;">
                     <button class="btn btn-block" onclick="location.href='index.html'"
                         style="margin: 0; padding: 11px 8px; font-size: 15px; min-height: 44px;"
-                        data-i18n="game.btn_home">Trang chủ</button>
+                        data-i18n="game.btn_home">Home</button>
                 </div>
                 <div style="display: table-cell; width: 50%; padding-left: 4px;">
                     <button class="btn btn-primary btn-block" onclick="loadStats()"
                         style="margin: 0; padding: 11px 8px; font-size: 15px; min-height: 44px;"
-                        data-i18n="stats.btn_refresh">Làm mới</button>
+                        data-i18n="stats.btn_refresh">Refresh</button>
                 </div>
             </div>
         </div>
 
         <div id="stats-status" style="margin: 20px 0; font-size: 15px; font-weight: bold; text-align: center;">
-            Đang tải dữ liệu...
+            Loading data...
         </div>
 
         <div id="stats-container" style="display: none;">
             <div class="stats-card">
-                <div class="stats-title" data-i18n="stats.overview_title">Tổng quan lưu lượng</div>
+                <div class="stats-title" data-i18n="stats.overview_title">Traffic Overview</div>
                 <table class="stats-table">
                     <thead>
                         <tr>
-                            <th data-i18n="stats.metric_name">Chỉ số</th>
-                            <th style="text-align: right;" data-i18n="stats.metric_value">Giá trị</th>
+                            <th data-i18n="stats.metric_name">Metric</th>
+                            <th style="text-align: right;" data-i18n="stats.metric_value">Value</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-i18n="stats.currently_playing">Số người đang chơi</td>
+                            <td data-i18n="stats.currently_playing">Active Players (60m)</td>
                             <td class="value-col" id="val-realtime-60m">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.dau_today">Người chơi hoạt động hôm nay (DAU)</td>
+                            <td data-i18n="stats.dau_today">Daily Active Users (DAU)</td>
                             <td class="value-col" id="val-dau">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.wau_this_week">Người chơi hoạt động 7 ngày qua (WAU)</td>
+                            <td data-i18n="stats.wau_this_week">Weekly Active Users (WAU)</td>
                             <td class="value-col" id="val-wau">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.mau_this_month">Người chơi hoạt động 30 ngày qua (MAU)</td>
+                            <td data-i18n="stats.mau_this_month">Monthly Active Users (MAU)</td>
                             <td class="value-col" id="val-mau">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.yau_this_year">Người chơi hoạt động 365 ngày qua (YAU)</td>
+                            <td data-i18n="stats.yau_this_year">Yearly Active Users (YAU)</td>
                             <td class="value-col" id="val-yau">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.pageviews_today">Lượt xem trang hôm nay</td>
+                            <td data-i18n="stats.pageviews_today">Pageviews (Today)</td>
                             <td class="value-col" id="val-pvs-today">0</td>
                         </tr>
                         <tr>
-                            <td data-i18n="stats.total_pageviews_all_time">Tổng lượt xem trang tích lũy</td>
+                            <td data-i18n="stats.total_pageviews_all_time">Total Pageviews (All-time)</td>
                             <td class="value-col" id="val-pvs-all">0</td>
                         </tr>
                     </tbody>
@@ -141,9 +140,9 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=13"></script>
-    <script src="js/chess-i18n.js?v=22"></script>
-    <script src="js/chess-backend.js?v=9"></script>
+    <script src="js/chess-storage.js?v=15"></script>
+    <script src="js/chess-i18n.js?v=23"></script>
+    <script src="js/chess-backend.js?v=11"></script>
     <script>
         function displayStats(row) {
             var el10m = document.getElementById('val-realtime-10m');
@@ -175,7 +174,7 @@
             var containerEl = document.getElementById('stats-container');
             if (!statusEl || !containerEl) return;
 
-            statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.loading') : 'Đang tải dữ liệu...';
+            statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.loading') : 'Loading data...';
             containerEl.style.display = 'none';
 
             if (typeof ChessBackend === 'undefined') {
@@ -187,7 +186,7 @@
             var key = ChessBackend.config.SUPABASE_ANON_KEY;
 
             if (!url || !key || url.indexOf('%%') === 0 || key.indexOf('%%') === 0) {
-                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.offline_msg') : 'Chế độ ngoại tuyến: Supabase chưa được cấu hình.';
+                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.offline_msg') : 'Offline mode: Supabase is not configured.';
                 return;
             }
 
@@ -206,20 +205,20 @@
                                 if (data && data.length > 0) {
                                     displayStats(data[0]);
                                 } else {
-                                    statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.no_data') : 'Không tìm thấy dữ liệu.';
+                                    statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.no_data') : 'No data found.';
                                 }
                             } catch (e) {
-                                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_parse') : 'Lỗi xử lý dữ liệu JSON.';
+                                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_parse') : 'JSON parsing error.';
                             }
                         } else {
-                            statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_fetch') : 'Lỗi tải dữ liệu: ') + xhr.status;
+                            statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_fetch') : 'Failed to load data: ') + xhr.status;
                         }
                     }
                 };
 
                 xhr.send();
             } catch (e) {
-                statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_xhr') : 'Lỗi kết nối: ') + e.message;
+                statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_xhr') : 'Connection error: ') + e.message;
             }
         }
 

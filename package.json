@@ -1,7 +1,7 @@
 {
   "name": "eink-chess",
   "version": "1.0.0",
-  "description": "Ứng dụng web chơi cờ vua tối ưu hóa đặc biệt dành riêng cho máy đọc sách màn hình mực điện tử E-ink (Amazon Kindle Basic, Paperwhite, Oasis, Scribe, Kobo, Boox, v.v.).",
+  "description": "Web chess game specially optimized for E-ink e-readers (Amazon Kindle, Kobo, Boox, etc.).",
   "main": "index.js",
   "scripts": {
     "test": "jest",

@@ -237,19 +237,19 @@
 
         if (this.level === 1) {
             depth = 1;
-            useQuiescence = false; // Beginner: Rất thiển cận, không tính được trao đổi quân dài hạn
+            useQuiescence = false; // Beginner: Very short-sighted, cannot calculate long-term piece trades
         } else if (this.level === 2) {
             depth = 2;
-            useQuiescence = false; // Novice: Nhìn được 1 lượt nhưng hay dính bẫy "Horizon Effect"
+            useQuiescence = false; // Novice: Looks 1 turn ahead but prone to Horizon Effect
         } else if (this.level === 3) {
             depth = 2;
-            useQuiescence = true;  // Casual: Cẩn thận hơn, không bị bẫy đổi quân cơ bản
+            useQuiescence = true;  // Casual: More careful, avoids basic trade traps
         } else if (this.level === 4) {
             depth = 3;
-            useQuiescence = false; // Intermediate: Tính sâu về vị trí nhưng thỉnh thoảng tính sót ở nước thứ 4
+            useQuiescence = false; // Intermediate: Deeper positional play, occasionally misses on 4th ply
         } else if (this.level === 5) {
             depth = 3;
-            useQuiescence = true;  // Club: Tính sâu và không bị sót các pha đổi quân liên hoàn
+            useQuiescence = true;  // Club: Deep search, does not miss tactical exchanges
         }
 
         var bestMove = null;

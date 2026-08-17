@@ -80,7 +80,7 @@
             this.updateHeaderUI();
             this.updateActionBarUI();
 
-            // Gửi telemetry ping
+            // Send telemetry ping
             var backend = getBackend();
             if (backend && backend.sendPing) {
                 backend.sendPing('play_puzzle', '/puzzles.html');

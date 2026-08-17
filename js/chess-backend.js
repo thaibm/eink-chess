@@ -10,18 +10,18 @@
     'use strict';
 
     // CONFIGURATION (Default Supabase or Custom VPS endpoint)
-    // Sửa các thông số dưới đây khi kết nối với dự án Supabase của bạn
+    // Configure parameters below when connecting to your Supabase project
     var CONFIG = {
-        SUPABASE_URL: '%%SUPABASE_URL%%', // ví dụ: 'https://xyzcompany.supabase.co'
-        SUPABASE_ANON_KEY: '%%SUPABASE_ANON_KEY%%', // ví dụ: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-        KOFI_URL: 'https://ko-fi.com/thaibm', // URL trang Ko-fi của tác giả
+        SUPABASE_URL: '%%SUPABASE_URL%%', // e.g. 'https://xyzcompany.supabase.co'
+        SUPABASE_ANON_KEY: '%%SUPABASE_ANON_KEY%%', // e.g. 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        KOFI_URL: 'https://ko-fi.com/thaibm', // Author's Ko-fi URL
         KOFI_QR_IMAGE: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ko-fi.com/thaibm'
     };
 
     var ChessBackend = {
         config: CONFIG,
 
-        // Gửi ping thống kê Active Users (siêu nhẹ ~500 bytes XHR)
+        // Send telemetry ping for Active Users (~500 bytes lightweight XHR)
         sendPing: function(actionType, pageUrl, callback) {
             var deviceId = root.ChessStorage ? root.ChessStorage.getDeviceId() : 'unknown';
             var deviceType = root.ChessStorage ? root.ChessStorage.getDeviceType() : 'kindle';
@@ -38,7 +38,7 @@
             var url = this.config.SUPABASE_URL;
             var key = this.config.SUPABASE_ANON_KEY;
 
-            // Nếu chưa cấu hình Supabase URL hoặc vẫn là placeholder, log ra console hoặc bỏ qua an toàn
+            // If Supabase URL is not configured or still a placeholder, log or safely bypass
             if (!url || !key || url.indexOf('%%') === 0 || key.indexOf('%%') === 0) {
                 if (callback) callback(null, { offline: true });
                 return;
@@ -69,7 +69,7 @@
             }
         },
 
-        // Mở Modal Ủng hộ tác giả Ko-fi
+        // Open Ko-fi Donate Modal
         showDonateModal: function() {
             var modal = document.getElementById('donate-modal');
             if (modal) {
@@ -77,7 +77,7 @@
             }
         },
 
-        // Đóng Modal Ko-fi
+        // Close Ko-fi Modal
         closeDonateModal: function() {
             var modal = document.getElementById('donate-modal');
             if (modal) {

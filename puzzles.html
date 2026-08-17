@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Chess Puzzles on Kindle - EinkChess">
     <title>Chess Puzzles - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=42">
+    <link rel="stylesheet" href="css/einkchess.css?v=43">
 </head>
 
 <body>
@@ -18,11 +18,11 @@
                 <div class="header-center">
                     <span class="elo-badge" id="puzzle-elo-badge" onclick="PuzzleManager.openSkillModal()"
                         style="cursor: pointer;">ELO: 400</span>
-                    <span id="puzzle-streak-name" style="font-weight: normal; font-size: 12px;">Chuỗi: 0</span>
+                    <span id="puzzle-streak-name" style="font-weight: normal; font-size: 12px;">Streak: 0</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
-                        data-i18n="header.donate">Ủng hộ</button>
+                        data-i18n="header.donate">Donate</button>
                     <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
                     <a href="index.html" class="btn btn-sm" data-i18n="header.menu">Menu</a>
                 </div>
@@ -32,7 +32,7 @@
         <!-- 2. COMPACT STATUS BAR -->
         <div id="status-bar" class="status-bar">
             <div class="status-captured" id="captured-white"></div>
-            <div class="status-text" id="status-text" data-i18n="puzzle.turn_white">Lượt Trắng đi</div>
+            <div class="status-text" id="status-text" data-i18n="puzzle.turn_white">White to move</div>
             <div class="status-captured" id="captured-black"></div>
         </div>
 
@@ -47,17 +47,16 @@
                 </div>
                 <div class="action-bar-cell">
                     <button class="btn" id="btn-hint" onclick="PuzzleManager.useHint()" data-i18n="puzzle.btn_hint">♙
-                        Gợi ý</button>
+                        Hint</button>
                 </div>
                 <div class="action-bar-cell">
                     <button class="btn" id="btn-skip" onclick="PuzzleManager.skipPuzzle()"
-                        data-i18n="puzzle.btn_skip">Bỏ qua</button>
+                        data-i18n="puzzle.btn_skip">Skip</button>
                     <button class="btn btn-primary" id="btn-next" style="display: none;"
-                        onclick="PuzzleManager.nextPuzzle()" data-i18n="puzzle.btn_next">Tiếp theo</button>
+                        onclick="PuzzleManager.nextPuzzle()" data-i18n="puzzle.btn_next">Next</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="PuzzleManager.refreshScreen()" data-i18n="game.btn_refresh">Làm
-                        mới</button>
+                    <button class="btn" onclick="PuzzleManager.refreshScreen()" data-i18n="game.btn_refresh">Refresh</button>
                 </div>
             </div>
         </div>
@@ -65,43 +64,40 @@
         <!-- 5. INITIAL PUZZLE SKILL LEVEL MODAL (FIRST-TIME ONBOARDING) -->
         <div id="skill-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkillModal()">
             <div class="modal-box" style="max-width: 360px; margin-top: 8vh; padding: 14px;">
-                <div class="modal-title" data-i18n="puzzle.skill_modal_title" style="text-align: center;">CHỌN TRÌNH ĐỘ
-                    KHỞI ĐẦU</div>
+                <div class="modal-title" data-i18n="puzzle.skill_modal_title" style="text-align: center;">CHOOSE STARTING SKILL</div>
                 <div class="modal-body" style="font-size: 13px; padding: 6px 0;">
-                    <div style="margin-bottom: 8px;" data-i18n="puzzle.skill_modal_desc">Chọn mức độ phù hợp với khả
-                        năng của bạn để bắt đầu giải cờ thế:</div>
+                    <div style="margin-bottom: 8px;" data-i18n="puzzle.skill_modal_desc">Choose a level suited to your chess skill to start solving puzzles:</div>
                     <div id="puzzle-skill-list" class="puzzle-skill-list">
                         <button type="button" class="puzzle-skill-btn active" data-elo="400"
                             onclick="PuzzleManager.selectSkillLevel(400)">
-                            <strong data-i18n="puzzle.skill_lvl1_name">Mới chơi (~400 ELO)</strong> — <span
-                                data-i18n="puzzle.skill_lvl1_desc">Dễ nhất / Khởi đầu</span>
+                            <strong data-i18n="puzzle.skill_lvl1_name">Beginner (~400 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl1_desc">Easiest / Starter</span>
                         </button>
                         <button type="button" class="puzzle-skill-btn" data-elo="800"
                             onclick="PuzzleManager.selectSkillLevel(800)">
-                            <strong data-i18n="puzzle.skill_lvl2_name">Tập sự (~800 ELO)</strong> — <span
-                                data-i18n="puzzle.skill_lvl2_desc">Biết luật cơ bản</span>
+                            <strong data-i18n="puzzle.skill_lvl2_name">Novice (~800 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl2_desc">Knows basic rules</span>
                         </button>
                         <button type="button" class="puzzle-skill-btn" data-elo="1200"
                             onclick="PuzzleManager.selectSkillLevel(1200)">
-                            <strong data-i18n="puzzle.skill_lvl3_name">Trung bình (~1200 ELO)</strong> — <span
-                                data-i18n="puzzle.skill_lvl3_desc">Nắm vững chiến thuật</span>
+                            <strong data-i18n="puzzle.skill_lvl3_name">Intermediate (~1200 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl3_desc">Solid tactical basics</span>
                         </button>
                         <button type="button" class="puzzle-skill-btn" data-elo="1600"
                             onclick="PuzzleManager.selectSkillLevel(1600)">
-                            <strong data-i18n="puzzle.skill_lvl4_name">Nâng cao (~1600 ELO)</strong> — <span
-                                data-i18n="puzzle.skill_lvl4_desc">Chiến thuật phức tạp</span>
+                            <strong data-i18n="puzzle.skill_lvl4_name">Advanced (~1600 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl4_desc">Complex tactics</span>
                         </button>
                         <button type="button" class="puzzle-skill-btn" data-elo="2000"
                             onclick="PuzzleManager.selectSkillLevel(2000)">
-                            <strong data-i18n="puzzle.skill_lvl5_name">Chuyên gia (~2000 ELO)</strong> — <span
-                                data-i18n="puzzle.skill_lvl5_desc">Thử thách đỉnh cao</span>
+                            <strong data-i18n="puzzle.skill_lvl5_name">Expert (~2000 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl5_desc">Master challenges</span>
                         </button>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
                     <button class="btn btn-primary btn-block" onclick="PuzzleManager.confirmSkillLevel()"
-                        data-i18n="puzzle.btn_start_puzzle" style="font-size: 15px; padding: 10px 8px; margin: 0;">Bắt
-                        đầu Giải đố</button>
+                        data-i18n="puzzle.btn_start_puzzle" style="font-size: 15px; padding: 10px 8px; margin: 0;">Start Puzzles</button>
                 </div>
             </div>
         </div>
@@ -110,16 +106,16 @@
         <div id="skip-confirm-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkipModal()">
             <div class="modal-box" style="max-width: 340px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="skip-modal-title" data-i18n="puzzle.confirm_skip_title"
-                    style="text-align: center;">Xác nhận bỏ qua</div>
+                    style="text-align: center;">Confirm Skip</div>
                 <div class="modal-body" id="skip-modal-body"
                     style="font-size: 14px; padding: 10px 0; text-align: center;">
                     <!-- Dynamic Result Message -->
                 </div>
                 <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
                     <button class="btn" onclick="PuzzleManager.closeSkipModal()"
-                        data-i18n="game.btn_cancel">Hủy</button>
+                        data-i18n="game.btn_cancel">Cancel</button>
                     <button class="btn btn-primary" onclick="PuzzleManager.confirmSkip()"
-                        data-i18n="puzzle.btn_confirm_skip">Đồng ý bỏ qua</button>
+                        data-i18n="puzzle.btn_confirm_skip">Confirm Skip</button>
                 </div>
             </div>
         </div>
@@ -128,15 +124,14 @@
         <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeModal()">
             <div class="modal-box" style="max-width: 320px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="gameover-title" data-i18n="puzzle.success_title"
-                    style="text-align: center;">Giải đố thành công! ♔</div>
+                    style="text-align: center;">Puzzle Solved! ♔</div>
                 <div class="modal-body" id="gameover-body" style="font-size: 14px; padding: 6px 0;">
                     <!-- Dynamic Result Message & ELO Update -->
                 </div>
                 <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
-                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Trang
-                        chủ</button>
+                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Home</button>
                     <button class="btn btn-primary" onclick="PuzzleManager.nextPuzzle(); PuzzleManager.closeModal();"
-                        data-i18n="puzzle.btn_next">Tiếp theo</button>
+                        data-i18n="puzzle.btn_next">Next</button>
                 </div>
             </div>
         </div>
@@ -144,10 +139,9 @@
         <!-- 8. DONATE KO-FI MODAL -->
         <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
-                <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
+                <div class="modal-title" data-i18n="donate.title">Support EinkChess Author</div>
                 <div class="modal-body">
-                    <span data-i18n="donate.body">Bạn có thể quét mã QR bên dưới bằng điện thoại để mời tác giả một tách
-                        cà phê qua <strong>Ko-fi</strong> hoặc quét <strong>Momo</strong> để ủng hộ trực tiếp:</span>
+                    <span data-i18n="donate.body">You can scan the QR code below with your phone to buy the author a coffee via <strong>Ko-fi</strong> or <strong>Momo</strong>:</span>
 
                     <div class="qr-wrapper">
                         <div class="qr-item">
@@ -162,12 +156,11 @@
                             <div class="qr-link-text">Momo QR</div>
                         </div>
                     </div>
-                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính
-                        năng mới!</span>
+                    <span data-i18n="donate.note">Your support helps maintain server costs and develop new features!</span>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
-                        data-i18n="donate.btn_close">Đóng</button>
+                        data-i18n="donate.btn_close">Close</button>
                 </div>
             </div>
         </div>
@@ -175,12 +168,12 @@
 
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
-    <script src="js/chess-storage.js?v=14"></script>
-    <script src="js/chess-i18n.js?v=22"></script>
-    <script src="js/chess-backend.js?v=10"></script>
-    <script src="js/chess-board.js?v=12"></script>
+    <script src="js/chess-storage.js?v=15"></script>
+    <script src="js/chess-i18n.js?v=23"></script>
+    <script src="js/chess-backend.js?v=11"></script>
+    <script src="js/chess-board.js?v=13"></script>
     <script src="data/puzzles/manifest.js?v=20260817"></script>
-    <script src="js/chess-puzzles.js?v=18"></script>
+    <script src="js/chess-puzzles.js?v=19"></script>
 </body>
 
 </html>

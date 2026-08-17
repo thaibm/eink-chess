@@ -109,11 +109,11 @@
             var statusH = statusBar ? statusBar.offsetHeight : 0;
             var actionH = actionBar ? actionBar.offsetHeight : 0;
 
-            // Tính toán khoảng padding/margin an toàn để tránh bị cuộn (khoảng 20px)
+            // Calculate safe padding/margin offset to avoid scrollbars (~20px)
             var totalOffsets = 20;
 
             var availableH = winH - headerH - statusH - actionH - totalOffsets;
-            var availableW = winW - 12; // 6px padding hai bên container
+            var availableW = winW - 12; // 6px padding on both sides of container
 
             var maxBoardSize = Math.min(availableW, availableH);
 
@@ -129,7 +129,7 @@
                 boardContainer.style.maxWidth = maxBoardSize + 'px';
             }
             
-            // Cập nhật font-size cho quân cờ (tỷ lệ 75% kích thước ô vuông)
+            // Update piece font-size (proportional 75% of square size)
             var pieceSize = Math.floor((maxBoardSize / 8) * 0.75);
             var styleId = 'dynamic-piece-style';
             var styleEl = document.getElementById(styleId);
@@ -203,7 +203,7 @@
             var played = this.getPlayedPuzzles();
             if (played.indexOf(puzzleId) === -1) {
                 played.push(puzzleId);
-                // Giới hạn lưu 5000 ID gần nhất (tăng từ 1000 cho thư viện puzzle lớn hơn)
+                // Limit stored IDs to the latest 5000 (increased from 1000 for larger puzzle sets)
                 if (played.length > 5000) {
                     played.shift();
                 }
@@ -313,7 +313,7 @@
         module.exports = ChessStorage;
     }
 
-    // Tự động gắn sự kiện resize/orientationchange để tính lại layout
+    // Automatically attach resize/orientationchange events to recalculate layout
     if (typeof window !== 'undefined') {
         var layoutTimeout;
         window.addEventListener('resize', function() {

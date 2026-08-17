@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=42">
+    <link rel="stylesheet" href="css/einkchess.css?v=43">
 </head>
 
 <body>
@@ -17,12 +17,12 @@
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
                 <div class="header-center">
                     <span class="elo-badge" id="bot-elo-badge">ELO: 1600</span>
-                    <span id="bot-level-name" style="font-weight: normal; font-size: 12px;">(Bot Cấp 1 - ELO
+                    <span id="bot-level-name" style="font-weight: normal; font-size: 12px;">(Bot Lvl 1 - ELO
                         ~800)</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
-                        data-i18n="header.donate">Ủng hộ</button>
+                        data-i18n="header.donate">Donate</button>
                     <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
                     <a href="index.html" class="btn btn-sm" data-i18n="header.menu">Menu</a>
                 </div>
@@ -32,7 +32,7 @@
         <!-- 2. COMPACT STATUS BAR -->
         <div id="status-bar" class="status-bar">
             <div class="status-captured" id="captured-white"></div>
-            <div class="status-text" id="status-text">Lượt Trắng (Bạn)</div>
+            <div class="status-text" id="status-text">White's Turn (You)</div>
             <div class="status-captured" id="captured-black"></div>
         </div>
 
@@ -43,22 +43,22 @@
         <div class="action-bar action-bar-grid">
             <div class="action-bar-row">
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
+                    <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Undo</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
+                    <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Resign</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
+                    <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Flip</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Làm mới</button>
+                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Refresh</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý: Bật</button>
+                    <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Hints: ON</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
+                    <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">New Game</button>
                 </div>
             </div>
         </div>
@@ -66,30 +66,29 @@
         <!-- 5. MATCH SETUP POPUP MODAL (BEFORE GAME / NEW GAME) -->
         <div id="setup-modal" class="modal-overlay" onclick="if(event.target===this) closeSetupModal()">
             <div class="modal-box">
-                <div class="modal-title" data-i18n="game.setup_title">CÀI ĐẶT VÁN ĐẤU VỚI BOT</div>
+                <div class="modal-title" data-i18n="game.setup_title">PLAY VS BOT SETUP</div>
                 <div class="modal-body">
                     <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;"
-                        data-i18n="home.setup_level_label">1. Chọn Cấp độ Bot AI:</div>
+                        data-i18n="home.setup_level_label">1. Choose AI Level:</div>
                     <div class="btn-group" id="setup-level-group">
-                        <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_1">Cấp 1 (~800)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_2">Cấp 2 (~1000)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_3">Cấp 3 (~1200)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(4)" data-i18n="home.level_4">Cấp 4 (~1400)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(5)" data-i18n="home.level_5">Cấp 5 (~1600)</div>
+                        <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_1">Lvl 1 (~800)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_2">Lvl 2 (~1000)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_3">Lvl 3 (~1200)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(4)" data-i18n="home.level_4">Lvl 4 (~1400)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(5)" data-i18n="home.level_5">Lvl 5 (~1600)</div>
                     </div>
 
                     <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;"
-                        data-i18n="home.setup_side_label">2. Chọn Bên cầm quân:</div>
+                        data-i18n="home.setup_side_label">2. Choose Your Side:</div>
                     <div class="btn-group" id="setup-side-group">
                         <div class="btn-group-item active" onclick="selectSetupSide('w')" data-i18n="home.side_white">
-                            Trắng (Đi trước)</div>
-                        <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Đen (Đi
-                            sau)</div>
+                            White (First)</div>
+                        <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Black (Second)</div>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center;">
                     <button class="btn btn-primary btn-block" onclick="startConfiguredGame()"
-                        style="margin: 0; padding: 10px;" data-i18n="game.btn_start_game">Bắt đầu Ván cờ</button>
+                        style="margin: 0; padding: 10px;" data-i18n="game.btn_start_game">Start Game</button>
                 </div>
             </div>
         </div>
@@ -97,15 +96,14 @@
         <!-- 6. CONFIRM RESIGN MODAL -->
         <div id="resign-modal" class="modal-overlay" onclick="if(event.target===this) closeResignModal()">
             <div class="modal-box">
-                <div class="modal-title" data-i18n="game.resign_title">Xác nhận đầu hàng</div>
+                <div class="modal-title" data-i18n="game.resign_title">Confirm Resignation</div>
                 <div class="modal-body" data-i18n="game.resign_body">
-                    Bạn có chắc chắn muốn nhận thua ván cờ này không?<br>
-                    Điểm ELO của bạn sẽ bị trừ theo kết quả thua cuộc.
+                    Are you sure you want to resign this game?<br>
+                    Your ELO rating will decrease according to loss result.
                 </div>
                 <div class="modal-footer">
-                    <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Hủy</button>
-                    <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý
-                        đầu hàng</button>
+                    <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Cancel</button>
+                    <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Confirm Resign</button>
                 </div>
             </div>
         </div>
@@ -113,15 +111,14 @@
         <!-- 7. GAME OVER MODAL -->
         <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) closeGameOverModal()">
             <div class="modal-box">
-                <div class="modal-title" id="gameover-title" data-i18n="game.gameover_title">Kết thúc ván đấu</div>
+                <div class="modal-title" id="gameover-title" data-i18n="game.gameover_title">Game Over</div>
                 <div class="modal-body" id="gameover-body">
                     <!-- Dynamic Result Message & ELO Update -->
                 </div>
                 <div class="modal-footer">
-                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Trang
-                        chủ</button>
+                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Home</button>
                     <button class="btn btn-primary" onclick="openSetupModal(); closeGameOverModal();"
-                        data-i18n="game.btn_new_game">Ván mới</button>
+                        data-i18n="game.btn_new_game">New Game</button>
                 </div>
             </div>
         </div>
@@ -129,9 +126,9 @@
         <!-- 8. DONATE KO-FI MODAL -->
         <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
-                <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
+                <div class="modal-title" data-i18n="donate.title">Support EinkChess Author</div>
                 <div class="modal-body">
-                    <span data-i18n="donate.body">Bạn có thể quét mã QR bên dưới bằng điện thoại để mời tác giả một tách cà phê qua <strong>Ko-fi</strong> hoặc quét <strong>Momo</strong> để ủng hộ trực tiếp:</span>
+                    <span data-i18n="donate.body">You can scan the QR code below with your phone to buy the author a coffee via <strong>Ko-fi</strong> or <strong>Momo</strong>:</span>
 
                     <div class="qr-wrapper">
                         <div class="qr-item">
@@ -147,163 +144,151 @@
                             <div class="qr-link-text">Momo QR</div>
                         </div>
                     </div>
-                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính
-                        năng mới!</span>
+                    <span data-i18n="donate.note">Your support helps maintain server costs and develop new features!</span>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
-                        data-i18n="donate.btn_close">Đóng</button>
+                        data-i18n="donate.btn_close">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=6"></script>
-    <script src="js/chess-ai.js?v=10"></script>
-    <script src="js/chess-storage.js?v=13"></script>
-    <script src="js/chess-i18n.js?v=22"></script>
-    <script src="js/chess-backend.js?v=9"></script>
-    <script src="js/chess-board.js?v=7"></script>
+    <script src="js/chess-engine.js?v=7"></script>
+    <script src="js/chess-ai.js?v=11"></script>
+    <script src="js/chess-storage.js?v=15"></script>
+    <script src="js/chess-i18n.js?v=23"></script>
+    <script src="js/chess-board.js?v=10"></script>
+    <script src="js/chess-backend.js?v=11"></script>
 
     <script>
         var engine = null;
         var board = null;
         var ai = null;
-        var playerSide = 'w';
+
         var botLevel = 1;
-        var botElos = { 1: 800, 2: 1000, 3: 1200, 4: 1400, 5: 1600 };
-        var isThinking = false;
+        var playerSide = 'w';
         var gameOver = false;
+        var isThinking = false;
 
-        // Pending setup values
-        var pendingLevel = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotLevel() : 1;
-        var pendingSide = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultSide() : 'w';
+        var pendingLevel = 1;
+        var pendingSide = 'w';
 
-        function saveCurrentGame() {
-            if (!engine || gameOver) return;
-            try {
-                var state = {
-                    engine: engine.exportState(),
-                    botLevel: botLevel,
-                    playerSide: playerSide,
-                    lastMove: board ? board.lastMove : null,
-                    updatedAt: new Date().getTime()
-                };
-                if (typeof ChessStorage !== 'undefined') {
-                    ChessStorage.saveBotGame(state);
-                }
-            } catch (e) { }
-        }
-
-        function restoreSavedGame(saved) {
-            if (!saved || !saved.engine) return false;
-            try {
-                botLevel = parseInt(saved.botLevel || 1, 10);
-                playerSide = saved.playerSide || 'w';
-                pendingLevel = botLevel;
-                pendingSide = playerSide;
-
-                ai = new ChessAI(botLevel);
-                engine = new ChessEngine();
-                engine.importState(saved.engine);
-
-                gameOver = false;
-                isThinking = false;
-
-                board = new ChessBoard('board-container', {
-                    engine: engine,
-                    orientation: playerSide,
-                    showHints: true,
-                    onMove: handlePlayerMove
-                });
-
-                if (saved.lastMove && saved.lastMove.from && saved.lastMove.to) {
-                    board.setLastMove(saved.lastMove.from, saved.lastMove.to);
-                }
-
-                updateBotLevelLabel();
-                updateEloBadge();
-                updateHintButtonText();
-                updateStatus();
-
-                // Check if game was already finished in saved state
-                var status = engine.isGameOver();
-                if (status.over) {
-                    checkGameEnd();
-                    return true;
-                }
-
-                // If it's Bot's turn when resumed, trigger bot move after brief delay
-                if (engine.turn !== playerSide) {
-                    isThinking = true;
-                    updateStatus();
-                    setTimeout(makeBotMove, 400);
-                }
-
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
+        var botElos = {
+            1: 800,
+            2: 1000,
+            3: 1200,
+            4: 1400,
+            5: 1600
+        };
 
         function initGame() {
-            ChessStorage.applyAutoLayout();
+            try {
+                if (typeof ChessStorage !== 'undefined') {
+                    ChessStorage.applyAutoLayout();
+                }
 
-            if (typeof ChessI18n !== 'undefined') {
-                ChessI18n.init();
-                ChessI18n.onChange(function () {
-                    updateEloBadge();
-                    updateBotLevelLabel();
-                    updateHintButtonText();
-                    updateStatus();
-                });
-            }
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.init();
+                    ChessI18n.onChange(function () {
+                        updateEloBadge();
+                        updateBotLevelLabel();
+                        updateHintButtonText();
+                        updateStatus();
+                    });
+                }
+            } catch (e) { }
 
+            ai = new ChessAI(botLevel);
             updateEloBadge();
-            updateBotLevelLabel();
 
-            var query = window.location.search || '';
-            var isNewGameRequested = query.indexOf('new=1') !== -1;
-            var hasLvlParam = query.indexOf('lvl=') !== -1;
-
-            var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGame() : null;
-
-            // If there is an active saved game and user did not explicitly request a new game or pass new params
-            if (!isNewGameRequested && !hasLvlParam && savedGame && savedGame.engine) {
-                var restored = restoreSavedGame(savedGame);
-                if (restored) {
-                    ChessBackend.sendPing('play_bot_resume', '/play-bot.html');
-                    return;
+            // Check URL parameters for explicit new match request
+            var urlParams = {};
+            if (window.location.search) {
+                var search = window.location.search.substring(1);
+                var pairs = search.split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var p = pairs[i].split('=');
+                    urlParams[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
                 }
             }
 
-            // Otherwise standard setup
-            engine = new ChessEngine();
-            ai = new ChessAI(botLevel);
+            var savedGame = ChessStorage.getSavedBotGame();
 
-            board = new ChessBoard('board-container', {
-                engine: engine,
-                orientation: playerSide,
-                showHints: true,
-                onMove: handlePlayerMove
-            });
+            if (urlParams['new'] === '1') {
+                pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevel();
+                pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
 
-            if (hasLvlParam) {
-                var lvlMatch = query.match(/lvl=([1-5])/);
-                var sideMatch = query.match(/side=([wb])/);
-                if (lvlMatch) pendingLevel = parseInt(lvlMatch[1], 10);
-                if (sideMatch) pendingSide = sideMatch[1];
                 if (typeof ChessStorage !== 'undefined') {
                     ChessStorage.setDefaultBotLevel(pendingLevel);
                     ChessStorage.setDefaultSide(pendingSide);
                 }
+
+                engine = new ChessEngine();
+                board = new ChessBoard('board-container', {
+                    engine: engine,
+                    orientation: pendingSide,
+                    onMove: function (move) {
+                        handlePlayerMove(move);
+                    }
+                });
+
                 startConfiguredGame();
+            } else if (savedGame && savedGame.engine) {
+                botLevel = savedGame.botLevel || 1;
+                playerSide = savedGame.playerSide || 'w';
+                pendingLevel = botLevel;
+                pendingSide = playerSide;
+
+                ai.level = botLevel;
+                engine = new ChessEngine();
+                engine.fromJSON(savedGame.engine);
+
+                board = new ChessBoard('board-container', {
+                    engine: engine,
+                    orientation: playerSide,
+                    onMove: function (move) {
+                        handlePlayerMove(move);
+                    }
+                });
+
+                if (savedGame.lastMove) {
+                    board.setLastMove(savedGame.lastMove.from, savedGame.lastMove.to);
+                }
+
+                updateBotLevelLabel();
+                updateHintButtonText();
+                updateStatus();
+
+                if (engine.turn !== playerSide) {
+                    isThinking = true;
+                    updateStatus();
+                    setTimeout(makeBotMove, 300);
+                }
             } else {
-                openSetupModal();
+                pendingLevel = ChessStorage.getDefaultBotLevel();
+                pendingSide = ChessStorage.getDefaultSide();
+
+                engine = new ChessEngine();
+                board = new ChessBoard('board-container', {
+                    engine: engine,
+                    orientation: pendingSide,
+                    onMove: function (move) {
+                        handlePlayerMove(move);
+                    }
+                });
+
+                if (urlParams['lvl']) {
+                    pendingLevel = parseInt(urlParams['lvl'], 10) || 1;
+                    if (urlParams['side']) pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
+                    startConfiguredGame();
+                } else {
+                    openSetupModal();
+                }
             }
 
-            // Gửi telemetry ping
+            // Send telemetry ping
             ChessBackend.sendPing('play_bot', '/play-bot.html');
         }
 
@@ -332,7 +317,7 @@
             if (typeof ChessI18n !== 'undefined') {
                 hintBtn.innerHTML = ChessI18n.t(isHintsOn ? 'game.btn_hints_on' : 'game.btn_hints_off');
             } else {
-                hintBtn.innerHTML = isHintsOn ? 'Gợi ý: Bật' : 'Gợi ý: Tắt';
+                hintBtn.innerHTML = isHintsOn ? 'Hints: ON' : 'Hints: OFF';
             }
         }
 
@@ -361,29 +346,29 @@
 
             var isPlayerTurn = engine.turn === playerSide;
             var turnName = engine.turn === 'w'
-                ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_white') : 'Trắng')
-                : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_black') : 'Đen');
+                ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_white') : 'White')
+                : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.turn_black') : 'Black');
             var playerName = isPlayerTurn
-                ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_you') : 'Bạn')
+                ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_you') : 'You')
                 : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_bot') : 'Bot');
 
             if (engine.isCheck(engine.turn)) {
                 if (typeof ChessI18n !== 'undefined') {
                     statusTextEl.innerHTML = ChessI18n.t('game.status_check', { turn: turnName, player: playerName });
                 } else {
-                    statusTextEl.innerHTML = '[CHIẾU] Lượt ' + turnName + ' (' + playerName + ')';
+                    statusTextEl.innerHTML = '[CHECK] ' + turnName + '\'s Turn (' + playerName + ')';
                 }
             } else if (isThinking) {
                 if (typeof ChessI18n !== 'undefined') {
                     statusTextEl.innerHTML = ChessI18n.t('game.status_thinking');
                 } else {
-                    statusTextEl.innerHTML = 'Bot đang tính toán...';
+                    statusTextEl.innerHTML = 'Bot is thinking...';
                 }
             } else {
                 if (typeof ChessI18n !== 'undefined') {
                     statusTextEl.innerHTML = ChessI18n.t('game.status_turn', { turn: turnName, player: playerName });
                 } else {
-                    statusTextEl.innerHTML = 'Lượt ' + turnName + ' (' + playerName + ')';
+                    statusTextEl.innerHTML = turnName + '\'s Turn (' + playerName + ')';
                 }
             }
         }
@@ -428,7 +413,7 @@
             botLevel = pendingLevel;
             playerSide = pendingSide;
             ai.level = botLevel;
-            board.orientation = playerSide;
+            board.setOrientation(playerSide);
 
             // Update URL to prevent stale query parameters on reload
             if (window.history && window.history.replaceState) {
@@ -444,8 +429,6 @@
             engine = new ChessEngine();
             board.setEngine(engine);
             board.setLastMove(null, null);
-
-            saveCurrentGame();
 
             if (playerSide === 'b') {
                 isThinking = true;
@@ -464,7 +447,6 @@
             engine.makeMove(move);
             board.setLastMove(move.from, move.to);
 
-            saveCurrentGame();
             checkGameEnd();
 
             if (!gameOver && engine.turn !== playerSide) {
@@ -488,7 +470,6 @@
                 board.setLastMove(bestMove.from, bestMove.to);
             }
 
-            saveCurrentGame();
             checkGameEnd();
             updateStatus();
         }
@@ -504,35 +485,35 @@
                 var oppElo = botElos[botLevel] || 800;
                 var eloResult = null;
 
-                var title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.gameover_title') : 'Kết thúc ván đấu';
+                var title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.gameover_title') : 'Game Over';
                 var msg = '';
 
                 if (status.result === 'checkmate') {
                     if (status.winner === playerSide) {
-                        title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.win_checkmate_title') : 'BẠN ĐÃ CHIẾU HẾT (THẮNG)';
+                        title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.win_checkmate_title') : 'YOU WON BY CHECKMATE!';
                         eloResult = ChessStorage.updateBotElo(oppElo, 1.0);
-                        msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.win_checkmate_msg') : 'Chúc mừng bạn đã giành chiến thắng trước Bot!<br>';
+                        msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.win_checkmate_msg') : 'Congratulations! You defeated the Bot.<br>';
                     } else {
-                        title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.loss_checkmate_title') : 'BẠN ĐÃ BỊ CHIẾU HẾT (THUA)';
+                        title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.loss_checkmate_title') : 'CHECKMATE - YOU LOST';
                         eloResult = ChessStorage.updateBotElo(oppElo, 0.0);
-                        msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.loss_checkmate_msg') : 'Bot đã giành chiến thắng.<br>';
+                        msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.loss_checkmate_msg') : 'The Bot won the match.<br>';
                     }
                 } else if (status.result === 'stalemate') {
-                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_stalemate_title') : 'HÒA CỜ (HẾT NƯỚC ĐI - STALEMATE)';
+                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_stalemate_title') : 'DRAW (STALEMATE)';
                     eloResult = ChessStorage.updateBotElo(oppElo, 0.5);
-                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_stalemate_msg') : 'Ván cờ kết thúc với kết quả Hòa cờ (Stalemate).<br>';
+                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_stalemate_msg') : 'The game ended in a Stalemate.<br>';
                 } else if (status.result === 'threefold') {
-                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_threefold_title') : 'HÒA CỜ (LẶP LẠI 3 LẦN)';
+                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_threefold_title') : 'DRAW (THREEFOLD REPETITION)';
                     eloResult = ChessStorage.updateBotElo(oppElo, 0.5);
-                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_threefold_msg') : 'Ván cờ lặp lại thế cờ 3 lần -> Hòa cờ.<br>';
+                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_threefold_msg') : 'Position repeated 3 times -> Draw.<br>';
                 } else if (status.result === 'fifty_moves') {
-                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_50_title') : 'HÒA CỜ (LUẬT 50 NƯỚC)';
+                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_50_title') : 'DRAW (50-MOVE RULE)';
                     eloResult = ChessStorage.updateBotElo(oppElo, 0.5);
-                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_50_msg') : 'Không có tốt di chuyển và không bắt quân sau 50 nước -> Hòa cờ.<br>';
+                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_50_msg') : 'No pawn moves or captures in 50 moves -> Draw.<br>';
                 } else if (status.result === 'insufficient_material') {
-                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_material_title') : 'HÒA CỜ (KHÔNG ĐỦ LỰC LƯỢNG)';
+                    title = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_material_title') : 'DRAW (INSUFFICIENT MATERIAL)';
                     eloResult = ChessStorage.updateBotElo(oppElo, 0.5);
-                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_material_msg') : 'Hai bên không đủ lực lượng để chiếu hết -> Hòa cờ.<br>';
+                    msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_material_msg') : 'Insufficient material to checkmate -> Draw.<br>';
                 }
 
                 updateEloBadge();
@@ -545,7 +526,7 @@
             var bodyHtml = msg;
             if (eloResult) {
                 var deltaStr = eloResult.delta >= 0 ? '+' + eloResult.delta : '' + eloResult.delta;
-                var eloLabel = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.elo_update_label') : 'Điểm ELO cập nhật:';
+                var eloLabel = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.elo_update_label') : 'ELO Rating Update:';
                 bodyHtml += '<div style="margin-top: 8px; padding: 6px; border: 1px solid #000; background: #f5f5f5;">' +
                     '<strong>' + eloLabel + '</strong> ' + eloResult.oldElo + ' <strong>(' + deltaStr + ')</strong> &rarr; <strong>' + eloResult.newElo + '</strong>' +
                     '</div>';
@@ -571,7 +552,6 @@
 
             var last = engine.history.length > 0 ? engine.history[engine.history.length - 1] : null;
             board.setLastMove(last ? last.from : null, last ? last.to : null);
-            saveCurrentGame();
             updateStatus();
         }
 
@@ -597,8 +577,8 @@
             var eloResult = ChessStorage.updateBotElo(oppElo, 0.0);
             updateEloBadge();
 
-            var resTitle = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.resigned_title') : 'BẠN ĐÃ ĐẦU HÀNG';
-            var resMsg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.resigned_msg') : 'Bạn đã chấp nhận đầu hàng trước Bot.<br>';
+            var resTitle = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.resigned_title') : 'YOU RESIGNED';
+            var resMsg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.resigned_msg') : 'You resigned against the Bot.<br>';
             showGameOverModal(resTitle, resMsg, eloResult);
         }
 
