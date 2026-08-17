@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,20 +54,21 @@ jobs:
             cat data/puzzles/manifest.js
           fi
 
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Stage all changes in puzzle data directory (including deletions) and updated puzzles.html
-          git add -A data/puzzles/ puzzles.html
-          
-          # Check if there are changes to commit
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "🧩 Refresh puzzle library ($(date +'%Y-%m-%d %H:%M UTC'))"
-            git push
-          fi
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "🧩 Refresh puzzle library"
+          title: "🧩 Refresh Puzzle Library"
+          body: |
+            ## 🧩 Automated Puzzle Library Refresh
+            - **Data:** Refreshed `data/puzzles/` and updated `manifest.js`
+            - **Cache-Busting:** Synced version timestamp in `puzzles.html`
+            - **Trigger:** `${{ github.event_name }}`
+            
+            *Please review the puzzle manifest and changes before merging.*
+          branch: auto/refresh-puzzles
+          delete-branch: true
+
 
 

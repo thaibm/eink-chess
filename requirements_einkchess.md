@@ -162,8 +162,8 @@
 - **Kiến trúc Folder-Based:** Dữ liệu puzzle được tổ chức theo folder `data/puzzles/{ELO}/`, mỗi folder chứa các file JSON 100 câu. File `manifest.js` khai báo số lượng file mỗi bucket và mã `PUZZLE_MANIFEST_VERSION` (timestamp).
 - **Clean & Replace Triệt Để:** Script `scripts/build-puzzles.js` dọn dẹp sạch sẽ 100% thư mục `data/puzzles/` trước khi sinh mới, tránh tồn đọng file cũ.
 - **Weekly Rotation & Manual Trigger:**
-  - Tự động xoay vòng qua GitHub Actions mỗi thứ Hai (`0 2 * * 1`).
-  - Hỗ trợ kích hoạt thủ công (Manual Trigger) trên GitHub Actions qua `workflow_dispatch` với tùy chỉnh `puzzles_per_bucket` và `clean_only`.
+  - Tự động xoay vòng qua GitHub Actions mỗi thứ Hai (`0 2 * * 1`) hoặc kích hoạt thủ công (Manual Trigger) qua `workflow_dispatch` với tùy chỉnh `puzzles_per_bucket` và `clean_only`.
+  - **Tự động mở Pull Request (`auto/refresh-puzzles`):** Do nhánh `main` được bảo vệ (branch protection), GitHub Action tự động tạo PR để chủ dự án review và merge an toàn thay vì push trực tiếp.
   - Hỗ trợ lệnh CLI cục bộ: `npm run puzzles:fetch` (tải trực tiếp từ Lichess), `npm run puzzles:build` (build từ file `.zst` local), và `npm run puzzles:clean`.
   - Tự động cập nhật query param version trong `puzzles.html` (`manifest.js?v=TIMESTAMP`) và gắn query param `?v=` khi XHR fetch JSON để chống cache trên trình duyệt E-ink/Kindle.
 - Phân bổ dải ELO câu đố rộng từ **400 đến 2800** (25 dải, Đủ mọi cấp từ dễ đến siêu khó).
