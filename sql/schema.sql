@@ -26,9 +26,9 @@ SELECT
     COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '30 minutes' THEN device_id END) AS realtime_active_30m,
     COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '60 minutes' THEN device_id END) AS realtime_active_60m,
     COUNT(DISTINCT CASE WHEN created_at >= CURRENT_DATE THEN device_id END) AS dau_today,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('week', CURRENT_DATE) THEN device_id END) AS wau_this_week,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('month', CURRENT_DATE) THEN device_id END) AS mau_this_month,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('year', CURRENT_DATE) THEN device_id END) AS yau_this_year,
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN device_id END) AS wau_this_week,
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN device_id END) AS mau_this_month,
+    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN device_id END) AS yau_this_year,
     COUNT(CASE WHEN created_at >= CURRENT_DATE THEN 1 END) AS pageviews_today,
     COUNT(*) AS total_pageviews_all_time
 FROM active_pings;

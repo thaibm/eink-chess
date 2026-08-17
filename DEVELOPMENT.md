@@ -204,9 +204,9 @@ Hệ thống ghi nhận lưu lượng qua bảng `active_pings` và tổng hợp
    * `realtime_active_30m`: Số thiết bị hoạt động trong 30 phút gần nhất.
    * `realtime_active_60m`: Số thiết bị hoạt động trong 60 phút (1 giờ) gần nhất.
    * `dau_today`: Daily Active Users (thiết bị duy nhất hôm nay).
-   * `wau_this_week`: Weekly Active Users (tuần này).
-   * `mau_this_month`: Monthly Active Users (tháng này).
-   * `yau_this_year`: Yearly Active Users (năm nay).
+   * `wau_this_week`: Weekly Active Users (7 ngày gần nhất).
+   * `mau_this_month`: Monthly Active Users (30 ngày gần nhất).
+   * `yau_this_year`: Yearly Active Users (365 ngày gần nhất).
    * `pageviews_today`: Số lượt tải trang hôm nay.
    * `total_pageviews_all_time`: Tổng lượt truy cập tích lũy.
 

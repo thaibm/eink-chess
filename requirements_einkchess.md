@@ -279,7 +279,7 @@
   - Gửi kèm: `device_id` (UUID), `device_type` (Kindle Basic, Paperwhite, Oasis, Scribe, Desktop), `lang`, `action_type`.
   - Backend lưu vào bảng `active_pings` / tổng hợp số liệu qua SQL View `v_traffic_stats`:
     - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
-    - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất trong ngày / tuần / tháng / năm.
+    - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất hôm nay / 7 ngày qua / 30 ngày qua / 365 ngày qua (Rolling window).
     - **Pageviews:** Số lượt tải trang hôm nay và tổng tích lũy.
 - **Trang Thống Kê (`stats.html`):**
   - Cung cấp trang xem thống kê traffic công khai, liên kết từ chân trang (Footer) Trang chủ `index.html`.
