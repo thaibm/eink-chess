@@ -15,6 +15,7 @@
         BOT_ELO: 'einkchess_bot_elo',
         PUZZLE_ELO: 'einkchess_puzzle_elo',
         PUZZLE_STREAK: 'einkchess_puzzle_streak',
+        PUZZLE_SETUP_DONE: 'einkchess_puzzle_setup_done',
         PLAYED_PUZZLES: 'einkchess_played_puzzles',
         SAVED_BOT_GAME: 'einkchess_saved_bot_game',
         SAVED_PUZZLE: 'einkchess_saved_puzzle',
@@ -158,11 +159,19 @@
         },
 
         getPuzzleElo: function() {
-            return parseInt(this.get(STORAGE_KEYS.PUZZLE_ELO, 1200), 10);
+            return parseInt(this.get(STORAGE_KEYS.PUZZLE_ELO, 400), 10);
         },
 
         setPuzzleElo: function(elo) {
             return this.set(STORAGE_KEYS.PUZZLE_ELO, Math.max(100, Math.round(elo)));
+        },
+
+        hasChosenPuzzleSkill: function() {
+            return !!this.get(STORAGE_KEYS.PUZZLE_SETUP_DONE, false);
+        },
+
+        setPuzzleSkillChosen: function(val) {
+            return this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, val !== false);
         },
 
         getPuzzleStreak: function() {

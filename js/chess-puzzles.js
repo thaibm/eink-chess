@@ -42,6 +42,7 @@
         // ELO bucket range
         MIN_BUCKET: 400,
         MAX_BUCKET: 2800,
+        selectedInitialElo: 400,
 
         init: function() {
             var self = this;
@@ -70,6 +71,59 @@
 
             this.updateHeaderUI();
             this.updateActionBarUI();
+
+            if (storage && !storage.hasChosenPuzzleSkill()) {
+                this.selectedInitialElo = 400;
+                this.openSkillModal();
+            } else {
+                this.loadPuzzle();
+            }
+        },
+
+        openSkillModal: function() {
+            if (typeof document === 'undefined') return;
+            var storage = getStorage();
+            var curElo = storage ? storage.getPuzzleElo() : 400;
+            this.selectSkillLevel(curElo || 400);
+            var modal = document.getElementById('skill-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
+        },
+
+        closeSkillModal: function() {
+            if (typeof document === 'undefined') return;
+            var modal = document.getElementById('skill-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
+        },
+
+        selectSkillLevel: function(elo) {
+            this.selectedInitialElo = parseInt(elo, 10) || 400;
+            if (typeof document === 'undefined') return;
+            var btns = document.querySelectorAll('.puzzle-skill-btn');
+            for (var i = 0; i < btns.length; i++) {
+                var btnElo = parseInt(btns[i].getAttribute('data-elo'), 10);
+                if (btnElo === this.selectedInitialElo) {
+                    btns[i].className = 'puzzle-skill-btn active';
+                } else {
+                    btns[i].className = 'puzzle-skill-btn';
+                }
+            }
+        },
+
+        confirmSkillLevel: function() {
+            var elo = this.selectedInitialElo || 400;
+            var storage = getStorage();
+            if (storage) {
+                storage.setPuzzleElo(elo);
+                storage.setPuzzleSkillChosen(true);
+            }
+            this.closeSkillModal();
+            this.updateHeaderUI();
             this.loadPuzzle();
         },
 
@@ -93,7 +147,7 @@
         updateHeaderUI: function() {
             if (typeof document === 'undefined') return;
             var storage = getStorage();
-            var elo = storage ? storage.getPuzzleElo() : 1200;
+            var elo = storage ? storage.getPuzzleElo() : 400;
             var streak = storage ? storage.getPuzzleStreak() : 0;
             var eloBadge = document.getElementById('puzzle-elo-badge');
             var streakBadge = document.getElementById('puzzle-streak-name');
@@ -176,7 +230,7 @@
         applyEloChange: function(solved, failed) {
             var K = 32;
             var storage = getStorage();
-            var elo = storage ? storage.getPuzzleElo() : 1200;
+            var elo = storage ? storage.getPuzzleElo() : 400;
             var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? parseInt(this.currentPuzzle.Rating, 10) : elo;
             var expected = this.calculateExpected(elo, pElo);
             var delta = 0;
@@ -280,7 +334,7 @@
             this.updateActionBarUI();
             this.setStatus('puzzle.status_playing');
 
-            var elo = storage ? storage.getPuzzleElo() : 1200;
+            var elo = storage ? storage.getPuzzleElo() : 400;
             var bucket = Math.floor(elo / 100) * 100;
             if (bucket < this.MIN_BUCKET) bucket = this.MIN_BUCKET;
             if (bucket > this.MAX_BUCKET) bucket = this.MAX_BUCKET;
@@ -554,7 +608,7 @@
         getSkipPenalty: function() {
             var K = 32;
             var storage = getStorage();
-            var elo = storage ? storage.getPuzzleElo() : 1200;
+            var elo = storage ? storage.getPuzzleElo() : 400;
             var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? parseInt(this.currentPuzzle.Rating, 10) : elo;
             var expected = this.calculateExpected(elo, pElo);
             var delta = -Math.round(K * expected);
@@ -648,7 +702,7 @@
             var result;
             if (hintUsed) {
                 // Hint used: 0 ELO change
-                var curElo = storage ? storage.getPuzzleElo() : 1200;
+                var curElo = storage ? storage.getPuzzleElo() : 400;
                 result = { oldElo: curElo, newElo: curElo, delta: 0 };
             } else if (this.hasFailed) {
                 // Had wrong move(s): proportional loss

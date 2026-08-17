@@ -151,7 +151,20 @@
             'puzzle.elo_change': 'ELO: {elo} ({delta})',
             'puzzle.lichess_analysis': 'Phân tích trên Lichess ↗',
             'puzzle.themes_label': 'Chủ đề:',
-            'puzzle.meta_info': '#{id} · {elo} ELO'
+            'puzzle.meta_info': '#{id} · {elo} ELO',
+            'puzzle.skill_modal_title': 'CHỌN TRÌNH ĐỘ KHỞI ĐẦU',
+            'puzzle.skill_modal_desc': 'Chọn mức độ phù hợp với khả năng của bạn để bắt đầu giải cờ thế:',
+            'puzzle.skill_lvl1_name': 'Mới chơi (~400 ELO)',
+            'puzzle.skill_lvl1_desc': 'Dễ nhất / Khởi đầu',
+            'puzzle.skill_lvl2_name': 'Tập sự (~800 ELO)',
+            'puzzle.skill_lvl2_desc': 'Biết luật cơ bản',
+            'puzzle.skill_lvl3_name': 'Trung bình (~1200 ELO)',
+            'puzzle.skill_lvl3_desc': 'Nắm vững chiến thuật',
+            'puzzle.skill_lvl4_name': 'Nâng cao (~1600 ELO)',
+            'puzzle.skill_lvl4_desc': 'Chiến thuật phức tạp',
+            'puzzle.skill_lvl5_name': 'Chuyên gia (~2000 ELO)',
+            'puzzle.skill_lvl5_desc': 'Thử thách đỉnh cao',
+            'puzzle.btn_start_puzzle': 'Bắt đầu Giải đố'
         },
         en: {
             'header.logo': 'EinkChess',
@@ -295,7 +308,20 @@
             'puzzle.elo_change': 'ELO: {elo} ({delta})',
             'puzzle.lichess_analysis': 'Analyze on Lichess ↗',
             'puzzle.themes_label': 'Themes:',
-            'puzzle.meta_info': '#{id} · {elo} ELO'
+            'puzzle.meta_info': '#{id} · {elo} ELO',
+            'puzzle.skill_modal_title': 'SELECT STARTING SKILL LEVEL',
+            'puzzle.skill_modal_desc': 'Choose your starting level to begin solving puzzles:',
+            'puzzle.skill_lvl1_name': 'Beginner (~400 ELO)',
+            'puzzle.skill_lvl1_desc': 'Easiest / Starter',
+            'puzzle.skill_lvl2_name': 'Casual (~800 ELO)',
+            'puzzle.skill_lvl2_desc': 'Basic rules & moves',
+            'puzzle.skill_lvl3_name': 'Intermediate (~1200 ELO)',
+            'puzzle.skill_lvl3_desc': 'Solid tactical knowledge',
+            'puzzle.skill_lvl4_name': 'Advanced (~1600 ELO)',
+            'puzzle.skill_lvl4_desc': 'Complex combinations',
+            'puzzle.skill_lvl5_name': 'Master (~2000 ELO)',
+            'puzzle.skill_lvl5_desc': 'Peak challenge',
+            'puzzle.btn_start_puzzle': 'Start Puzzles'
         }
     };
 

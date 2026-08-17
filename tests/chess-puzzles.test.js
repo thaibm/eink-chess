@@ -266,6 +266,90 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(body.innerHTML).toContain('https://lichess.org/training/abc99');
         expect(body.innerHTML).toContain('Analyze on Lichess');
     });
+
+    test('First-time user has not chosen puzzle skill and defaults to easiest ELO (400)', () => {
+        delete mockStorage['einkchess_puzzle_setup_done'];
+        delete mockStorage['einkchess_puzzle_elo'];
+        expect(ChessStorage.hasChosenPuzzleSkill()).toBe(false);
+        expect(ChessStorage.getPuzzleElo()).toBe(400);
+    });
+
+    test('PuzzleManager opens skill modal on first time and default selection is 400', () => {
+        delete mockStorage['einkchess_puzzle_setup_done'];
+        delete mockStorage['einkchess_puzzle_elo'];
+
+        let modalActive = false;
+        const modal = {
+            className: 'modal-overlay',
+            style: { display: 'none' }
+        };
+        const btn400 = { getAttribute: () => '400', className: 'puzzle-skill-btn' };
+        const btn800 = { getAttribute: () => '800', className: 'puzzle-skill-btn' };
+        const btn1200 = { getAttribute: () => '1200', className: 'puzzle-skill-btn' };
+        const btnList = [btn400, btn800, btn1200];
+
+        global.document = {
+            getElementById: (id) => {
+                if (id === 'skill-modal') return modal;
+                return null;
+            },
+            querySelectorAll: (sel) => {
+                if (sel === '.puzzle-skill-btn') return btnList;
+                return [];
+            }
+        };
+
+        PuzzleManager.openSkillModal();
+        expect(modal.className).toBe('modal-overlay active');
+        expect(modal.style.display).toBe('block');
+        expect(PuzzleManager.selectedInitialElo).toBe(400);
+        expect(btn400.className).toBe('puzzle-skill-btn active');
+        expect(btn800.className).toBe('puzzle-skill-btn');
+    });
+
+    test('Selecting a skill level and confirming updates ELO and marks setup as completed', () => {
+        delete mockStorage['einkchess_puzzle_setup_done'];
+        delete mockStorage['einkchess_puzzle_elo'];
+
+        const modal = { className: 'modal-overlay active', style: { display: 'block' } };
+        const metaEl = { innerText: '' };
+        const eloBadge = { innerText: '' };
+        const streakBadge = { innerText: '' };
+        const btn400 = { getAttribute: () => '400', className: 'puzzle-skill-btn active' };
+        const btn800 = { getAttribute: () => '800', className: 'puzzle-skill-btn' };
+        const btnList = [btn400, btn800];
+
+        global.document = {
+            getElementById: (id) => {
+                if (id === 'skill-modal') return modal;
+                if (id === 'puzzle-meta') return metaEl;
+                if (id === 'puzzle-elo-badge') return eloBadge;
+                if (id === 'puzzle-streak-name') return streakBadge;
+                return null;
+            },
+            querySelectorAll: (sel) => {
+                if (sel === '.puzzle-skill-btn') return btnList;
+                return [];
+            }
+        };
+
+        // Select 800
+        PuzzleManager.selectSkillLevel(800);
+        expect(PuzzleManager.selectedInitialElo).toBe(800);
+        expect(btn800.className).toBe('puzzle-skill-btn active');
+        expect(btn400.className).toBe('puzzle-skill-btn');
+
+        // Confirm
+        let loadCalled = false;
+        PuzzleManager.loadPuzzle = () => { loadCalled = true; };
+        PuzzleManager.confirmSkillLevel();
+
+        expect(ChessStorage.getPuzzleElo()).toBe(800);
+        expect(ChessStorage.hasChosenPuzzleSkill()).toBe(true);
+        expect(modal.className).toBe('modal-overlay');
+        expect(modal.style.display).toBe('none');
+        expect(loadCalled).toBe(true);
+    });
 });
 
 

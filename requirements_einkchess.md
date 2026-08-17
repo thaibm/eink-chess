@@ -208,6 +208,18 @@
 - **Chống gian lận (Anti-Cheat):** Ngăn chặn người chơi tải lại trang để đổi câu đố khác hoặc xóa cờ phạm quy/gợi ý mà không bị trừ điểm ELO. Muốn đổi câu khác bắt buộc phải bấm **`[Bỏ qua]`** (bị trừ ELO proportional theo quy định).
 - **Xóa trạng thái lưu:** Tự động xóa khỏi `localStorage` khi câu đố đã hoàn thành (`puzzleSolved`), khi bấm **`[Tiếp theo]`** (`nextPuzzle`), hoặc khi xác nhận **`[Đồng ý bỏ qua]`** (`confirmSkip`).
 
+#### G. Chọn Trình độ Khởi đầu Lần đầu Tiên (First-Time Puzzle Skill Selection):
+- **Cơ chế Onboarding:** Khi người dùng lần đầu tiên truy cập chế độ Giải đố (`puzzles.html` hoặc click từ `index.html`), nếu chưa từng thiết lập trình độ ban đầu (`einkchess_puzzle_setup_done` chưa được lưu), hệ thống sẽ tự động hiển thị popup **`[CHỌN TRÌNH ĐỘ KHỞI ĐẦU]`** trước khi tải câu đố.
+- **Tùy chọn trình độ:** Cung cấp 5 mức độ rõ ràng, thân thiện cho màn hình E-ink:
+  1. **Cấp 1 (~400 ELO):** Mới chơi / Beginner (*Mặc định / Dễ nhất*).
+  2. **Cấp 2 (~800 ELO):** Tập sự / Casual (Biết luật cơ bản).
+  3. **Cấp 3 (~1200 ELO):** Trung bình / Intermediate (Nắm vững chiến thuật).
+  4. **Cấp 4 (~1600 ELO):** Nâng cao / Advanced (Chiến thuật phức tạp).
+  5. **Cấp 5 (~2000 ELO):** Chuyên gia / Master (Thử thách đỉnh cao).
+- **Mặc định:** Chọn sẵn mức dễ nhất (**400 ELO - Mới chơi**).
+- **Xác nhận:** Khi người dùng bấm **`[Bắt đầu Giải đố]`**, hệ thống lưu điểm ELO đã chọn vào `einkchess_puzzle_elo`, đánh dấu `einkchess_puzzle_setup_done = true`, đóng popup, cập nhật điểm ELO trên header và tải câu đố từ dải bucket tương ứng.
+- **Tái chọn trình độ bất cứ lúc nào:** Người dùng có thể chạm vào huy hiệu ELO (`#puzzle-elo-badge`) trên thanh tiêu đề của trang `puzzles.html` để mở lại popup chọn trình độ và làm mới ván cờ.
+
 ---
 
 ### 4.3. Chế độ Chơi với Bạn Bè (Play a Friend - PvP Online)
@@ -247,8 +259,9 @@
 - Dữ liệu lưu trữ gồm:
   - `einkchess_lang`: Ngôn ngữ giao diện (`en` / `vi`, mặc định: `en`).
   - `einkchess_bot_elo`: Điểm ELO đấu với Bot (Mặc định: 1200).
-  - `einkchess_puzzle_elo`: Điểm ELO giải đố (Mặc định: 1200).
+  - `einkchess_puzzle_elo`: Điểm ELO giải đố (Mặc định: 400).
   - `einkchess_puzzle_streak`: Chuỗi câu đố giải đúng liên tiếp hiện tại và kỷ lục.
+  - `einkchess_puzzle_setup_done`: Đánh dấu đã hoàn tất chọn trình độ giải đố khởi đầu (`true` / `false`).
   - `einkchess_saved_game`: Trạng thái bàn cờ, lịch sử nước đi ván đang chơi dở với Bot.
   - `einkchess_saved_puzzle`: Trạng thái câu đố đang giải dở (object gồm puzzle data, index nước cờ, trạng thái sai/gợi ý).
   - `einkchess_pid`: UUID định danh thiết bị duy nhất.
