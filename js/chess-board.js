@@ -74,6 +74,11 @@
         this.render();
     };
 
+    ChessBoard.prototype.setOrientation = function(orientation) {
+        this.orientation = (orientation === 'b') ? 'b' : 'w';
+        this.render();
+    };
+
     ChessBoard.prototype.setEngine = function(engine) {
         this.engine = engine;
         this.selectedSquare = null;

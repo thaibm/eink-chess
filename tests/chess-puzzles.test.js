@@ -349,6 +349,119 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(loadCalled).toBe(true);
     });
 
+    test('getHintPenalty returns proportional loss points', () => {
+        PuzzleManager.currentPuzzle.Rating = 1200;
+        expect(PuzzleManager.getHintPenalty()).toBe(16);
+
+        PuzzleManager.currentPuzzle.Rating = 800;
+        expect(PuzzleManager.getHintPenalty()).toBeGreaterThanOrEqual(25);
+    });
+
+    test('useHint opens hint confirmation modal with penalty value', () => {
+        const modal = { className: 'modal-overlay', style: { display: 'none' } };
+        const body = { innerHTML: '' };
+        const title = { innerText: '' };
+
+        global.document = {
+            getElementById: (id) => {
+                if (id === 'hint-confirm-modal') return modal;
+                if (id === 'hint-modal-body') return body;
+                if (id === 'hint-modal-title') return title;
+                return null;
+            }
+        };
+
+        PuzzleManager.currentPuzzle.Rating = 1200;
+        PuzzleManager.currentPuzzle.hintUsed = false;
+        PuzzleManager.isPlayerTurn = true;
+        PuzzleManager.isSolved = false;
+
+        PuzzleManager.useHint();
+
+        expect(modal.className).toBe('modal-overlay active');
+        expect(modal.style.display).toBe('block');
+        expect(body.innerHTML).toContain('16 ELO');
+
+        PuzzleManager.closeHintModal();
+        expect(modal.className).toBe('modal-overlay');
+        expect(modal.style.display).toBe('none');
+    });
+
+    test('confirmHint deducts ELO immediately, resets streak and reveals hint move', () => {
+        const modal = { className: 'modal-overlay active', style: { display: 'block' } };
+        const statusEl = { innerText: '' };
+        const eloBadge = { innerText: '' };
+        const streakBadge = { innerText: '' };
+
+        global.document = {
+            getElementById: (id) => {
+                if (id === 'hint-confirm-modal') return modal;
+                if (id === 'status-text') return statusEl;
+                if (id === 'puzzle-elo-badge') return eloBadge;
+                if (id === 'puzzle-streak-name') return streakBadge;
+                return null;
+            }
+        };
+
+        const ChessEngine = require('../js/chess-engine.js');
+        PuzzleManager.engine = new ChessEngine();
+        PuzzleManager.solutionMoves = ['f3e5', 'c6e5'];
+        PuzzleManager.currentMoveIndex = 0;
+        PuzzleManager.currentPuzzle = {
+            PuzzleId: 'hint_test_01',
+            FEN: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+            Moves: 'f3e5 c6e5',
+            Rating: 1200,
+            hintUsed: false
+        };
+        PuzzleManager.isPlayerTurn = true;
+        PuzzleManager.isSolved = false;
+
+        ChessStorage.setPuzzleElo(1200);
+        ChessStorage.setPuzzleStreak(5);
+
+        let boardRendered = false;
+        PuzzleManager.board = {
+            selectedSquare: null,
+            validMoves: [],
+            render: () => { boardRendered = true; }
+        };
+
+        PuzzleManager.confirmHint();
+
+        expect(modal.className).toBe('modal-overlay');
+        expect(modal.style.display).toBe('none');
+        expect(ChessStorage.getPuzzleElo()).toBe(1184); // -16
+        expect(ChessStorage.getPuzzleStreak()).toBe(0);
+        expect(PuzzleManager.currentPuzzle.hintUsed).toBe(true);
+        expect(PuzzleManager.board.selectedSquare).toEqual({ r: 5, c: 5 }); // f3
+        expect(boardRendered).toBe(true);
+
+        // Subsequent useHint call should just re-highlight without reopening modal or deducting ELO again
+        modal.style.display = 'none';
+        boardRendered = false;
+        PuzzleManager.useHint();
+        expect(modal.style.display).toBe('none');
+        expect(boardRendered).toBe(true);
+        expect(ChessStorage.getPuzzleElo()).toBe(1184);
+
+        // Solving puzzle afterwards should have delta 0 (no double penalty)
+        const gameoverModal = { className: '', style: { display: 'none' } };
+        const gameoverBody = { innerHTML: '' };
+        const gameoverTitle = { innerText: '' };
+        global.document.getElementById = (id) => {
+            if (id === 'gameover-modal') return gameoverModal;
+            if (id === 'gameover-body') return gameoverBody;
+            if (id === 'gameover-title') return gameoverTitle;
+            if (id === 'puzzle-elo-badge') return eloBadge;
+            if (id === 'puzzle-streak-name') return streakBadge;
+            return null;
+        };
+
+        PuzzleManager.puzzleSolved();
+        expect(ChessStorage.getPuzzleElo()).toBe(1184); // remains 1184
+    });
+
     test('refreshScreen creates white overlay and re-renders board', () => {
         jest.useFakeTimers();
         let appendedChild = null;

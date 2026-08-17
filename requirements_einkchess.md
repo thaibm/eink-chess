@@ -193,8 +193,8 @@
 #### D. Quy tắc tính điểm ELO Puzzle (Proportional System):
 - **Công thức:** $E = 1 / (1 + 10^{(puzzleRating - playerELO) / 400})$, $K = 32$
 - **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\\text{round}(K \\times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak.
-- **Giải đúng nhưng có bấm Gợi ý:** $+0\\text{ ELO}$ (không tăng không giảm).
-- **Đi sai rồi giải xong / Bấm Bỏ qua:** $-\\text{round}(K \\times E)$, Reset chuỗi Streak về 0.
+- **Dùng Gợi ý (Hint):** Bị trừ điểm ELO proportional ngay khi xác nhận xem gợi ý ($-\\text{round}(K \\times E)$), Reset chuỗi Streak về 0. Sau khi đã dùng gợi ý, người dùng đi sai hoặc giải xong sẽ $+0\\text{ ELO}$ (không bị trừ điểm thêm).
+- **Đi sai (không dùng gợi ý) rồi giải xong / Bấm Bỏ qua:** $-\\text{round}(K \\times E)$, Reset chuỗi Streak về 0.
   - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
   - Sai câu khó → phạt nhẹ (VD: puzzle 1800, player 1200 → $-3$)
 
@@ -202,6 +202,10 @@
 - Áp dụng cấu trúc lưới đồng bộ `.action-bar-grid` chia 4 cột bằng nhau (25% mỗi cột) với khoảng cách phân bổ đều (`border-spacing: 4px`):
   - **Cột 1 (Bottom-Left):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`) có chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm.
   - **Cột 2:** Nút **`[♙ Gợi ý (Hint)]`** (ẩn đi khi đã hoàn thành câu đố).
+    - Khi bấm **`[Gợi ý]`** lần đầu trong câu đố: Hiển thị popup xác nhận (`Confirm Hint Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn xem gợi ý cho thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
+    - Nếu người dùng bấm `[Hủy]`: Đóng popup, không tiết lộ gợi ý và giữ nguyên điểm ELO.
+    - Nếu người dùng bấm `[Đồng ý xem gợi ý]`: Đóng popup, áp dụng trừ ELO proportional ngay lập tức, reset chuỗi Streak về 0, đánh dấu `hintUsed = true`, highlight ô chứa quân cờ cần đi (`board.selectedSquare`) và hiển thị các ô đi hợp lệ.
+    - Nếu người dùng bấm lại `[Gợi ý]` sau khi đã xác nhận trước đó: Hệ thống tự động re-highlight ô cờ gợi ý mà không hiển thị popup và không trừ thêm điểm.
   - **Cột 3:** Nút **`[Làm mới (Refresh)]`** (tạo flash trắng 200ms để refresh vật lý màn hình E-ink, xóa bóng mờ ghosting).
   - **Cột 4 (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** nổi bật khi câu đố đã giải xong.
     - Khi bấm **`[Bỏ qua]`**: Hiển thị popup xác nhận (`Confirm Skip Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn bỏ qua thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
@@ -388,8 +392,8 @@
   - [x] `pickPuzzle(puzzles)`: Lọc bỏ ID đã chơi (hash lookup O(1) từ `ChessStorage.getPlayedPuzzlesHash()`), random chọn 1 câu chưa chơi. Nếu hết → clear lịch sử và dùng lại toàn bộ.
   - [x] `startPuzzle(puzzle)`: Load FEN, parse UCI Moves, xác định `puzzleColor` (đối diện với bên đi trước trong FEN), tự động đi nước đầu của đối thủ (move[0]), set `currentMoveIndex = 1`, lưu trạng thái qua `saveCurrentPuzzleState()`.
   - [x] `handlePlayerMove(move)`: Nhận object move từ `ChessBoard.onMove()`, so khớp `{from, to, promotion}` với UCI expected. Đúng → `applyUciMove` + bot reply. Sai → set `hasFailed = true` + reset streak (KHÔNG trừ ELO ngay), lưu trạng thái để chống reload reset sai.
-  - [x] `useHint()`: Highlight ô nguồn của nước đi đúng (set `board.selectedSquare`), đánh dấu `hintUsed = true` → ELO không tăng khi hoàn thành, lưu trạng thái.
-  - [x] `puzzleSolved()`: Proportional ELO — clean solve: `+round(K×(1−E))` min +3, failed: `−round(K×E)`, hint: +0. Xóa saved puzzle khỏi localStorage và hiển thị modal kết quả.
+  - [x] `useHint()` / `confirmHint()` / `closeHintModal()`: Mở modal xác nhận với số điểm ELO sẽ bị trừ. Khi xác nhận, áp dụng trừ proportional ELO ngay, reset streak về 0, highlight ô quân cờ (`board.selectedSquare`), đánh dấu `hintUsed = true` và lưu trạng thái. Nhấn lại Hint khi đã dùng sẽ re-highlight mà không trừ thêm điểm.
+  - [x] `puzzleSolved()`: Proportional ELO — clean solve: `+round(K×(1−E))` min +3, failed (không dùng hint): `−round(K×E)`, hint used: +0 (vì điểm đã bị trừ khi xác nhận gợi ý, không bị trừ thêm lần 2 khi giải xong). Xóa saved puzzle khỏi localStorage và hiển thị modal kết quả.
   - [x] `skipPuzzle()` / `confirmSkip()`: Áp dụng proportional ELO loss, reset streak, xóa saved puzzle và tải câu mới.
   - [x] `updateTurnStatus()`: Hiển thị "Lượt Trắng đi" / "Lượt Đen đi" / "Đối thủ đang đi..." tương ứng trạng thái.
   - [x] `updateCapturedPieces()`: Hiển thị quân bị bắt trên status bar.
@@ -397,7 +401,7 @@
   - [x] Thêm STORAGE_KEYS: `PUZZLE_STREAK`, `PLAYED_PUZZLES`, `SAVED_PUZZLE`.
   - [x] Thêm hàm: `getPuzzleStreak()`, `setPuzzleStreak()`, `getPlayedPuzzles()`, `getPlayedPuzzlesHash()` (O(1) lookup), `addPlayedPuzzle(id)` (giới hạn 5000 ID gần nhất), `clearPlayedPuzzles()`, `savePuzzle(state)`, `getSavedPuzzle()`, `clearSavedPuzzle()`.
 - **Cập nhật `js/chess-i18n.js`:**
-  - [x] Thêm 16 key dịch VI/EN cho Puzzle Mode: `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.elo_change`.
+  - [x] Thêm các key dịch VI/EN cho Puzzle Mode: `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.status_skipped`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.hint_solved_msg`, `puzzle.confirm_hint_title`, `puzzle.confirm_hint_body`, `puzzle.btn_confirm_hint`, `puzzle.confirm_skip_title`, `puzzle.confirm_skip_body`, `puzzle.btn_confirm_skip`, `puzzle.elo_change`.
   - [x] Thêm hàm alias `getTranslation(key, params)` → `this.t(key, params)`.
 - **Cập nhật `index.html`:**
   - [x] Nút "Bắt đầu Giải đố" trỏ trực tiếp `window.location.href='puzzles.html'` (thay vì mở modal "coming soon").

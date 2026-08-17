@@ -605,20 +605,83 @@
 
         useHint: function() {
             if (!this.isPlayerTurn || !this.currentPuzzle || this.isSolved) return;
+            
+            // If hint was already confirmed and used for this puzzle, re-highlight directly
+            if (this.currentPuzzle.hintUsed) {
+                this.highlightHintMove();
+                return;
+            }
+
+            var penalty = this.getHintPenalty();
+            var i18n = getI18n();
+
+            if (typeof document !== 'undefined') {
+                var modal = document.getElementById('hint-confirm-modal');
+                var body = document.getElementById('hint-modal-body');
+                var title = document.getElementById('hint-modal-title');
+
+                if (title && i18n) {
+                    title.innerText = i18n.t('puzzle.confirm_hint_title');
+                }
+                if (body) {
+                    var bodyText = i18n ? i18n.t('puzzle.confirm_hint_body', { penalty: penalty }) : ('Are you sure you want to use a hint for this puzzle?<br>You will lose <strong>' + penalty + ' ELO</strong> and your Streak will reset to 0.');
+                    body.innerHTML = bodyText;
+                }
+
+                if (modal) {
+                    modal.className = 'modal-overlay active';
+                    modal.style.display = 'block';
+                }
+            }
+        },
+
+        closeHintModal: function() {
+            if (typeof document === 'undefined') return;
+            var modal = document.getElementById('hint-confirm-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
+        },
+
+        confirmHint: function() {
+            this.closeHintModal();
+            if (!this.currentPuzzle || this.isSolved) return;
+
+            // Apply proportional ELO loss immediately upon confirming hint
+            var result = this.applyEloChange(false, true);
+            var storage = getStorage();
+            if (storage) {
+                storage.setPuzzleStreak(0);
+            }
+            this.updateHeaderUI();
+
+            this.currentPuzzle.hintUsed = true;
+            this.highlightHintMove();
+
+            var i18n = getI18n();
+            var deltaStr = result.delta < 0 ? String(result.delta) : ('-' + Math.abs(result.delta));
+            if (i18n) {
+                this.setStatus('puzzle.status_hint_used', { delta: deltaStr });
+            }
+
+            this.saveCurrentPuzzleState();
+        },
+
+        highlightHintMove: function() {
+            if (!this.currentPuzzle || this.currentMoveIndex >= this.solutionMoves.length) return;
             var expectedUci = this.solutionMoves[this.currentMoveIndex];
             var expectedFrom = this.algebraicToCoords(expectedUci.substring(0, 2));
-            
+
             if (this.board && this.engine) {
                 this.board.selectedSquare = expectedFrom;
                 this.board.validMoves = this.engine.getLegalMoves(expectedFrom.r, expectedFrom.c);
                 this.board.render();
             }
+        },
 
-            this.setStatus('puzzle.status_hint_used');
-            
-            // Mark puzzle as hinted (ELO won't increase)
-            this.currentPuzzle.hintUsed = true;
-            this.saveCurrentPuzzleState();
+        getHintPenalty: function() {
+            return this.getSkipPenalty();
         },
 
         getSkipPenalty: function() {
@@ -768,7 +831,7 @@
                 if (title) {
                     title.innerText = i18n ? i18n.t('puzzle.success_title') : 'Puzzle Solved! ♔';
                 }
-                var hintMsg = i18n ? i18n.t('puzzle.status_hint_used') : 'Hint used (0 ELO)';
+                var hintMsg = i18n ? i18n.t('puzzle.hint_solved_msg', { elo: pElo }) : ('You solved the ' + pElo + ' ELO puzzle with a hint.');
                 var hintEloStr = i18n ? i18n.t('puzzle.elo_change', { elo: result.newElo, delta: '+0' }) : ('ELO: ' + result.newElo + ' (+0)');
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + hintMsg + '</div>' +

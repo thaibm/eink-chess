@@ -102,7 +102,25 @@
             </div>
         </div>
 
-        <!-- 6. CONFIRM SKIP MODAL -->
+        <!-- 6. CONFIRM HINT MODAL -->
+        <div id="hint-confirm-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeHintModal()">
+            <div class="modal-box" style="max-width: 340px; text-align: center; margin-top: 15vh; padding: 14px;">
+                <div class="modal-title" id="hint-modal-title" data-i18n="puzzle.confirm_hint_title"
+                    style="text-align: center;">Confirm Hint</div>
+                <div class="modal-body" id="hint-modal-body"
+                    style="font-size: 14px; padding: 10px 0; text-align: center;">
+                    <!-- Dynamic Result Message -->
+                </div>
+                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
+                    <button class="btn" onclick="PuzzleManager.closeHintModal()"
+                        data-i18n="game.btn_cancel">Cancel</button>
+                    <button class="btn btn-primary" onclick="PuzzleManager.confirmHint()"
+                        data-i18n="puzzle.btn_confirm_hint">Use Hint</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. CONFIRM SKIP MODAL -->
         <div id="skip-confirm-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkipModal()">
             <div class="modal-box" style="max-width: 340px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="skip-modal-title" data-i18n="puzzle.confirm_skip_title"
@@ -120,7 +138,7 @@
             </div>
         </div>
 
-        <!-- 7. GAMEOVER / PUZZLE COMPLETE MODAL -->
+        <!-- 8. GAMEOVER / PUZZLE COMPLETE MODAL -->
         <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeModal()">
             <div class="modal-box" style="max-width: 320px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="gameover-title" data-i18n="puzzle.success_title"
@@ -136,7 +154,7 @@
             </div>
         </div>
 
-        <!-- 8. DONATE KO-FI MODAL -->
+        <!-- 9. DONATE KO-FI MODAL -->
         <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Support EinkChess Author</div>
@@ -169,11 +187,11 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
     <script src="js/chess-storage.js?v=15"></script>
-    <script src="js/chess-i18n.js?v=23"></script>
+    <script src="js/chess-i18n.js?v=24"></script>
     <script src="js/chess-backend.js?v=11"></script>
-    <script src="js/chess-board.js?v=13"></script>
+    <script src="js/chess-board.js?v=14"></script>
     <script src="data/puzzles/manifest.js?v=20260817"></script>
-    <script src="js/chess-puzzles.js?v=19"></script>
+    <script src="js/chess-puzzles.js?v=20"></script>
 </body>
 
 </html>
