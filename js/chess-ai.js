@@ -302,19 +302,41 @@
 
     // Depth-preferred replacement: a shallower re-search of the same
     // position is not allowed to evict a deeper, more valuable result.
+    //
+    // Mutates the existing slot object in place rather than always
+    // allocating a new one - storeTT runs on nearly every interior search
+    // node (hundreds of thousands of times per level-5 move), while
+    // TT_SIZE bounds the table to 65536 slots, so the same slot objects
+    // get reused thousands of times over a single search. Always
+    // allocating turned each of those reuses into fresh garbage for no
+    // benefit. Safe to mutate: every caller reads the fields it needs from
+    // a probed entry synchronously (into local variables) before any
+    // recursive call that could store into the same slot again - nothing
+    // holds a live reference into a TT entry across a point where it could
+    // be mutated out from under it.
     ChessAI.prototype.storeTT = function(key, depth, score, flag, moveDescriptor, ply) {
         var index = key & TT_INDEX_MASK;
         var existing = this.tt[index];
-        if (existing && existing.key === key && existing.depth > depth) {
-            return;
+        var newScore = this.scoreToTT(score, ply);
+
+        if (existing) {
+            if (existing.key === key && existing.depth > depth) {
+                return;
+            }
+            existing.key = key;
+            existing.depth = depth;
+            existing.score = newScore;
+            existing.flag = flag;
+            existing.move = moveDescriptor;
+        } else {
+            this.tt[index] = {
+                key: key,
+                depth: depth,
+                score: newScore,
+                flag: flag,
+                move: moveDescriptor
+            };
         }
-        this.tt[index] = {
-            key: key,
-            depth: depth,
-            score: this.scoreToTT(score, ply),
-            flag: flag,
-            move: moveDescriptor
-        };
     };
 
     // Two killer slots per ply. Killers are a within-search heuristic (they
@@ -413,37 +435,58 @@
         return 0;
     };
 
+    // Single pass over the board computing material + PST + pawn-structure
+    // input data together, instead of three separate 64-square scans (one
+    // for material/isEndgame, one for PST, one inside evaluatePawnStructure
+    // for pawn files). This is the single most-called leaf function in the
+    // search (every quiescence stand-pat and every depth-0 node), so the
+    // redundant scans were real, repeated cost.
+    //
+    // The one piece that can't be scored inline is the king: its PST table
+    // choice (mid-game vs endgame) depends on isEndgame, which itself
+    // depends on totals only known after the full board has been seen. So
+    // both kings' squares are recorded during the pass and their PST/score
+    // contribution applied afterward - two O(1) lookups, not a fourth scan.
     ChessAI.prototype.evaluatePosition = function(engine) {
         var score = 0;
         var whiteMaterial = 0;
         var blackMaterial = 0;
 
-        // Calculate material to determine if it's endgame
-        for (var r = 0; r < 8; r++) {
-            for (var c = 0; c < 8; c++) {
-                var p = engine.board[r][c];
-                if (!p) continue;
-                var val = Math.abs(PIECE_VALUES[p] || 0);
-                var pType = p.toUpperCase();
-                // Exclude pawns and kings from material count for endgame phase detection
-                if (pType !== 'P' && pType !== 'K') {
-                    if (p === pType) whiteMaterial += val;
-                    else blackMaterial += val;
-                }
-            }
-        }
-        
-        var isEndgame = whiteMaterial < 1500 && blackMaterial < 1500;
+        var whiteFiles = [0, 0, 0, 0, 0, 0, 0, 0];
+        var blackFiles = [0, 0, 0, 0, 0, 0, 0, 0];
+        var whitePawnSquares = [];
+        var blackPawnSquares = [];
+
+        var whiteKingR = -1, whiteKingC = -1;
+        var blackKingR = -1, blackKingC = -1;
 
         for (var r = 0; r < 8; r++) {
             for (var c = 0; c < 8; c++) {
                 var p = engine.board[r][c];
                 if (!p) continue;
 
-                var val = PIECE_VALUES[p] || 0;
                 var pType = p.toUpperCase();
                 var isW = p === pType;
-                var pstVal = 0;
+
+                if (pType === 'K') {
+                    // Scored after the loop, once isEndgame is known.
+                    if (isW) { whiteKingR = r; whiteKingC = c; }
+                    else { blackKingR = r; blackKingC = c; }
+                    continue;
+                }
+
+                var val = PIECE_VALUES[p] || 0;
+
+                if (pType === 'P') {
+                    if (isW) { whiteFiles[c]++; whitePawnSquares.push({ r: r, c: c }); }
+                    else { blackFiles[c]++; blackPawnSquares.push({ r: r, c: c }); }
+                } else {
+                    // Material total used only for endgame-phase detection
+                    // (pawns and kings are excluded from it, same as before).
+                    // Math.abs on both sides, not relying on white values
+                    // happening to already be positive in PIECE_VALUES.
+                    if (isW) whiteMaterial += Math.abs(val); else blackMaterial += Math.abs(val);
+                }
 
                 var evalRow = isW ? r : 7 - r;
                 // Mirror both axes for black. Most tables are left-right
@@ -454,49 +497,42 @@
                 // correct for every table, not just the asymmetric one.
                 var evalCol = isW ? c : 7 - c;
 
+                var pstVal = 0;
                 if (pType === 'P') pstVal = PST_PAWN[evalRow][evalCol];
                 else if (pType === 'N') pstVal = PST_KNIGHT[evalRow][evalCol];
                 else if (pType === 'B') pstVal = PST_BISHOP[evalRow][evalCol];
                 else if (pType === 'R') pstVal = PST_ROOK[evalRow][evalCol];
                 else if (pType === 'Q') pstVal = PST_QUEEN[evalRow][evalCol];
-                else if (pType === 'K') {
-                    pstVal = isEndgame ? PST_KING_END[evalRow][evalCol] : PST_KING_MID[evalRow][evalCol];
-                }
 
                 score += isW ? (val + pstVal) : (val - pstVal);
             }
         }
 
-        score += this.evaluatePawnStructure(engine, isEndgame);
+        var isEndgame = whiteMaterial < 1500 && blackMaterial < 1500;
+
+        if (whiteKingR !== -1) {
+            var wKingPst = isEndgame ? PST_KING_END[whiteKingR][whiteKingC] : PST_KING_MID[whiteKingR][whiteKingC];
+            score += (PIECE_VALUES.K + wKingPst);
+        }
+        if (blackKingR !== -1) {
+            var bEvalRow = 7 - blackKingR;
+            var bEvalCol = 7 - blackKingC;
+            var bKingPst = isEndgame ? PST_KING_END[bEvalRow][bEvalCol] : PST_KING_MID[bEvalRow][bEvalCol];
+            score += (PIECE_VALUES.k - bKingPst);
+        }
+
+        score += this.evaluatePawnStructure(whiteFiles, blackFiles, whitePawnSquares, blackPawnSquares, isEndgame);
 
         return score;
     };
 
     // Penalizes doubled/isolated pawns and rewards passed pawns. Returns a
     // score from White's perspective (positive favors White), added into
-    // evaluatePosition's material+PST total.
-    ChessAI.prototype.evaluatePawnStructure = function(engine, isEndgame) {
-        var whiteFiles = [0, 0, 0, 0, 0, 0, 0, 0];
-        var blackFiles = [0, 0, 0, 0, 0, 0, 0, 0];
-        var whitePawnSquares = [];
-        var blackPawnSquares = [];
-        var r, c, p;
-
-        for (r = 0; r < 8; r++) {
-            for (c = 0; c < 8; c++) {
-                p = engine.board[r][c];
-                if (p === 'P') {
-                    whiteFiles[c]++;
-                    whitePawnSquares.push({ r: r, c: c });
-                } else if (p === 'p') {
-                    blackFiles[c]++;
-                    blackPawnSquares.push({ r: r, c: c });
-                }
-            }
-        }
-
+    // evaluatePosition's material+PST total. Takes pre-collected pawn data
+    // from evaluatePosition's single board pass rather than re-scanning.
+    ChessAI.prototype.evaluatePawnStructure = function(whiteFiles, blackFiles, whitePawnSquares, blackPawnSquares, isEndgame) {
         var score = 0;
-        var i;
+        var i, c, r;
 
         // Doubled pawns: penalize every pawn beyond the first on a file.
         for (c = 0; c < 8; c++) {

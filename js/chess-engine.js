@@ -61,6 +61,8 @@
         this.fullmoveNumber = 1;
         this.history = [];
         this.positionCounts = {};
+        this.whiteKingPos = null;
+        this.blackKingPos = null;
 
         this.initBoard();
         this.loadFEN(fen || INITIAL_FEN);
@@ -140,6 +142,24 @@
         this.positionCounts = {};
         this.recordPosition();
         this.zobristKey = this.computeZobristKey();
+        this.locateKings();
+    };
+
+    // Full-board scan for both kings' squares. Only called here (once per
+    // FEN load, not a hot path) - during play, makeMoveRaw/undoMoveRaw keep
+    // whiteKingPos/blackKingPos incrementally up to date, the same
+    // snapshot-restore approach already used for zobristKey, so isCheck's
+    // king lookup never needs to re-scan the board.
+    ChessEngine.prototype.locateKings = function() {
+        this.whiteKingPos = null;
+        this.blackKingPos = null;
+        for (var r = 0; r < 8; r++) {
+            for (var c = 0; c < 8; c++) {
+                var p = this.board[r][c];
+                if (p === 'K') this.whiteKingPos = { r: r, c: c };
+                else if (p === 'k') this.blackKingPos = { r: r, c: c };
+            }
+        }
     };
 
     ChessEngine.prototype.toFEN = function() {
@@ -281,16 +301,14 @@
         return r >= 0 && r < 8 && c >= 0 && c < 8;
     };
 
+    // O(1): whiteKingPos/blackKingPos are kept up to date incrementally by
+    // makeMoveRaw/undoMoveRaw rather than rescanned here. This is the most
+    // frequently called lookup in the whole engine (isCheck -> findKing
+    // runs once per candidate move tried during search, not once per node
+    // searched), so avoiding an O(64) board scan here matters more than
+    // almost anywhere else in the codebase.
     ChessEngine.prototype.findKing = function(color) {
-        var target = color === 'w' ? 'K' : 'k';
-        for (var r = 0; r < 8; r++) {
-            for (var c = 0; c < 8; c++) {
-                if (this.board[r][c] === target) {
-                    return { r: r, c: c };
-                }
-            }
-        }
-        return null;
+        return color === 'w' ? this.whiteKingPos : this.blackKingPos;
     };
 
     ChessEngine.prototype.isSquareAttacked = function(r, c, attackerColor) {
@@ -383,17 +401,22 @@
         var pType = piece.toUpperCase();
         var moves = [];
 
+        // Plain closure over `self` instead of addMove.bind(this): getPseudoMoves
+        // runs once per piece on every search node, and .bind() allocates a new
+        // bound-function object every call purely to carry `this` - a plain
+        // closure captures it for free with identical behavior.
+        var self = this;
         var addMove = function(toR, toC, isCapture, promo, isEp, isCastle) {
             moves.push({
                 from: { r: r, c: c },
                 to: { r: toR, c: toC },
                 piece: piece,
-                captured: isEp ? (color === 'w' ? 'p' : 'P') : (this.board[toR][toC] || null),
+                captured: isEp ? (color === 'w' ? 'p' : 'P') : (self.board[toR][toC] || null),
                 promotion: promo || null,
                 isEnPassant: !!isEp,
                 isCastling: !!isCastle
             });
-        }.bind(this);
+        };
 
         // --- PAWN ---
         if (pType === 'P') {
@@ -623,6 +646,13 @@
 
         move.prevCastling = { K: this.castling.K, Q: this.castling.Q, k: this.castling.k, q: this.castling.q };
         move.prevEp = this.epSquare;
+        move.prevWhiteKingPos = this.whiteKingPos;
+        move.prevBlackKingPos = this.blackKingPos;
+        if (piece === 'K') {
+            this.whiteKingPos = { r: toR, c: toC };
+        } else if (piece === 'k') {
+            this.blackKingPos = { r: toR, c: toC };
+        }
         move.prevHalfmove = this.halfmoveClock;
         move.prevFullmove = this.fullmoveNumber;
         // Snapshot-restore, not reverse-computed: undoMoveRaw just puts this
@@ -763,6 +793,8 @@
 
         this.castling = move.prevCastling;
         this.epSquare = move.prevEp;
+        this.whiteKingPos = move.prevWhiteKingPos;
+        this.blackKingPos = move.prevBlackKingPos;
         this.halfmoveClock = move.prevHalfmove;
         this.fullmoveNumber = move.prevFullmove;
         this.zobristKey = move.prevZobristKey;
