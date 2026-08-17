@@ -801,6 +801,29 @@
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
             }
+        },
+
+        refreshScreen: function() {
+            if (typeof document === 'undefined') return;
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '99999';
+            overlay.style.backgroundColor = '#ffffff';
+            document.body.appendChild(overlay);
+
+            var self = this;
+            setTimeout(function() {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+                if (self.board) {
+                    self.board.render();
+                }
+            }, 200);
         }
     };
 

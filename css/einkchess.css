@@ -274,12 +274,13 @@ button,
 .sq.hint-move::after {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 26%;
     height: 26%;
-    margin-top: -13%;
-    margin-left: -13%;
+    margin: auto;
     background-color: #000000;
     border-radius: 50%;
     opacity: 0.75;
@@ -288,12 +289,13 @@ button,
 .sq.hint-capture::after {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 70%;
     height: 70%;
-    margin-top: -35%;
-    margin-left: -35%;
+    margin: auto;
     border: 2px solid #000000;
     border-radius: 50%;
 }
@@ -388,6 +390,49 @@ button,
     padding: 10px 8px;
     line-height: 20px;
     margin: 2px 2px;
+}
+
+.action-bar-grid {
+    display: table !important;
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: separate !important;
+    border-spacing: 4px 4px !important;
+    margin: 4px 0 2px 0 !important;
+}
+
+.action-bar-row {
+    display: table-row !important;
+}
+
+.action-bar-cell {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    padding: 0 !important;
+}
+
+.action-bar-cell .btn,
+.action-bar-cell .puzzle-meta-box {
+    display: block !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    line-height: 20px !important;
+    padding: 10px 4px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
+    -webkit-box-sizing: border-box !important;
+}
+
+/* Ensure display:none inline style is not overridden by display:block !important above */
+.action-bar-cell .btn[style*="display: none"] {
+    display: none !important;
 }
 
 .puzzle-meta-box {
@@ -607,9 +652,16 @@ button,
 }
 
 .modal-footer {
-    text-align: right;
-    border-top: 1px solid #000000;
+    text-align: center;
+    border-top: 2px solid #000000;
     padding-top: 8px;
+}
+
+.modal-footer .btn {
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 44px;
 }
 
 /* QR Code Display for Ko-fi & Momo */

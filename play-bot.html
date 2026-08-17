@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=35">
+    <link rel="stylesheet" href="css/einkchess.css?v=42">
 </head>
 
 <body>
@@ -39,15 +39,28 @@
         <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
         <div class="board-container" id="board-container"></div>
 
-        <!-- 4. ACTION BUTTONS -->
-        <div class="action-bar">
-            <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
-            <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
-            <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
-            <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Làm mới</button>
-            <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý:
-                Bật</button>
-            <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
+        <!-- 4. ACTION BUTTONS (1 ROW, 6 COLUMNS EVENLY DISTRIBUTED BY CONTENT) -->
+        <div class="action-bar action-bar-grid">
+            <div class="action-bar-row">
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Làm mới</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý: Bật</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
+                </div>
+            </div>
         </div>
 
         <!-- 5. MATCH SETUP POPUP MODAL (BEFORE GAME / NEW GAME) -->

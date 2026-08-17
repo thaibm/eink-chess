@@ -193,14 +193,16 @@
   - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
   - Sai câu khó → phạt nhẹ (VD: puzzle 1800, player 1200 → $-3$)
 
-#### E. Action Buttons trong màn Giải đố (Bố cục 3 Cột Ngang Hàng):
-- **Cột trái (Bottom-Left):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`) có chiều cao chuẩn 44px, viền kép 2px đồng bộ hoàn toàn với kích thước của các nút bấm hành động.
-- **Cột giữa (Center):** Nút **`[♙ Gợi ý (Hint)]`** (ẩn đi khi đã hoàn thành câu đố).
-- **Cột phải (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** nổi bật khi câu đố đã giải xong.
-  - Khi bấm **`[Bỏ qua]`**: Hiển thị popup xác nhận (`Confirm Skip Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn bỏ qua thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
-  - Nếu người dùng bấm `[Hủy]`: Đóng popup, giữ nguyên ván cờ.
-  - Nếu người dùng bấm `[Đồng ý bỏ qua]`: Đóng popup, áp dụng trừ ELO proportional theo công thức, reset chuỗi Streak về 0, cập nhật điểm trên Header và tải câu đố mới.
-  - Khi bấm **`[Tiếp theo]`**: Đóng popup kết quả và tải câu đố mới.
+#### E. Action Buttons trong màn Giải đố (Bố cục 4 Cột Dàn Đều Ngang Hàng):
+- Áp dụng cấu trúc lưới đồng bộ `.action-bar-grid` chia 4 cột bằng nhau (25% mỗi cột) với khoảng cách phân bổ đều (`border-spacing: 4px`):
+  - **Cột 1 (Bottom-Left):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`) có chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm.
+  - **Cột 2:** Nút **`[♙ Gợi ý (Hint)]`** (ẩn đi khi đã hoàn thành câu đố).
+  - **Cột 3:** Nút **`[Làm mới (Refresh)]`** (tạo flash trắng 200ms để refresh vật lý màn hình E-ink, xóa bóng mờ ghosting).
+  - **Cột 4 (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** nổi bật khi câu đố đã giải xong.
+    - Khi bấm **`[Bỏ qua]`**: Hiển thị popup xác nhận (`Confirm Skip Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn bỏ qua thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
+    - Nếu người dùng bấm `[Hủy]`: Đóng popup, giữ nguyên ván cờ.
+    - Nếu người dùng bấm `[Đồng ý bỏ qua]`: Đóng popup, áp dụng trừ ELO proportional theo công thức, reset chuỗi Streak về 0, cập nhật điểm trên Header và tải câu đố mới.
+    - Khi bấm **`[Tiếp theo]`**: Đóng popup kết quả và tải câu đố mới.
 
 #### F. Cơ chế Lưu trạng thái đang giải dở (In-Progress Puzzle Auto-Save):
 - Tự động lưu trạng thái câu đố đang giải dở (`puzzle`, `currentMoveIndex`, `hasFailed`, `hintUsed`) vào `localStorage` (`einkchess_saved_puzzle`).

@@ -10,7 +10,7 @@
 
 👉 **Chơi ngay tại:** [https://eink-chess-thaibm.vercel.app/](https://eink-chess-thaibm.vercel.app/)
 
-### 🌟 Tính Năng Hiện Tại (Phase 1 MVP)
+### 🌟 Tính Năng Hiện Tại
 
 - **Tối ưu tuyệt đối cho E-ink & Kindle:**
   - Không hiệu ứng animation/transition gây chớp nháy màn hình.
@@ -23,6 +23,13 @@
   - Tự động tính toán và cập nhật điểm ELO chuẩn sau mỗi ván cờ.
   - Hỗ trợ nút **Đi lại (Undo)** và **Đầu hàng (Resign)** có popup xác nhận tránh chạm nhầm.
   - Popup chọn cấp độ & bên cầm quân trước khi vào bàn cờ.
+- **Giải Đố Cờ Thế (Tactics Puzzle Mode - Lichess Database):**
+  - Hơn 25 dải ELO (từ 400 đến 2800) trích xuất từ Lichess Open Database.
+  - Tự động điều chỉnh độ khó và ghép thế cờ thích ứng theo điểm **Puzzle ELO** của người chơi.
+  - Setup trình độ khởi đầu (Onboarding 5 cấp độ từ 400 đến 2000 ELO) khi mới bắt đầu.
+  - Hệ thống tính điểm ELO chuẩn xác (Proportional rating system) và đếm chuỗi giải đúng (Streak).
+  - Hỗ trợ nút **Gợi ý (Hint)**, nút **Bỏ qua (Skip)** có xác nhận trừ điểm, và tự động lưu/khôi phục tiến độ câu đố (chống gian lận/reload).
+  - Hiển thị badge mã thế cờ (`#PuzzleId · ELO`), chủ đề chiến thuật (Themes), và link phân tích ván đấu Lichess.
 - **Trang Cài Đặt Thiết Bị:**
   - Danh sách chọn dòng máy (Kindle Basic, Paperwhite, Oasis, Scribe) dạng thẻ nút chạm trực quan (không dùng dropdown `<select>` bị lỗi trên Kindle).
   - Tự động điều chỉnh kích thước bàn cờ theo độ phân giải thiết bị.
@@ -32,7 +39,6 @@
   - Tích hợp Modal hiển thị Mã QR Ko-fi độ nét cao để người dùng quét ủng hộ bằng điện thoại.
 - **Tính Năng Dự Kiến (Lộ Trình Tương Lai):**
   - **Phase 2 — Đấu AI Cloud Nâng Cao:** Tích hợp engine mạnh mẽ từ API bên ngoài, nâng cấp độ khó lên mức Kiện tướng (~1500 - 2750 ELO).
-  - **Phase 3 — Puzzle Mode (Giải Đố):** Chế độ giải thế cờ thích ứng theo điểm ELO (từ database Lichess), có hệ thống gợi ý.
   - **Phase 4 — PvP Online:** Cho phép tạo phòng đấu online với bạn bè bằng mã 6 ký tự, đồng bộ nước đi thời gian thực.
   - **Phase 5 — Bảng Thống Kê Chi Tiết:** Biểu đồ lịch sử ELO, thống kê tỉ lệ thắng/thua, chuỗi thắng (streak), và tiếp tục tối ưu hóa sâu trải nghiệm E-ink.
 
@@ -44,7 +50,7 @@
 
 👉 **Play now at:** [https://eink-chess-thaibm.vercel.app/](https://eink-chess-thaibm.vercel.app/)
 
-### 🌟 Current Features (Phase 1 MVP)
+### 🌟 Current Features
 
 - **Fully Optimized for E-ink & Kindle:**
   - No animations/transitions to prevent screen flashing.
@@ -57,6 +63,13 @@
   - Automatic ELO calculation and updates after each game.
   - Safe actions with **Undo** and **Resign** buttons requiring confirmation popups to prevent accidental taps.
   - Interactive setup dialog to choose game settings (side and difficulty) before starting.
+- **Chess Tactics Puzzles (Lichess Database):**
+  - Sourced from the Lichess Open Database spanning 25 ELO buckets from 400 to 2800.
+  - Elo-adaptive puzzle matchmaking automatically delivering puzzles matching your current rating.
+  - Initial skill selection onboarding (5 levels from 400 to 2000 ELO) for first-time players.
+  - Proportional ELO scoring system and winning streak tracking.
+  - Interactive actions including **Hint**, **Skip** (with confirmation & proportional penalty), and in-progress puzzle auto-save / resume (anti-cheat).
+  - Puzzle badges (`#PuzzleId · ELO`), tactical themes, and direct Lichess analysis board links.
 - **Device Settings Page:**
   - A touch-friendly list of device presets (Kindle Basic, Paperwhite, Oasis, Scribe) using card layout instead of standard dropdowns (which are buggy on Kindle).
   - Auto-responsive chess board scaling tailored to the screen resolution of the selected device.
@@ -66,7 +79,6 @@
   - Integrated high-quality Ko-fi QR code modal for easy mobile scanning.
 - **Planned Features (Future Roadmap):**
   - **Phase 2 — Advanced Cloud AI:** Integrate strong external chess engines for master level difficulty (~1500 - 2750 ELO).
-  - **Phase 3 — Puzzle Mode:** Elo-adaptive tactics puzzles (sourced from Lichess db) with a hint system.
   - **Phase 4 — Online PvP:** Create custom rooms with 6-character codes to play online with friends, synchronized via a lightweight polling system.
   - **Phase 5 — Detailed Stats Dashboard:** Historic ELO charts, win/loss ratios, winning streaks, and further deep optimizations for E-ink devices.
 

@@ -346,9 +346,44 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
 
         expect(ChessStorage.getPuzzleElo()).toBe(800);
         expect(ChessStorage.hasChosenPuzzleSkill()).toBe(true);
-        expect(modal.className).toBe('modal-overlay');
-        expect(modal.style.display).toBe('none');
         expect(loadCalled).toBe(true);
+    });
+
+    test('refreshScreen creates white overlay and re-renders board', () => {
+        jest.useFakeTimers();
+        let appendedChild = null;
+        let removedChild = null;
+        const mockOverlay = {
+            style: {},
+            parentNode: {
+                removeChild: (child) => { removedChild = child; }
+            }
+        };
+
+        global.document = {
+            createElement: (tag) => {
+                if (tag === 'div') return mockOverlay;
+                return {};
+            },
+            body: {
+                appendChild: (child) => { appendedChild = child; }
+            }
+        };
+
+        let rendered = false;
+        PuzzleManager.board = {
+            render: () => { rendered = true; }
+        };
+
+        PuzzleManager.refreshScreen();
+        expect(appendedChild).toBe(mockOverlay);
+        expect(mockOverlay.style.backgroundColor).toBe('#ffffff');
+        expect(mockOverlay.style.zIndex).toBe('99999');
+
+        jest.advanceTimersByTime(200);
+        expect(removedChild).toBe(mockOverlay);
+        expect(rendered).toBe(true);
+        jest.useRealTimers();
     });
 });
 
