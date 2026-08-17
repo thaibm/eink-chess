@@ -26,7 +26,7 @@ Xây dựng ứng dụng web Chess tối ưu cho Kindle e-reader và các thiế
 eink-chess/                             ← Repo root
 ├── index.html                          ← Trang chủ: Device setup, ELO Header, Menu, Donate Ko-fi QR, Ping tracking
 ├── play-bot.html                       ← Chơi với bot: Level 1-3 (Unlimited), ELO, Undo, Resign, Donate QR
-├── puzzles.html                        ← Giải đố: 500 Puzzles Lichess, Tick/Cross feedback, Quota 3/ngày
+├── puzzles.html                        ← Giải đố: Tải động ELO Puzzle từ API, Tick/Cross feedback, Quota 3/ngày
 ├── play-friend.html                    ← Chơi với bạn: Tạo/nhập mã phòng, Quota 3/ngày
 ├── css/
 │   └── einkchess.css                   ← Giao diện Đen-Trắng tương phản cao tối ưu E-ink (Dashed outline)
@@ -40,10 +40,6 @@ eink-chess/                             ← Repo root
 │   ├── chess-storage.js                ← Quản lý LocalStorage (Device ID, ELO, Local Quota cache)
 │   ├── chess-backend.js                ← [PHASE 1] Portable Backend Adapter (Active Ping, Traffic Count, Quota)
 │   └── chess-i18n.js                   ← Đa ngôn ngữ VI / EN
-├── data/
-│   └── puzzles.json                    ← 500 Puzzles bundle (Phân bổ rating 600-2600)
-├── build/
-│   └── build-puzzles.js                ← Script lọc và nén 500 puzzles từ Lichess CSV
 └── sql/
     └── schema.sql                      ← [PHASE 1] PostgreSQL Schema (active_pings, page_views, user_quotas, chess_games)
 ```
@@ -142,7 +138,7 @@ File này đóng vai trò cầu nối duy nhất giữa Client và Server (chu�
 - Xử lý thông báo khi hết lượt Cloud: gợi ý chơi tiếp Bot Level 1-3 hoặc Ko-fi donate.
 
 ### Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO) + Quota 3 câu/ngày
-- Lọc và đóng gói 500 câu đố Lichess vào `data/puzzles.json`.
+- Tích hợp API cờ thế trực tuyến: Tải câu đố theo thời gian thực dựa trên ELO Puzzle của người chơi.
 - Xây dựng `puzzles.html` và `js/chess-puzzles.js` (Tick/Cross feedback, Hint 2 cấp độ, Puzzle ELO).
 - Quota 3 câu đố miễn phí/ngày.
 
@@ -156,15 +152,70 @@ File này đóng vai trò cầu nối duy nhất giữa Client và Server (chu�
 
 ---
 
-## Kế hoạch Triển khai Phase 1 (MVP)
+## Kế hoạch Triển khai Puzzle Mode
 
-Chúng ta sẽ bắt đầu thực hiện **Phase 1** ngay lập tức:
-1. Thiết lập cấu trúc thư mục repo `eink-chess/`.
-2. Tạo file `sql/schema.sql` (bảng tracking active_pings, views DAU/WAU/MAU/YAU, user_quotas).
-3. Tạo file `css/einkchess.css` (hệ màu monochrome, dashed outline, responsive Kindle).
-4. Tạo `js/chess-engine.js` (Core chess engine ES5).
-5. Tạo `js/chess-ai.js` (Local Minimax AI Level 1-3).
-6. Tạo `js/chess-storage.js` (Lưu device UUID, ELO, auto-save).
-7. Tạo `js/chess-backend.js` (Adapter gửi ping telemetry siêu nhẹ & quota).
-8. Tạo `js/chess-board.js` (DOM incremental, visual feedback).
-9. Tạo `index.html` và `play-bot.html` (đầy đủ Donate Ko-fi QR modal, ELO Header, Action buttons).
+Chúng ta sẽ ưu tiên triển khai tính năng **Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO)** bằng cách tải động các câu đố qua API trực tuyến dựa trên điểm ELO của người chơi.
+
+### User Review Required
+
+> [!IMPORTANT]
+> **Các tính năng chính của Puzzle Mode:**
+> 1. **Tải động cờ thế qua API (Dynamic API Fetching):**
+>    - Thay vì đóng gói offline 500 câu đố nặng nề, hệ thống sẽ sử dụng API công khai `https://chess-puzzles-api.vercel.app/puzzles?min_rating=...&max_rating=...&limit=20` để tải động danh sách 20 câu đố trong khoảng rating $\pm 100$ ELO của người chơi.
+>    - Một câu đố sẽ được lựa chọn ngẫu nhiên từ danh sách tải về.
+>    - ID của các câu đố đã giải gần đây được lưu trong `localStorage` để lọc loại trùng lặp.
+> 2. **Thuật toán Ghép Cặp Thích ứng ELO:**
+>    - Tự động lấy điểm ELO Puzzle hiện tại của người chơi (mặc định ban đầu: 1200) để làm gốc tính toán dải rating cần tải về.
+> 3. **Phản hồi tương tác thị giác tối ưu E-ink:**
+>    - Sử dụng biểu tượng Tick `✔` (chính xác) và Cross `✖` (sai) trực tiếp trên thanh trạng thái.
+>    - Khi người chơi đi sai, bàn cờ sẽ tự động thực hiện Undo để đưa quân cờ về vị trí cũ, cho phép người chơi suy nghĩ lại.
+> 4. **Gợi ý 2 Cấp độ (Hints):**
+>    - Cấp độ 1: Nhấp "Hint" lần 1 sẽ highlight ô chứa quân cờ cần đi.
+>    - Cấp độ 2: Nhấp "Hint" lần 2 sẽ highlight cả ô xuất phát và ô đích.
+> 5. **Hạn mức 3 câu đố/ngày (Quota):**
+>    - Áp dụng Quota 3 câu đố/ngày (lưu vết ngày và số lượt đã chơi trong `localStorage` qua `ChessStorage`).
+>    - Hết lượt sẽ hiển thị Modal thông báo hết lượt giải đố kèm nút Donate.
+
+---
+
+## Proposed Changes
+
+### Build Tooling
+
+#### [MODIFY] [build.js](file:///Users/thaibuiminh/Projects/eink-chess/scripts/build.js)
+- Cập nhật quy trình build để hỗ trợ thêm file `puzzles.html` và chèn cache-busting version query parameter.
+
+### Core Application
+
+#### [NEW] [puzzles.html](file:///Users/thaibuiminh/Projects/eink-chess/puzzles.html)
+- Trang HTML hiển thị chế độ giải đố. Gồm Header, Status Bar hiển thị Streak, Bàn cờ E-ink, và Action Bar (`Hint`, `Solution`, `Skip`, `Refresh`, `Retry`, `Next`).
+- Gắn tham số cache busting tương tự các trang khác.
+
+#### [NEW] [chess-puzzles.js](file:///Users/thaibuiminh/Projects/eink-chess/js/chess-puzzles.js)
+- Quản lý trạng thái giải đố, gọi API tải cờ thế qua `XMLHttpRequest` (đảm bảo tương thích ES5 / Kindle WebKit).
+- Xử lý logic kịch bản nước đi (so sánh nước đi người dùng với đáp án kịch bản), thực hiện nước đi phản đòn tự động của bot.
+- Tích hợp ELO Puzzle, Streak, Hints, telemetry pings và Quotas.
+
+#### [MODIFY] [chess-i18n.js](file:///Users/thaibuiminh/Projects/eink-chess/js/chess-i18n.js)
+- Bổ sung từ khóa song ngữ cho Puzzle.
+
+#### [MODIFY] [index.html](file:///Users/thaibuiminh/Projects/eink-chess/index.html)
+- Đổi nút "Bắt đầu Giải đố" để chuyển sang trang `puzzles.html` thay vì hiển thị modal "Coming Soon".
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- Kiểm tra tính đúng đắn của việc chuyển đổi nước đi UCI thành move object bằng các unit test mới.
+- Kiểm tra logic lọc puzzle thích ứng ELO.
+
+### Manual Verification
+- Chạy `npm run build` để kiểm tra build thành công, tạo ra đầy đủ file tĩnh trong `dist/`.
+- Chơi thử chế độ Giải đố trên trình duyệt:
+  - Chọn câu đố thích ứng theo ELO của người dùng.
+  - Thử đi đúng: Kiểm tra status bar hiện dấu tích `✔` và đối thủ đi nước tiếp theo.
+  - Thử đi sai: Kiểm tra status bar hiện dấu `✖` và bàn cờ tự động trả lại vị trí cũ.
+  - Thử dùng gợi ý: Kiểm tra highlight ô cờ tương ứng.
+  - Thử xem đáp án: Kiểm tra bot tự biểu diễn nước đi và kết quả ghi nhận thất bại.
+  - Kiểm tra quota: Đổi thời gian hệ thống hoặc chỉnh sửa localStorage để test giới hạn 3 câu/ngày.

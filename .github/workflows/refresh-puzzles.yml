@@ -1,0 +1,74 @@
+name: 🧩 Weekly & Manual Puzzle Refresh
+
+on:
+  schedule:
+    # Run every Monday at 2:00 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+    inputs:
+      puzzles_per_bucket:
+        description: 'Number of puzzles per ELO bucket'
+        required: false
+        default: '200'
+        type: string
+      clean_only:
+        description: 'Only clean data/puzzles directory (no download)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  refresh-puzzles:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install zstd
+        run: sudo apt-get install -y zstd
+
+      - name: Build puzzle data from Lichess
+        run: |
+          if [ "${{ github.event.inputs.clean_only }}" = "true" ]; then
+            echo "Cleaning data/puzzles directory..."
+            node scripts/build-puzzles.js --clean-only
+          else
+            COUNT="${{ github.event.inputs.puzzles_per_bucket || '200' }}"
+            echo "Building puzzle data streaming directly from Lichess (Count: $COUNT per bucket)..."
+            node scripts/build-puzzles.js --fetch-lichess --count=$COUNT
+            echo ""
+            echo "Output:"
+            find data/puzzles -name "*.json" | wc -l
+            echo "files generated"
+            du -sh data/puzzles/
+            cat data/puzzles/manifest.js
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "🧩 Refresh puzzle library"
+          title: "🧩 Refresh Puzzle Library"
+          body: |
+            ## 🧩 Automated Puzzle Library Refresh
+            - **Data:** Refreshed `data/puzzles/` and updated `manifest.js`
+            - **Cache-Busting:** Synced version timestamp in `puzzles.html`
+            - **Trigger:** `${{ github.event_name }}`
+            
+            *Please review the puzzle manifest and changes before merging.*
+          branch: auto/refresh-puzzles
+          delete-branch: true
+
+
+

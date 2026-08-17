@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="EinkChess - Traffic Statistics and Usage Reports.">
+    <title>EinkChess - Traffic Statistics</title>
+    <link rel="stylesheet" href="css/einkchess.css?v=42">
+    <style>
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            border: 1px solid #000000;
+            padding: 5px 8px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .stats-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .stats-table td.value-col {
+            text-align: right;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .stats-card {
+            border: 2px solid #000000;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background-color: #ffffff;
+        }
+
+        .stats-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 3px;
+        }
+
+        .stats-desc {
+            font-size: 12px;
+            margin-top: 6px;
+            color: #555555;
+            line-height: 1.35;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-top">
+                <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
+                <div class="header-center">
+                    <span id="stats-page-title" style="font-weight: bold;" data-i18n="stats.page_title">Thống Kê
+                        Traffic</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin: 6px 0; text-align: center;">
+            <div style="display: table; width: 100%;">
+                <div style="display: table-cell; width: 50%; padding-right: 4px;">
+                    <button class="btn btn-block" onclick="location.href='index.html'"
+                        style="margin: 0; padding: 11px 8px; font-size: 15px; min-height: 44px;"
+                        data-i18n="game.btn_home">Trang chủ</button>
+                </div>
+                <div style="display: table-cell; width: 50%; padding-left: 4px;">
+                    <button class="btn btn-primary btn-block" onclick="loadStats()"
+                        style="margin: 0; padding: 11px 8px; font-size: 15px; min-height: 44px;"
+                        data-i18n="stats.btn_refresh">Làm mới</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="stats-status" style="margin: 20px 0; font-size: 15px; font-weight: bold; text-align: center;">
+            Đang tải dữ liệu...
+        </div>
+
+        <div id="stats-container" style="display: none;">
+            <div class="stats-card">
+                <div class="stats-title" data-i18n="stats.overview_title">Tổng quan lưu lượng</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="stats.metric_name">Chỉ số</th>
+                            <th style="text-align: right;" data-i18n="stats.metric_value">Giá trị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-i18n="stats.currently_playing">Số người đang chơi</td>
+                            <td class="value-col" id="val-realtime-60m">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.dau_today">Người chơi hoạt động hôm nay (DAU)</td>
+                            <td class="value-col" id="val-dau">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.wau_this_week">Người chơi hoạt động 7 ngày qua (WAU)</td>
+                            <td class="value-col" id="val-wau">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.mau_this_month">Người chơi hoạt động 30 ngày qua (MAU)</td>
+                            <td class="value-col" id="val-mau">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.yau_this_year">Người chơi hoạt động 365 ngày qua (YAU)</td>
+                            <td class="value-col" id="val-yau">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.pageviews_today">Lượt xem trang hôm nay</td>
+                            <td class="value-col" id="val-pvs-today">0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="stats.total_pageviews_all_time">Tổng lượt xem trang tích lũy</td>
+                            <td class="value-col" id="val-pvs-all">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/chess-storage.js?v=13"></script>
+    <script src="js/chess-i18n.js?v=22"></script>
+    <script src="js/chess-backend.js?v=9"></script>
+    <script>
+        function displayStats(row) {
+            var el10m = document.getElementById('val-realtime-10m');
+            if (el10m) el10m.innerHTML = row.realtime_active_10m !== undefined ? row.realtime_active_10m : 0;
+            var el30m = document.getElementById('val-realtime-30m');
+            if (el30m) el30m.innerHTML = row.realtime_active_30m !== undefined ? row.realtime_active_30m : 0;
+            var el60m = document.getElementById('val-realtime-60m');
+            if (el60m) el60m.innerHTML = row.realtime_active_60m !== undefined ? row.realtime_active_60m : 0;
+
+            var elDau = document.getElementById('val-dau');
+            if (elDau) elDau.innerHTML = row.dau_today !== undefined ? row.dau_today : 0;
+            var elWau = document.getElementById('val-wau');
+            if (elWau) elWau.innerHTML = row.wau_this_week !== undefined ? row.wau_this_week : 0;
+            var elMau = document.getElementById('val-mau');
+            if (elMau) elMau.innerHTML = row.mau_this_month !== undefined ? row.mau_this_month : 0;
+            var elYau = document.getElementById('val-yau');
+            if (elYau) elYau.innerHTML = row.yau_this_year !== undefined ? row.yau_this_year : 0;
+            var elPvsToday = document.getElementById('val-pvs-today');
+            if (elPvsToday) elPvsToday.innerHTML = row.pageviews_today !== undefined ? row.pageviews_today : 0;
+            var elPvsAll = document.getElementById('val-pvs-all');
+            if (elPvsAll) elPvsAll.innerHTML = row.total_pageviews_all_time !== undefined ? row.total_pageviews_all_time : 0;
+
+            document.getElementById('stats-status').innerHTML = '';
+            document.getElementById('stats-container').style.display = 'block';
+        }
+
+        function loadStats() {
+            var statusEl = document.getElementById('stats-status');
+            var containerEl = document.getElementById('stats-container');
+            if (!statusEl || !containerEl) return;
+
+            statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.loading') : 'Đang tải dữ liệu...';
+            containerEl.style.display = 'none';
+
+            if (typeof ChessBackend === 'undefined') {
+                statusEl.innerHTML = 'Backend script not loaded.';
+                return;
+            }
+
+            var url = ChessBackend.config.SUPABASE_URL;
+            var key = ChessBackend.config.SUPABASE_ANON_KEY;
+
+            if (!url || !key || url.indexOf('%%') === 0 || key.indexOf('%%') === 0) {
+                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.offline_msg') : 'Chế độ ngoại tuyến: Supabase chưa được cấu hình.';
+                return;
+            }
+
+            try {
+                var xhr = new XMLHttpRequest();
+                var endpoint = url + '/rest/v1/v_traffic_stats?select=*';
+                xhr.open('GET', endpoint, true);
+                xhr.setRequestHeader('apikey', key);
+                xhr.setRequestHeader('Authorization', key.indexOf('Bearer') === 0 ? key : 'Bearer ' + key);
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                var data = JSON.parse(xhr.responseText);
+                                if (data && data.length > 0) {
+                                    displayStats(data[0]);
+                                } else {
+                                    statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.no_data') : 'Không tìm thấy dữ liệu.';
+                                }
+                            } catch (e) {
+                                statusEl.innerHTML = typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_parse') : 'Lỗi xử lý dữ liệu JSON.';
+                            }
+                        } else {
+                            statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_fetch') : 'Lỗi tải dữ liệu: ') + xhr.status;
+                        }
+                    }
+                };
+
+                xhr.send();
+            } catch (e) {
+                statusEl.innerHTML = (typeof ChessI18n !== 'undefined' ? ChessI18n.t('stats.error_xhr') : 'Lỗi kết nối: ') + e.message;
+            }
+        }
+
+        var isStatsInitialized = false;
+        function initStatsPage() {
+            if (isStatsInitialized) return;
+            isStatsInitialized = true;
+
+            try {
+                if (typeof ChessStorage !== 'undefined') {
+                    ChessStorage.applyAutoLayout();
+                }
+
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.init();
+                    ChessI18n.onChange(function () {
+                        loadStats();
+                    });
+                }
+
+                loadStats();
+
+                if (typeof ChessBackend !== 'undefined') {
+                    ChessBackend.sendPing('pageview', '/stats.html');
+                }
+            } catch (e) { }
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initStatsPage();
+        } else {
+            if (window.addEventListener) {
+                window.addEventListener('DOMContentLoaded', initStatsPage);
+            }
+            window.onload = initStatsPage;
+        }
+    </script>
+</body>
+
+</html>

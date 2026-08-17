@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=28">
+    <link rel="stylesheet" href="css/einkchess.css?v=42">
 </head>
 
 <body>
@@ -45,18 +45,32 @@
         <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
         <div class="board-container" id="board-container"></div>
 
-        <!-- 4. ACTION BUTTONS -->
-        <div class="action-bar">
-            <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
-            <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
-            <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
-            <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý:
-                Bật</button>
-            <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
+        <!-- 4. ACTION BUTTONS (1 ROW, 6 COLUMNS EVENLY DISTRIBUTED BY CONTENT) -->
+        <div class="action-bar action-bar-grid">
+            <div class="action-bar-row">
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleUndo()" data-i18n="game.btn_undo">Đi lại</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="openResignModal()" data-i18n="game.btn_resign">Đầu hàng</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Xoay bàn</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Làm mới</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" id="hint-toggle-btn" onclick="toggleHints()" data-i18n="game.btn_hints_on">Gợi ý: Bật</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">Ván mới</button>
+                </div>
+            </div>
         </div>
 
         <!-- 5. MATCH SETUP POPUP MODAL (BEFORE GAME / NEW GAME) -->
-        <div id="setup-modal" class="modal-overlay">
+        <div id="setup-modal" class="modal-overlay" onclick="if(event.target===this) closeSetupModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="game.setup_title">CÀI ĐẶT VÁN ĐẤU VỚI BOT</div>
                 <div class="modal-body">
@@ -87,7 +101,7 @@
         </div>
 
         <!-- 6. CONFIRM RESIGN MODAL -->
-        <div id="resign-modal" class="modal-overlay">
+        <div id="resign-modal" class="modal-overlay" onclick="if(event.target===this) closeResignModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="game.resign_title">Xác nhận đầu hàng</div>
                 <div class="modal-body" data-i18n="game.resign_body">
@@ -103,7 +117,7 @@
         </div>
 
         <!-- 7. GAME OVER MODAL -->
-        <div id="gameover-modal" class="modal-overlay">
+        <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) closeGameOverModal()">
             <div class="modal-box">
                 <div class="modal-title" id="gameover-title" data-i18n="game.gameover_title">Kết thúc ván đấu</div>
                 <div class="modal-body" id="gameover-body">
@@ -119,19 +133,25 @@
         </div>
 
         <!-- 8. DONATE KO-FI MODAL -->
-        <div id="donate-modal" class="modal-overlay">
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
                 <div class="modal-body">
-                    <span data-i18n="donate.body">EinkChess là dự án phi lợi nhuận tối ưu cho cộng đồng người dùng
-                        Kindle.<br><br>
-                        Bạn có thể dùng điện thoại <strong>quét mã QR bên dưới</strong> để mời tác giả một tách cà phê
-                        trên Ko-fi:</span>
+                    <span data-i18n="donate.body">Bạn có thể quét mã QR bên dưới bằng điện thoại để mời tác giả một tách cà phê qua <strong>Ko-fi</strong> hoặc quét <strong>Momo</strong> để ủng hộ trực tiếp:</span>
 
-                    <div class="qr-container">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
-                            alt="Ko-fi QR Code" class="qr-image">
-                        <div class="qr-link-text">ko-fi.com/thaibm</div>
+                    <div class="qr-wrapper">
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.kofi_label">Ko-fi (International)</div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
+                                alt="Ko-fi QR Code" class="qr-image">
+                            <div class="qr-link-text">ko-fi.com/thaibm</div>
+                        </div>
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.momo_label">Momo (Vietnam)</div>
+                            <img src="images/momo.jpg"
+                                alt="Momo QR Code" class="qr-image">
+                            <div class="qr-link-text">Momo QR</div>
+                        </div>
                     </div>
                     <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính
                         năng mới!</span>
@@ -147,9 +167,9 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
     <script src="js/chess-ai.js?v=11"></script>
-    <script src="js/chess-storage.js?v=9"></script>
-    <script src="js/chess-i18n.js?v=8"></script>
-    <script src="js/chess-backend.js?v=6"></script>
+    <script src="js/chess-storage.js?v=13"></script>
+    <script src="js/chess-i18n.js?v=22"></script>
+    <script src="js/chess-backend.js?v=9"></script>
     <script src="js/chess-board.js?v=7"></script>
 
     <script>
@@ -617,6 +637,27 @@
             board.showHints = !board.showHints;
             updateHintButtonText();
             board.render();
+        }
+
+        function handleRefresh() {
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '99999';
+            overlay.style.backgroundColor = '#ffffff';
+            document.body.appendChild(overlay);
+
+            setTimeout(function () {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+                if (board) {
+                    board.render();
+                }
+            }, 200);
         }
 
         // Run safely once

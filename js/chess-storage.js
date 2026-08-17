@@ -14,7 +14,11 @@
         LANG: 'einkchess_lang',
         BOT_ELO: 'einkchess_bot_elo',
         PUZZLE_ELO: 'einkchess_puzzle_elo',
+        PUZZLE_STREAK: 'einkchess_puzzle_streak',
+        PUZZLE_SETUP_DONE: 'einkchess_puzzle_setup_done',
+        PLAYED_PUZZLES: 'einkchess_played_puzzles',
         SAVED_BOT_GAME: 'einkchess_saved_bot_game',
+        SAVED_PUZZLE: 'einkchess_saved_puzzle',
         QUOTA: 'einkchess_quota',
         DEFAULT_BOT_LEVEL: 'einkchess_default_bot_lvl',
         DEFAULT_SIDE: 'einkchess_default_side'
@@ -74,6 +78,10 @@
                 this.set(STORAGE_KEYS.PID, pid);
             }
             return pid;
+        },
+
+        getDeviceType: function() {
+            return this.get(STORAGE_KEYS.DEVICE, 'kindle');
         },
 
         applyAutoLayout: function() {
@@ -151,11 +159,60 @@
         },
 
         getPuzzleElo: function() {
-            return parseInt(this.get(STORAGE_KEYS.PUZZLE_ELO, 1200), 10);
+            return parseInt(this.get(STORAGE_KEYS.PUZZLE_ELO, 400), 10);
         },
 
         setPuzzleElo: function(elo) {
             return this.set(STORAGE_KEYS.PUZZLE_ELO, Math.max(100, Math.round(elo)));
+        },
+
+        hasChosenPuzzleSkill: function() {
+            return !!this.get(STORAGE_KEYS.PUZZLE_SETUP_DONE, false);
+        },
+
+        setPuzzleSkillChosen: function(val) {
+            return this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, val !== false);
+        },
+
+        getPuzzleStreak: function() {
+            return parseInt(this.get(STORAGE_KEYS.PUZZLE_STREAK, 0), 10);
+        },
+
+        setPuzzleStreak: function(streak) {
+            return this.set(STORAGE_KEYS.PUZZLE_STREAK, Math.max(0, parseInt(streak, 10)));
+        },
+
+        getPlayedPuzzles: function() {
+            return this.get(STORAGE_KEYS.PLAYED_PUZZLES, []);
+        },
+
+        /**
+         * Returns played puzzles as a hash object for O(1) lookup.
+         * Used by chess-puzzles.js to efficiently filter out played puzzles.
+         */
+        getPlayedPuzzlesHash: function() {
+            var played = this.getPlayedPuzzles();
+            var hash = {};
+            for (var i = 0; i < played.length; i++) {
+                hash[played[i]] = true;
+            }
+            return hash;
+        },
+
+        addPlayedPuzzle: function(puzzleId) {
+            var played = this.getPlayedPuzzles();
+            if (played.indexOf(puzzleId) === -1) {
+                played.push(puzzleId);
+                // Giới hạn lưu 5000 ID gần nhất (tăng từ 1000 cho thư viện puzzle lớn hơn)
+                if (played.length > 5000) {
+                    played.shift();
+                }
+                this.set(STORAGE_KEYS.PLAYED_PUZZLES, played);
+            }
+        },
+
+        clearPlayedPuzzles: function() {
+            return this.remove(STORAGE_KEYS.PLAYED_PUZZLES);
         },
 
         // Calculate ELO update
@@ -185,6 +242,19 @@
 
         clearSavedBotGame: function() {
             return this.remove(STORAGE_KEYS.SAVED_BOT_GAME);
+        },
+
+        // --- Auto-Save Puzzle State ---
+        savePuzzle: function(puzzleState) {
+            return this.set(STORAGE_KEYS.SAVED_PUZZLE, puzzleState);
+        },
+
+        getSavedPuzzle: function() {
+            return this.get(STORAGE_KEYS.SAVED_PUZZLE, null);
+        },
+
+        clearSavedPuzzle: function() {
+            return this.remove(STORAGE_KEYS.SAVED_PUZZLE);
         },
 
         // --- Default Bot Match Config ---
@@ -238,6 +308,10 @@
     };
 
     root.ChessStorage = ChessStorage;
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = ChessStorage;
+    }
 
     // Tự động gắn sự kiện resize/orientationchange để tính lại layout
     if (typeof window !== 'undefined') {

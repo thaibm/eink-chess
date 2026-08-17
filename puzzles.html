@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Chess Puzzles on Kindle - EinkChess">
+    <title>Chess Puzzles - Kindle Chess</title>
+    <link rel="stylesheet" href="css/einkchess.css?v=42">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 1. COMPACT 1-LINE PERSISTENT HEADER -->
+        <div class="header">
+            <div class="header-top">
+                <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
+                <div class="header-center">
+                    <span class="elo-badge" id="puzzle-elo-badge" onclick="PuzzleManager.openSkillModal()"
+                        style="cursor: pointer;">ELO: 400</span>
+                    <span id="puzzle-streak-name" style="font-weight: normal; font-size: 12px;">Chuỗi: 0</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
+                        data-i18n="header.donate">Ủng hộ</button>
+                    <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
+                    <a href="index.html" class="btn btn-sm" data-i18n="header.menu">Menu</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. COMPACT STATUS BAR -->
+        <div id="status-bar" class="status-bar">
+            <div class="status-captured" id="captured-white"></div>
+            <div class="status-text" id="status-text" data-i18n="puzzle.turn_white">Lượt Trắng đi</div>
+            <div class="status-captured" id="captured-black"></div>
+        </div>
+
+        <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
+        <div class="board-container" id="board-container"></div>
+
+        <!-- 4. ACTION BAR (4 COLUMNS: PUZZLE INFO, HINT, SKIP/NEXT, REFRESH) -->
+        <div class="action-bar action-bar-grid">
+            <div class="action-bar-row">
+                <div class="action-bar-cell">
+                    <span id="puzzle-meta" class="puzzle-meta-box">-</span>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" id="btn-hint" onclick="PuzzleManager.useHint()" data-i18n="puzzle.btn_hint">♙
+                        Gợi ý</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" id="btn-skip" onclick="PuzzleManager.skipPuzzle()"
+                        data-i18n="puzzle.btn_skip">Bỏ qua</button>
+                    <button class="btn btn-primary" id="btn-next" style="display: none;"
+                        onclick="PuzzleManager.nextPuzzle()" data-i18n="puzzle.btn_next">Tiếp theo</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" onclick="PuzzleManager.refreshScreen()" data-i18n="game.btn_refresh">Làm
+                        mới</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. INITIAL PUZZLE SKILL LEVEL MODAL (FIRST-TIME ONBOARDING) -->
+        <div id="skill-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkillModal()">
+            <div class="modal-box" style="max-width: 360px; margin-top: 8vh; padding: 14px;">
+                <div class="modal-title" data-i18n="puzzle.skill_modal_title" style="text-align: center;">CHỌN TRÌNH ĐỘ
+                    KHỞI ĐẦU</div>
+                <div class="modal-body" style="font-size: 13px; padding: 6px 0;">
+                    <div style="margin-bottom: 8px;" data-i18n="puzzle.skill_modal_desc">Chọn mức độ phù hợp với khả
+                        năng của bạn để bắt đầu giải cờ thế:</div>
+                    <div id="puzzle-skill-list" class="puzzle-skill-list">
+                        <button type="button" class="puzzle-skill-btn active" data-elo="400"
+                            onclick="PuzzleManager.selectSkillLevel(400)">
+                            <strong data-i18n="puzzle.skill_lvl1_name">Mới chơi (~400 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl1_desc">Dễ nhất / Khởi đầu</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="800"
+                            onclick="PuzzleManager.selectSkillLevel(800)">
+                            <strong data-i18n="puzzle.skill_lvl2_name">Tập sự (~800 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl2_desc">Biết luật cơ bản</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="1200"
+                            onclick="PuzzleManager.selectSkillLevel(1200)">
+                            <strong data-i18n="puzzle.skill_lvl3_name">Trung bình (~1200 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl3_desc">Nắm vững chiến thuật</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="1600"
+                            onclick="PuzzleManager.selectSkillLevel(1600)">
+                            <strong data-i18n="puzzle.skill_lvl4_name">Nâng cao (~1600 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl4_desc">Chiến thuật phức tạp</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="2000"
+                            onclick="PuzzleManager.selectSkillLevel(2000)">
+                            <strong data-i18n="puzzle.skill_lvl5_name">Chuyên gia (~2000 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl5_desc">Thử thách đỉnh cao</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
+                    <button class="btn btn-primary btn-block" onclick="PuzzleManager.confirmSkillLevel()"
+                        data-i18n="puzzle.btn_start_puzzle" style="font-size: 15px; padding: 10px 8px; margin: 0;">Bắt
+                        đầu Giải đố</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. CONFIRM SKIP MODAL -->
+        <div id="skip-confirm-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkipModal()">
+            <div class="modal-box" style="max-width: 340px; text-align: center; margin-top: 15vh; padding: 14px;">
+                <div class="modal-title" id="skip-modal-title" data-i18n="puzzle.confirm_skip_title"
+                    style="text-align: center;">Xác nhận bỏ qua</div>
+                <div class="modal-body" id="skip-modal-body"
+                    style="font-size: 14px; padding: 10px 0; text-align: center;">
+                    <!-- Dynamic Result Message -->
+                </div>
+                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
+                    <button class="btn" onclick="PuzzleManager.closeSkipModal()"
+                        data-i18n="game.btn_cancel">Hủy</button>
+                    <button class="btn btn-primary" onclick="PuzzleManager.confirmSkip()"
+                        data-i18n="puzzle.btn_confirm_skip">Đồng ý bỏ qua</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. GAMEOVER / PUZZLE COMPLETE MODAL -->
+        <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeModal()">
+            <div class="modal-box" style="max-width: 320px; text-align: center; margin-top: 15vh; padding: 14px;">
+                <div class="modal-title" id="gameover-title" data-i18n="puzzle.success_title"
+                    style="text-align: center;">Giải đố thành công! ♔</div>
+                <div class="modal-body" id="gameover-body" style="font-size: 14px; padding: 6px 0;">
+                    <!-- Dynamic Result Message & ELO Update -->
+                </div>
+                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
+                    <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Trang
+                        chủ</button>
+                    <button class="btn btn-primary" onclick="PuzzleManager.nextPuzzle(); PuzzleManager.closeModal();"
+                        data-i18n="puzzle.btn_next">Tiếp theo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. DONATE KO-FI MODAL -->
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
+            <div class="modal-box">
+                <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
+                <div class="modal-body">
+                    <span data-i18n="donate.body">Bạn có thể quét mã QR bên dưới bằng điện thoại để mời tác giả một tách
+                        cà phê qua <strong>Ko-fi</strong> hoặc quét <strong>Momo</strong> để ủng hộ trực tiếp:</span>
+
+                    <div class="qr-wrapper">
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.kofi_label">Ko-fi (International)</div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
+                                alt="Ko-fi QR Code" class="qr-image">
+                            <div class="qr-link-text">ko-fi.com/thaibm</div>
+                        </div>
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.momo_label">Momo (Vietnam)</div>
+                            <img src="images/momo.jpg" alt="Momo QR Code" class="qr-image">
+                            <div class="qr-link-text">Momo QR</div>
+                        </div>
+                    </div>
+                    <span data-i18n="donate.note">Sự ủng hộ của bạn giúp duy trì server và phát triển thêm nhiều tính
+                        năng mới!</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
+                        data-i18n="donate.btn_close">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/chess-engine.js?v=7"></script>
+    <script src="js/chess-storage.js?v=14"></script>
+    <script src="js/chess-i18n.js?v=22"></script>
+    <script src="js/chess-backend.js?v=10"></script>
+    <script src="js/chess-board.js?v=12"></script>
+    <script src="data/puzzles/manifest.js?v=20260817"></script>
+    <script src="js/chess-puzzles.js?v=17"></script>
+</body>
+
+</html>
