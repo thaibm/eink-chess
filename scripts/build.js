@@ -43,7 +43,7 @@ deleteDirSync(distDir);
 fs.mkdirSync(distDir, { recursive: true });
 
 // Copy root HTML files
-const filesToCopy = ['index.html', 'play-bot.html', 'settings.html', 'stats.html'];
+const filesToCopy = ['index.html', 'play-bot.html', 'puzzles.html', 'settings.html', 'stats.html'];
 filesToCopy.forEach((file) => {
   const src = path.join(__dirname, '..', file);
   if (fs.existsSync(src)) {
@@ -79,6 +79,13 @@ const imagesSrcDir = path.join(__dirname, '../images');
 if (fs.existsSync(imagesSrcDir)) {
   copyDirSync(imagesSrcDir, path.join(distDir, 'images'));
   console.log('Copied images directory to dist/');
+}
+
+// Copy puzzle data (folders + manifest.js)
+const puzzlesSrcDir = path.join(__dirname, '../data/puzzles');
+if (fs.existsSync(puzzlesSrcDir)) {
+  copyDirSync(puzzlesSrcDir, path.join(distDir, 'data/puzzles'));
+  console.log('Copied data/puzzles directory to dist/');
 }
 
 

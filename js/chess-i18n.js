@@ -20,7 +20,7 @@
 
             'home.bot_card_title': 'Chơi với Máy (Bot AI)',
             'home.bot_card_tag': 'Free &amp; Không giới hạn',
-            'home.bot_card_desc': 'Tập luyện cờ vua với 3 cấp độ Bot Minimax offline (Người mới, Dễ, Câu lạc bộ). Tính điểm ELO sau mỗi ván đấu.',
+            'home.bot_card_desc': 'Tập luyện cờ vua với 5 cấp độ Bot Minimax offline (Người mới, Dễ, Câu lạc bộ). Tính điểm ELO sau mỗi ván đấu.',
             'home.bot_card_btn': 'Chơi với Bot AI',
             'home.bot_card_btn_resume': 'Tiếp tục ván đấu',
             'home.bot_card_btn_new': 'Ván mới',
@@ -127,7 +127,31 @@
             'stats.yau_this_year': 'Người chơi hoạt động năm nay (YAU)',
             'stats.pageviews_today': 'Lượt truy cập hôm nay',
             'stats.total_pageviews_all_time': 'Tổng lượt truy cập tích lũy',
-            'stats.desc_info': 'Dữ liệu được thống kê tự động thông qua SQL View từ bảng active_pings trên hệ thống Supabase của EinkChess.'
+            'stats.desc_info': 'Dữ liệu được thống kê tự động thông qua SQL View từ bảng active_pings trên hệ thống Supabase của EinkChess.',
+
+            'puzzle.btn_hint': '♙ Gợi ý',
+            'puzzle.btn_skip': 'Bỏ qua',
+            'puzzle.btn_next': 'Tiếp theo',
+            'puzzle.turn_white': 'Lượt Trắng đi',
+            'puzzle.turn_black': 'Lượt Đen đi',
+            'puzzle.bot_moving': 'Đối thủ đang đi...',
+            'puzzle.status_correct': 'Chính xác! ✔',
+            'puzzle.status_incorrect': 'Chưa chính xác! ✖',
+            'puzzle.status_hint_used': 'Đã dùng gợi ý (0 ELO)',
+            'puzzle.status_playing': 'Đang giải đố...',
+            'puzzle.status_skipped': 'Đã bỏ qua ({delta} ELO)',
+            'puzzle.streak': 'Chuỗi: {streak}',
+            'puzzle.success_title': 'Giải đố thành công! ♔',
+            'puzzle.success_msg': 'Bạn đã giải thành công câu đố ELO {elo}.',
+            'puzzle.failed_title': 'Chưa hoàn hảo',
+            'puzzle.failed_msg': 'Bạn đã giải câu đố ELO {elo} sau khi đi sai.',
+            'puzzle.confirm_skip_title': 'Xác nhận bỏ qua',
+            'puzzle.confirm_skip_body': 'Bạn có chắc muốn bỏ qua thế cờ này?<br>Điểm ELO sẽ bị trừ <strong>{penalty} ELO</strong> và chuỗi Streak về 0.',
+            'puzzle.btn_confirm_skip': 'Đồng ý bỏ qua',
+            'puzzle.elo_change': 'ELO: {elo} ({delta})',
+            'puzzle.lichess_analysis': 'Phân tích trên Lichess ↗',
+            'puzzle.themes_label': 'Chủ đề:',
+            'puzzle.meta_info': '#{id} · {elo} ELO'
         },
         en: {
             'header.logo': 'EinkChess',
@@ -140,7 +164,7 @@
 
             'home.bot_card_title': 'Play vs Bot (AI)',
             'home.bot_card_tag': 'Free &amp; Unlimited',
-            'home.bot_card_desc': 'Practice chess against 3 offline Minimax Bot levels (Beginner, Casual, Club). Track ELO rating after each match.',
+            'home.bot_card_desc': 'Practice chess against 5 offline Minimax Bot levels (Beginner, Casual, Club). Track ELO rating after each match.',
             'home.bot_card_btn': 'Play vs AI Bot',
             'home.bot_card_btn_resume': 'Continue Match',
             'home.bot_card_btn_new': 'New Game',
@@ -247,7 +271,31 @@
             'stats.yau_this_year': 'Active Users This Year (YAU)',
             'stats.pageviews_today': 'Pageviews Today',
             'stats.total_pageviews_all_time': 'Total Pageviews (All time)',
-            'stats.desc_info': 'Data is compiled automatically via a database view in the Supabase instance of EinkChess.'
+            'stats.desc_info': 'Data is compiled automatically via a database view in the Supabase instance of EinkChess.',
+
+            'puzzle.btn_hint': '♙ Hint',
+            'puzzle.btn_skip': 'Skip',
+            'puzzle.btn_next': 'Next',
+            'puzzle.turn_white': 'White to move',
+            'puzzle.turn_black': 'Black to move',
+            'puzzle.bot_moving': 'Opponent moving...',
+            'puzzle.status_correct': 'Correct! ✔',
+            'puzzle.status_incorrect': 'Incorrect! ✖',
+            'puzzle.status_hint_used': 'Hint used (0 ELO)',
+            'puzzle.status_playing': 'Solving puzzle...',
+            'puzzle.status_skipped': 'Skipped ({delta} ELO)',
+            'puzzle.streak': 'Streak: {streak}',
+            'puzzle.success_title': 'Puzzle Solved! ♔',
+            'puzzle.success_msg': 'You solved a {elo} ELO puzzle.',
+            'puzzle.failed_title': 'Solved with mistakes',
+            'puzzle.failed_msg': 'You solved the {elo} ELO puzzle after mistakes.',
+            'puzzle.confirm_skip_title': 'Confirm Skip',
+            'puzzle.confirm_skip_body': 'Are you sure you want to skip this puzzle?<br>You will lose <strong>{penalty} ELO</strong> and your Streak will reset to 0.',
+            'puzzle.btn_confirm_skip': 'Yes, Skip',
+            'puzzle.elo_change': 'ELO: {elo} ({delta})',
+            'puzzle.lichess_analysis': 'Analyze on Lichess ↗',
+            'puzzle.themes_label': 'Themes:',
+            'puzzle.meta_info': '#{id} · {elo} ELO'
         }
     };
 
@@ -316,6 +364,10 @@
                 }
             }
             return text;
+        },
+
+        getTranslation: function (key, params) {
+            return this.t(key, params);
         },
 
         applyTranslations: function (rootEl) {

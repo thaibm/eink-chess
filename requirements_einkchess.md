@@ -46,7 +46,7 @@
 ### 2.5. Bố cục Trang chủ (Home Screen 3-Mode Balanced Layout)
 - Trang chủ hiển thị trực quan 3 thẻ chế độ chơi chính:
   1. **Chơi với Máy (Bot AI)**: Minimax offline 3 cấp độ, tính điểm ELO Bot.
-  2. **Giải Đố Cờ Thế (Puzzles)**: 500+ bài tập chiến thuật Lichess thích ứng ELO Puzzle.
+  2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng ELO Puzzle từ API trực tuyến.
   3. **Chơi với Bạn Bè (PvP Online)**: Phòng đấu qua Game Code 6 ký tự kết nối realtime.
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 27-30vh`), tăng kích thước chữ (Title 17-18px, Desc 14px, Button 15-16px) và touch target (nút bấm chính min 44-48px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
 
@@ -158,9 +158,11 @@
 ### 4.2. Chế độ Giải Đố / Cờ Thế (Puzzles)
 
 #### A. Nguồn dữ liệu & Ghép câu đố:
-- Sử dụng cơ sở dữ liệu **500+ Puzzles** trích xuất từ **Lichess Puzzle Database (CC0 License)**.
-- Phân bổ dải ELO câu đố rộng từ 600 đến 2600+ (Đủ mọi cấp từ dễ đến siêu khó, đòn phối hợp, chiếu hết 1-3 nước, tàn cuộc, ghim quân, bắt đôi).
-- **Cơ chế ghép thế cờ:** Hệ thống tự động chọn câu đố có rating xấp xỉ điểm **Puzzle ELO** hiện tại của người dùng (trong phạm vi $\pm 100$ ELO).
+- **Nguồn dữ liệu:** Lichess Open Database (`lichess_db_puzzle.csv.zst`, ~6 triệu câu đố, lưu Git LFS).
+- **Kiến trúc Folder-Based:** Dữ liệu puzzle được tổ chức theo folder `data/puzzles/{ELO}/`, mỗi folder chứa các file JSON 100 câu. File `manifest.js` khai báo số lượng file mỗi bucket.
+- **Weekly Rotation:** GitHub Actions tự động xoay vòng 5,000 puzzles mỗi tuần (reservoir sampling từ ~5.3M câu đố đạt tiêu chuẩn RD ≤ 100).
+- Phân bổ dải ELO câu đố rộng từ **400 đến 2800** (25 dải, Đủ mọi cấp từ dễ đến siêu khó).
+- **Cơ chế ghép thế cờ & Tự động đổi bucket theo ELO:** Hệ thống tự động lấy câu đố có rating xấp xỉ điểm **Puzzle ELO** hiện tại của người dùng (làm tròn xuống mốc 100). Mỗi khi tải trang hoặc chuyển sang câu đố tiếp theo (`nextPuzzle()`), hệ thống đọc lại điểm ELO mới nhất trong Storage, tự động tính lại bucket (`Math.floor(elo / 100) * 100`) và thực hiện tải file JSON mới tương ứng với dải ELO mới nếu người dùng tăng/giảm vượt mốc 100 điểm. Client random chọn 1 file ~28KB từ folder bucket tương ứng.
 
 #### B. Quy trình Gameplay (Flow):
 1. Tải thế cờ FEN lên bàn cờ.
@@ -169,28 +171,42 @@
    - **TRƯỜNG HỢP ĐI ĐÚNG:**
      - Status bar hiển thị nhãn tick lớn `✔`: *"Chính xác! ✔"*.
      - Nếu câu đố còn các nước tiếp theo trong kịch bản: Bot tự động đi nước phản đòn sau 0.5s, người chơi tiếp tục giải nước kế tiếp.
-     - Nếu đã hoàn thành toàn bộ chuỗi nước đi:
-       - Hiển thị popup: *"Giải đố thành công! 🎉"*.
-       - Cập nhật điểm ELO và chuỗi giải đúng (Streak).
-       - Cung cấp 2 nút bấm: **`[🧩 Câu tiếp theo]`** và **`[🏠 Trang chủ]`**.
+      - Nếu đã hoàn thành toàn bộ chuỗi nước đi:
+        - Hiển thị popup: *"Giải đố thành công! ♔"*.
+        - Cập nhật điểm ELO và chuỗi giải đúng (Streak).
+        - Cung cấp 2 nút bấm: **`[Tiếp theo]`** và **`[Trang chủ]`**.
    - **TRƯỜNG HỢP ĐI SAI:**
      - Status bar hiển thị nhãn cross lớn `✖`: *"Chưa chính xác! ✖"*.
-     - **Tự động Undo** nước vừa đi sai về vị trí trước đó để người chơi suy nghĩ lại.
-     - Đánh dấu trạng thái câu đố là *Đã có lỗi* (nếu giải xong sau đó sẽ chỉ nhận tối đa $+0\text{ ELO}$).
+     - Đánh dấu trạng thái `hasFailed = true` (phán quyết 1 lần duy nhất), reset chuỗi Streak.
+     - **KHÔNG trừ ELO ngay** — cho phép người chơi thử lại.
+     - Khi giải xong (dù đã sai trước đó): áp dụng trừ ELO proportional.
 
-#### C. Quy tắc tính điểm ELO Puzzle:
-- **Giải đúng ngay từ đầu (không dùng gợi ý):** Cộng điểm ELO Puzzle ($+X\text{ ELO}$), tăng chuỗi Streak liên tiếp.
-- **Giải đúng nhưng có bấm Gợi ý:** $+0\text{ ELO}$ (không tăng không giảm), bảo lưu chuỗi streak.
-- **Bấm Xem đáp án / Bỏ cuộc:** Trừ điểm ELO Puzzle ($-Y\text{ ELO}$), Reset chuỗi Streak về 0.
+#### C. Hiển thị Thông tin Câu đố (Puzzle Meta & Themes - Phương án B):
+- **Góc dưới bên trái (Bottom-Left Action Bar):** Hiển thị ngắn gọn thông tin câu đố đang giải ở dạng badge (`#PuzzleId · ELO`, ví dụ: `#Xvpch · 1598 ELO`), ngang hàng với các nút hành động (Hint / Skip / Next). Không hiển thị tên đòn chiến thuật trước để tránh làm lộ bài (spoiler).
+- **Trong Modal Hoàn thành:** Hiển thị đầy đủ kết quả, điểm ELO thay đổi, danh sách các chủ đề chiến thuật nguyên bản tiếng Anh (`Themes`), và đường dẫn phân tích chi tiết thế cờ trên Lichess (`lichess.org/training/{PuzzleId}`).
 
-#### D. Action Buttons trong màn Giải đố:
-- **`[💡 Gợi ý (Hint)]`**:
-  - Nhấp lần 1: Highlight ô chứa quân cờ cần di chuyển.
-  - Nhấp lần 2: Highlight ô đích cần đi tới.
-  - Đánh dấu trạng thái *"Đã dùng gợi ý"*.
-- **`[👁 Xem đáp án (Show Solution)]`**: Tự động biểu diễn lần lượt các nước đi chính xác trên bàn cờ. Tính là Thất bại $\rightarrow$ Trừ ELO.
-- **`[⏭ Bỏ qua (Skip)]`**: Bỏ qua chuyển sang câu đố khác.
-- **`[🔄 Thử lại (Retry)]`**: Đặt lại thế cờ ban đầu của câu đố.
+#### D. Quy tắc tính điểm ELO Puzzle (Proportional System):
+- **Công thức:** $E = 1 / (1 + 10^{(puzzleRating - playerELO) / 400})$, $K = 32$
+- **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\\text{round}(K \\times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak.
+- **Giải đúng nhưng có bấm Gợi ý:** $+0\\text{ ELO}$ (không tăng không giảm).
+- **Đi sai rồi giải xong / Bấm Bỏ qua:** $-\\text{round}(K \\times E)$, Reset chuỗi Streak về 0.
+  - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
+  - Sai câu khó → phạt nhẹ (VD: puzzle 1800, player 1200 → $-3$)
+
+#### E. Action Buttons trong màn Giải đố (Bố cục 3 Cột Ngang Hàng):
+- **Cột trái (Bottom-Left):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`) có chiều cao chuẩn 44px, viền kép 2px đồng bộ hoàn toàn với kích thước của các nút bấm hành động.
+- **Cột giữa (Center):** Nút **`[♙ Gợi ý (Hint)]`** (ẩn đi khi đã hoàn thành câu đố).
+- **Cột phải (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** nổi bật khi câu đố đã giải xong.
+  - Khi bấm **`[Bỏ qua]`**: Hiển thị popup xác nhận (`Confirm Skip Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn bỏ qua thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
+  - Nếu người dùng bấm `[Hủy]`: Đóng popup, giữ nguyên ván cờ.
+  - Nếu người dùng bấm `[Đồng ý bỏ qua]`: Đóng popup, áp dụng trừ ELO proportional theo công thức, reset chuỗi Streak về 0, cập nhật điểm trên Header và tải câu đố mới.
+  - Khi bấm **`[Tiếp theo]`**: Đóng popup kết quả và tải câu đố mới.
+
+#### F. Cơ chế Lưu trạng thái đang giải dở (In-Progress Puzzle Auto-Save):
+- Tự động lưu trạng thái câu đố đang giải dở (`puzzle`, `currentMoveIndex`, `hasFailed`, `hintUsed`) vào `localStorage` (`einkchess_saved_puzzle`).
+- **Khôi phục khi tải lại trang (Reload/Resume):** Khi người dùng reload trang hoặc mở lại trình duyệt, hệ thống tự động nhận diện và khôi phục đúng câu đố đang giải cùng tiến độ nước đi, trạng thái đã sai (`hasFailed`) hoặc đã dùng gợi ý (`hintUsed`).
+- **Chống gian lận (Anti-Cheat):** Ngăn chặn người chơi tải lại trang để đổi câu đố khác hoặc xóa cờ phạm quy/gợi ý mà không bị trừ điểm ELO. Muốn đổi câu khác bắt buộc phải bấm **`[Bỏ qua]`** (bị trừ ELO proportional theo quy định).
+- **Xóa trạng thái lưu:** Tự động xóa khỏi `localStorage` khi câu đố đã hoàn thành (`puzzleSolved`), khi bấm **`[Tiếp theo]`** (`nextPuzzle`), hoặc khi xác nhận **`[Đồng ý bỏ qua]`** (`confirmSkip`).
 
 ---
 
@@ -234,6 +250,7 @@
   - `einkchess_puzzle_elo`: Điểm ELO giải đố (Mặc định: 1200).
   - `einkchess_puzzle_streak`: Chuỗi câu đố giải đúng liên tiếp hiện tại và kỷ lục.
   - `einkchess_saved_game`: Trạng thái bàn cờ, lịch sử nước đi ván đang chơi dở với Bot.
+  - `einkchess_saved_puzzle`: Trạng thái câu đố đang giải dở (object gồm puzzle data, index nước cờ, trạng thái sai/gợi ý).
   - `einkchess_pid`: UUID định danh thiết bị duy nhất.
   - `einkchess_pvp_code`: Mã phòng PvP đang hoạt động.
   - `einkchess_quota`: Object lưu trữ số lượt chơi đã dùng trong ngày (`{ date: 'YYYY-MM-DD', bot_cloud: 0, puzzle: 0, pvp: 0 }`).
@@ -301,7 +318,7 @@
 ├────────────────────────────────────────────────────────────────────────┤
 │ Phase 2: Online AI - Chess-API.com (Level 4-8), Quota 3 matches/day   │
 ├────────────────────────────────────────────────────────────────────────┤
-│ Phase 3: Puzzle Mode - 500 Puzzles Lichess, Quota 3 puzzles/day       │
+│ Phase 3: Puzzle Mode - Tải động ELO Puzzle, Quota 3 puzzles/day       │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Phase 4: PvP Online - Chơi với bạn, Quota 3 PvP/day, Supabase Backend │
 ├────────────────────────────────────────────────────────────────────────┤
@@ -333,15 +350,43 @@
 - Áp dụng Quota 3 trận Cloud AI/ngày (tự động reset 00:00).
 - Xử lý trạng thái "Đang suy nghĩ..." và cơ chế tự động fallback về local engine khi mất mạng.
 
-### Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO + Quota 3 câu/ngày)
-- Xây dựng `build/build-puzzles.js`: Script trích xuất và lọc 500 câu đố chất lượng cao từ Lichess database ra `data/puzzles.json`.
-- Xây dựng `puzzles.html` và `js/chess-puzzles.js`: Giao diện giải đố, cơ chế so khớp nước đi, biểu tượng Tick/Cross, gợi ý 2 cấp độ và hệ thống tính ELO Puzzle.
-- Áp dụng Quota 3 câu đố/ngày.
+### Phase 3 — Puzzle Mode (Giải Đố Thích Ứng ELO)
+- **Nguồn Dữ Liệu Câu Đố:**
+  - [x] Sử dụng Lichess Open Database (`https://database.lichess.org/#puzzles`) — file `lichess_db_puzzle.csv.zst` (~6 triệu câu đố, nén Zstandard, lưu Git LFS).
+  - [x] Viết script `scripts/build-puzzles.js` (Node.js): reservoir sampling từ ~5.3M câu đố (RD ≤ 100), tạo kiến trúc folder `data/puzzles/{ELO}/{NNN}.json` + `manifest.js`.
+  - [x] Output: 25 folders (400→2800), mỗi folder 2 file × 100 puzzles = 5,000 puzzles tổng, ~1.2MB.
+  - [x] Hỗ trợ 2 chế độ: `node scripts/build-puzzles.js` (đọc .zst local) hoặc `--fetch-lichess` (download từ Lichess).
+  - [x] GitHub Actions weekly cron (`.github/workflows/refresh-puzzles.yml`): tự động xoay vòng bộ puzzle mỗi thứ Hai.
+- **Giao diện `puzzles.html`:**
+  - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, status bar hiển thị lượt đi, board container, action bar).
+  - [x] Nút hành động: Gợi ý (♙ Hint), Bỏ qua (Skip), Tiếp theo (Next). Không dùng emoji tránh lỗi font Kindle.
+  - [x] Modal hoàn thành gọn nhẹ (`max-width: 320px`, căn giữa) hiển thị kết quả ELO thay đổi.
+  - [x] Scripts load order: `chess-engine.js` → `chess-storage.js` → `chess-i18n.js` → `chess-backend.js` → `chess-board.js` → `manifest.js` → `chess-puzzles.js`.
+- **Logic `js/chess-puzzles.js` (ES5 thuần):**
+  - [x] `PuzzleManager.init()`: Khởi tạo `ChessI18n.init()`, tạo `ChessEngine` + `ChessBoard`, gọi `ChessStorage.applyAutoLayout()`.
+  - [x] `loadPuzzle()`: Đọc `PUZZLE_MANIFEST`, random chọn file, fetch `data/puzzles/{ELO}/{NNN}.json` qua `XMLHttpRequest`. Fallback sang bucket gần nhất nếu không tìm thấy. Tự động kiểm tra và khôi phục câu đố đang giải dở qua `resumePuzzle()`.
+  - [x] `pickPuzzle(puzzles)`: Lọc bỏ ID đã chơi (hash lookup O(1) từ `ChessStorage.getPlayedPuzzlesHash()`), random chọn 1 câu chưa chơi. Nếu hết → clear lịch sử và dùng lại toàn bộ.
+  - [x] `startPuzzle(puzzle)`: Load FEN, parse UCI Moves, xác định `puzzleColor` (đối diện với bên đi trước trong FEN), tự động đi nước đầu của đối thủ (move[0]), set `currentMoveIndex = 1`, lưu trạng thái qua `saveCurrentPuzzleState()`.
+  - [x] `handlePlayerMove(move)`: Nhận object move từ `ChessBoard.onMove()`, so khớp `{from, to, promotion}` với UCI expected. Đúng → `applyUciMove` + bot reply. Sai → set `hasFailed = true` + reset streak (KHÔNG trừ ELO ngay), lưu trạng thái để chống reload reset sai.
+  - [x] `useHint()`: Highlight ô nguồn của nước đi đúng (set `board.selectedSquare`), đánh dấu `hintUsed = true` → ELO không tăng khi hoàn thành, lưu trạng thái.
+  - [x] `puzzleSolved()`: Proportional ELO — clean solve: `+round(K×(1−E))` min +3, failed: `−round(K×E)`, hint: +0. Xóa saved puzzle khỏi localStorage và hiển thị modal kết quả.
+  - [x] `skipPuzzle()` / `confirmSkip()`: Áp dụng proportional ELO loss, reset streak, xóa saved puzzle và tải câu mới.
+  - [x] `updateTurnStatus()`: Hiển thị "Lượt Trắng đi" / "Lượt Đen đi" / "Đối thủ đang đi..." tương ứng trạng thái.
+  - [x] `updateCapturedPieces()`: Hiển thị quân bị bắt trên status bar.
+- **Cập nhật `js/chess-storage.js`:**
+  - [x] Thêm STORAGE_KEYS: `PUZZLE_STREAK`, `PLAYED_PUZZLES`, `SAVED_PUZZLE`.
+  - [x] Thêm hàm: `getPuzzleStreak()`, `setPuzzleStreak()`, `getPlayedPuzzles()`, `getPlayedPuzzlesHash()` (O(1) lookup), `addPlayedPuzzle(id)` (giới hạn 5000 ID gần nhất), `clearPlayedPuzzles()`, `savePuzzle(state)`, `getSavedPuzzle()`, `clearSavedPuzzle()`.
+- **Cập nhật `js/chess-i18n.js`:**
+  - [x] Thêm 16 key dịch VI/EN cho Puzzle Mode: `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.elo_change`.
+  - [x] Thêm hàm alias `getTranslation(key, params)` → `this.t(key, params)`.
+- **Cập nhật `index.html`:**
+  - [x] Nút "Bắt đầu Giải đố" trỏ trực tiếp `window.location.href='puzzles.html'` (thay vì mở modal "coming soon").
+- [x] Chưa Áp dụng Quota 3 câu đố/ngày.
 
 ### Phase 4 — PvP Online (Chơi với bạn + Đồng bộ nước đi)
 - Cập nhật `sql/schema.sql` cho bảng `chess_games` và `user_quotas`.
 - Hoàn thiện module PvP trong `js/chess-backend.js`.
-- Xây dựng `play-friend.html` và `js/chess-pvp.js`: Tạo phòng mã 6 ký tự, kết nối đồng bộ nước đi bằng polling 8s, nút Đầu hàng / Xin hòa (Quota 3 trận/ngày).
+- Xây dựng `play-friend.html` và `js/chess-pvp.js`: Tạo phòng mã 6 ký tự, kết nối đồng bộ nước đi bằng polling 8s, nút Đầu hàng / Xin hòa (Chưa Quota 3 trận/ngày).
 
 ### Phase 5 — Dashboard Thống Kê Nâng Cao & Polish Toàn Diện
 - Màn hình thống kê chi tiết trên `index.html`: Lịch sử đấu, tỷ lệ thắng, biểu đồ ELO, kỷ lục streak.

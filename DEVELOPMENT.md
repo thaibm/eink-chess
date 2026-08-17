@@ -11,7 +11,7 @@ Do project là web tĩnh (Static Web thuần HTML/CSS/JS ES5), bạn có thể d
 ### Cách 1: Dùng Python 3 (Khuyên dùng - Có sẵn trên macOS)
 ```bash
 cd /Users/thaibuiminh/Projects/eink-chess
-python3 -m http.server 8080
+python3 -m http.server 8080 --directory dist
 ```
 
 ### Cách 2: Dùng Node.js (npx serve hoặc http-server)
@@ -47,18 +47,37 @@ php -S 0.0.0.0:8080
 ```
 eink-chess/
 ├── index.html                  # Trang chủ: Menu chế độ, Popup cài đặt ván cờ, ELO Header, Donate QR
-├── settings.html               # Trang Cài đặt thiết bị Kindle (chọn dòng máy)
 ├── play-bot.html               # Màn hình chơi với Bot AI (Zero-scroll, Undo, Resign, ELO)
+├── puzzles.html                # Màn hình giải đố cờ thế (Puzzle Mode - Phase 3)
+├── stats.html                  # Trang thống kê Traffic (DAU/WAU/MAU)
+├── .gitattributes              # Git LFS tracking cho lichess_db_puzzle.csv.zst
+├── lichess_db_puzzle.csv.zst   # Lichess puzzle database (~300MB, Git LFS)
 ├── css/
 │   └── einkchess.css           # Stylesheet tối ưu E-ink monochrome, viền nét đứt, responsive
 ├── js/
 │   ├── chess-engine.js         # Luật cờ vua chuẩn ES5, FEN, SAN, Check/Checkmate/Stalemate
-│   ├── chess-ai.js             # Minimax AI + Alpha-Beta + PST tables (Level 1-3)
+│   ├── chess-ai.js             # Minimax AI + Alpha-Beta + PST tables (Level 1-5)
 │   ├── chess-board.js          # Renderer DOM gia tăng, xử lý cảm ứng, hints, flip
-│   ├── chess-storage.js        # Quản lý LocalStorage, Device UUID, ELO rating, Auto-save
-│   └── chess-backend.js        # Adapter gửi Telemetry Ping đếm Active Users & Quota
-└── sql/
-    └── schema.sql              # Database Schema PostgreSQL / Supabase (active_pings, v_traffic_stats)
+│   ├── chess-storage.js        # Quản lý LocalStorage, Device UUID, ELO rating, Auto-save, Played Puzzles
+│   ├── chess-i18n.js           # Đa ngôn ngữ VI / EN (bao gồm cả puzzle strings)
+│   ├── chess-backend.js        # Adapter gửi Telemetry Ping đếm Active Users & Quota
+│   └── chess-puzzles.js        # [Phase 3] Quản lý giải đố: folder-based load, proportional ELO, hint, skip
+├── data/
+│   └── puzzles/                # [Phase 3] Folder-based: 25 folders (400→2800), manifest.js
+│       ├── manifest.js         # Auto-generated: var PUZZLE_MANIFEST = {...}
+│       ├── 400/ ... 2800/      # Mỗi folder chứa 2 file JSON (001.json, 002.json), 100 câu/file
+├── scripts/
+│   ├── build.js                # Script build cho Vercel (inject Supabase env vars)
+│   └── build-puzzles.js        # [Phase 3] Script Node.js: reservoir sampling từ Lichess CSV, folder output
+├── .github/
+│   └── workflows/
+│       └── refresh-puzzles.yml # Weekly cron: tự động xoay vòng 5,000 puzzles mỗi thứ Hai
+├── sql/
+│   └── schema.sql              # Database Schema PostgreSQL / Supabase (active_pings, v_traffic_stats)
+├── images/
+│   └── momo.jpg                # QR Code Momo cho Donate Modal
+├── package.json                # Cấu hình npm (jest, build script)
+└── AGENTS.md                   # Quy tắc AI Agent (ES5, no animation, cache busting, etc.)
 ```
 
 ---
@@ -103,6 +122,68 @@ Vercel là một nền tảng tuyệt vời để lưu trữ và quản lý tên
    - Thêm biến `SUPABASE_ANON_KEY` = `[Mã anon public key của bạn]`.
 4. Nhấn **Deploy**. Quá trình build sẽ chạy script Node.js nhúng tự động thông tin này vào file `js/chess-backend.js` trước khi triển khai.
 5. (Tùy chọn) Vào project của bạn trên Vercel $\rightarrow$ **Settings** $\rightarrow$ **Domains** để gán và quản lý tên miền riêng.
+
+---
+
+## 🧩 Puzzle Data Pipeline (Phase 3)
+
+### Nguồn dữ liệu
+- **Nguồn gốc:** Lichess Open Database — `https://database.lichess.org/#puzzles`
+- **File:** `lichess_db_puzzle.csv.zst` (nén Zstandard, ~6 triệu câu đố, lưu qua Git LFS)
+- **Cập nhật:** File gốc được Lichess cập nhật hàng tháng. Chỉ cần sync lại khi muốn.
+
+### Kiến trúc Folder-Based + Weekly Rotation
+```
+data/puzzles/
+├── manifest.js          ← var PUZZLE_MANIFEST = {"400":2,"500":2,...,"2800":2};
+├── 400/
+│   ├── 001.json         ← 100 puzzles, ~28KB
+│   └── 002.json
+├── 500/ ... └── 2800/   ← 25 folders (400→2800, mỗi mốc 100)
+```
+
+- **Tổng:** 5,000 puzzles / 50 files / 25 buckets / ~1.2 MB
+- **Ngân hàng gốc:** ~5.3 triệu câu đố (RD ≤ 100)
+- **Xoay vòng tự động:** GitHub Actions chạy mỗi thứ Hai, random sample bộ mới
+
+### Cách chạy pipeline tạo dữ liệu
+```bash
+# Mặc định: đọc từ file .zst trong repo (nhanh, không cần mạng)
+node scripts/build-puzzles.js
+
+# Tùy chọn: download bản mới nhất từ Lichess rồi build
+node scripts/build-puzzles.js --fetch-lichess
+```
+
+Script `scripts/build-puzzles.js` sẽ:
+1. Đọc CSV stream từ file `.zst` local (mặc định) hoặc download từ Lichess (`--fetch-lichess`).
+2. Lọc câu đố chất lượng cao: `RatingDeviation ≤ 100`.
+3. Reservoir sampling: random chọn tối đa **200 câu/bucket** từ ~5.3M câu đố.
+4. Chia thành 25 dải ELO (400→2800), ghi `data/puzzles/{ELO}/{NNN}.json` (100 câu/file).
+5. Ghi `data/puzzles/manifest.js` chứa số lượng file mỗi bucket.
+
+### Tự động hóa (GitHub Actions)
+- Workflow: `.github/workflows/refresh-puzzles.yml`
+- Lịch: Mỗi thứ Hai 2:00 AM UTC (hoặc trigger thủ công)
+- Tùy chọn nguồn: `git` (mặc định — đọc file .zst trong repo) hoặc `lichess` (download mới)
+
+### Cơ chế chống trùng lặp câu đố
+- `chess-storage.js` lưu mảng `playedPuzzles` trong `localStorage` (tối đa **5000 ID gần nhất**).
+- Sử dụng hash object (O(1) lookup) để lọc nhanh trên Kindle.
+- Khi tất cả 100 câu trong file đã chơi → tự động reset danh sách.
+
+### Luồng hoạt động Puzzle Mode
+1. Client tải `manifest.js` (đồng bộ với trang, có sẵn biến `PUZZLE_MANIFEST`).
+2. `loadPuzzle()` đọc điểm ELO hiện tại từ Storage → làm tròn xuống mốc 100 để xác định bucket (VD: 1150 → 1100).
+3. Tra manifest: `PUZZLE_MANIFEST["1100"] = 2` (có 2 files).
+4. Random chọn 1 file trong bucket → fetch qua XMLHttpRequest: `data/puzzles/1100/001.json` (~28KB).
+5. Lọc puzzle đã chơi (hash lookup) → random chọn 1 câu chưa chơi.
+6. Hiển thị FEN lên bàn cờ, tự động đi nước đầu của đối thủ (move[0]).
+7. **Hệ thống ELO Proportional:**
+   - Giải đúng (clean): `+round(32 × (1−E))`, min +3
+   - Giải sai: `−round(32 × E)` (sai câu dễ phạt nặng, sai câu khó phạt nhẹ)
+   - Dùng Hint: 0 ELO
+8. **Chuyển câu đố tiếp theo (`nextPuzzle` / `confirmSkip`):** Khi ELO của người dùng thay đổi (ví dụ: từ 1190 lên 1215), hàm `loadPuzzle()` tự động tính lại bucket mới (`1200`), gửi request tải file JSON mới từ thư mục `data/puzzles/1200/` tương ứng.
 
 ---
 

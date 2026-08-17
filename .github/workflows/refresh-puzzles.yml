@@ -1,0 +1,52 @@
+name: 🧩 Weekly Puzzle Refresh
+
+on:
+  schedule:
+    # Run every Monday at 2:00 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  refresh-puzzles:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install zstd
+        run: sudo apt-get install -y zstd
+
+      - name: Build puzzle data from Lichess
+        run: |
+          echo "Building puzzle data streaming directly from Lichess..."
+          node scripts/build-puzzles.js --fetch-lichess
+          echo ""
+          echo "Output:"
+          find data/puzzles -name "*.json" | wc -l
+          echo "files generated"
+          du -sh data/puzzles/
+          cat data/puzzles/manifest.js
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add puzzle data files
+          git add data/puzzles/
+          
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🧩 Weekly puzzle refresh ($(date +'%Y-%m-%d'))"
+            git push
+          fi
+
