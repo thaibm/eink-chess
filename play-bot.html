@@ -64,7 +64,7 @@
         </div>
 
         <!-- 5. MATCH SETUP POPUP MODAL (BEFORE GAME / NEW GAME) -->
-        <div id="setup-modal" class="modal-overlay">
+        <div id="setup-modal" class="modal-overlay" onclick="if(event.target===this) closeSetupModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="game.setup_title">CÀI ĐẶT VÁN ĐẤU VỚI BOT</div>
                 <div class="modal-body">
@@ -95,7 +95,7 @@
         </div>
 
         <!-- 6. CONFIRM RESIGN MODAL -->
-        <div id="resign-modal" class="modal-overlay">
+        <div id="resign-modal" class="modal-overlay" onclick="if(event.target===this) closeResignModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="game.resign_title">Xác nhận đầu hàng</div>
                 <div class="modal-body" data-i18n="game.resign_body">
@@ -111,7 +111,7 @@
         </div>
 
         <!-- 7. GAME OVER MODAL -->
-        <div id="gameover-modal" class="modal-overlay">
+        <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) closeGameOverModal()">
             <div class="modal-box">
                 <div class="modal-title" id="gameover-title" data-i18n="game.gameover_title">Kết thúc ván đấu</div>
                 <div class="modal-body" id="gameover-body">
@@ -127,7 +127,7 @@
         </div>
 
         <!-- 8. DONATE KO-FI MODAL -->
-        <div id="donate-modal" class="modal-overlay">
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
                 <div class="modal-body">

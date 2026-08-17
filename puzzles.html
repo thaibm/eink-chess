@@ -63,7 +63,7 @@
         </div>
 
         <!-- 5. INITIAL PUZZLE SKILL LEVEL MODAL (FIRST-TIME ONBOARDING) -->
-        <div id="skill-modal" class="modal-overlay">
+        <div id="skill-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkillModal()">
             <div class="modal-box" style="max-width: 360px; margin-top: 8vh; padding: 14px;">
                 <div class="modal-title" data-i18n="puzzle.skill_modal_title" style="text-align: center;">CHỌN TRÌNH ĐỘ
                     KHỞI ĐẦU</div>
@@ -107,7 +107,7 @@
         </div>
 
         <!-- 6. CONFIRM SKIP MODAL -->
-        <div id="skip-confirm-modal" class="modal-overlay">
+        <div id="skip-confirm-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkipModal()">
             <div class="modal-box" style="max-width: 340px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="skip-modal-title" data-i18n="puzzle.confirm_skip_title"
                     style="text-align: center;">Xác nhận bỏ qua</div>
@@ -125,7 +125,7 @@
         </div>
 
         <!-- 7. GAMEOVER / PUZZLE COMPLETE MODAL -->
-        <div id="gameover-modal" class="modal-overlay">
+        <div id="gameover-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeModal()">
             <div class="modal-box" style="max-width: 320px; text-align: center; margin-top: 15vh; padding: 14px;">
                 <div class="modal-title" id="gameover-title" data-i18n="puzzle.success_title"
                     style="text-align: center;">Giải đố thành công! ♔</div>
@@ -142,7 +142,7 @@
         </div>
 
         <!-- 8. DONATE KO-FI MODAL -->
-        <div id="donate-modal" class="modal-overlay">
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Ủng hộ tác giả EinkChess</div>
                 <div class="modal-body">
