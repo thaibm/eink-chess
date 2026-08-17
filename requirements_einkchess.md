@@ -281,7 +281,7 @@
 - **Mục tiêu:** Đếm người dùng thực tế và phân tích lưu lượng mà không gây nặng máy Kindle.
 - **Cơ chế hoạt động:**
   - Client gửi **Beacon Ping** siêu nhẹ (~500 bytes XHR) khi khởi động app và khi bắt đầu ván cờ mới.
-  - Gửi kèm: `device_id` (UUID), `device_type` (Kindle Basic, Paperwhite, Oasis, Scribe, Desktop), `lang`, `action_type`.
+  - Gửi kèm: `device_id` (UUID), `device_type` (Kindle Basic, Paperwhite, Oasis, Scribe, Desktop), `lang`, `action_type` (`pageview`, `play_bot`, `play_bot_resume`, `play_puzzle`, `play_pvp`).
   - Backend lưu vào bảng `active_pings` / tổng hợp số liệu qua SQL View `v_traffic_stats`:
     - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
     - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất hôm nay / 7 ngày qua / 30 ngày qua / 365 ngày qua (Rolling window).

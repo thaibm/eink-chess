@@ -26,6 +26,14 @@
         return null;
     }
 
+    function getBackend() {
+        if (typeof ChessBackend !== 'undefined') return ChessBackend;
+        if (root && root.ChessBackend) return root.ChessBackend;
+        if (typeof window !== 'undefined' && window.ChessBackend) return window.ChessBackend;
+        if (typeof global !== 'undefined' && global.ChessBackend) return global.ChessBackend;
+        return null;
+    }
+
     var PuzzleManager = {
         engine: null,
         board: null,
@@ -71,6 +79,12 @@
 
             this.updateHeaderUI();
             this.updateActionBarUI();
+
+            // Gửi telemetry ping
+            var backend = getBackend();
+            if (backend && backend.sendPing) {
+                backend.sendPing('play_puzzle', '/puzzles.html');
+            }
 
             if (storage && !storage.hasChosenPuzzleSkill()) {
                 this.selectedInitialElo = 400;
