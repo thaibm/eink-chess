@@ -5,7 +5,7 @@
  * Level 1: Beginner     (~800 ELO)  - depth 1, no quiescence
  * Level 2: Novice        (~1000 ELO) - depth 2, no quiescence
  * Level 3: Casual        (~1200 ELO) - depth 2, quiescence
- * Level 4: Intermediate  (~1400 ELO) - depth 3, no quiescence
+ * Level 4: Intermediate  (~1400 ELO) - depth 3, quiescence
  * Level 5: Club          (~1600 ELO) - time-boxed iterative deepening,
  *                                      transposition table, killer moves,
  *                                      opening book, bounded quiescence
@@ -214,11 +214,22 @@
     // bot looks ahead, not from deliberately injected mistakes). Level 5 is
     // the "smart" tier: time-boxed iterative deepening, so it plays as well
     // as the time budget allows rather than stopping at a fixed depth.
+    //
+    // Level 4 previously ran depth 3 WITHOUT quiescence (an extra ply but no
+    // horizon-effect protection). Empirically that made it play *weaker*
+    // than level 3, not stronger: 12-game level4-vs-level3 match measured
+    // L4 winning only 1, losing 8, drawing 3 - the extra ply of blind
+    // lookahead lost more to horizon blunders (walking into bad trades at
+    // the exact edge of its search) than it gained from seeing further.
+    // Quiescence is cheap relative to a full extra ply and consistently
+    // pays for itself, so every level from 3 upward now gets it; the
+    // ladder should be built by adding search power, not by trading one
+    // form of it for another.
     var LEVEL_CONFIG = {
         1: { fixedDepth: 1, useQuiescence: false },
         2: { fixedDepth: 2, useQuiescence: false },
         3: { fixedDepth: 2, useQuiescence: true },
-        4: { fixedDepth: 3, useQuiescence: false },
+        4: { fixedDepth: 3, useQuiescence: true },
         5: { maxDepth: 8, timeBudgetMs: 1200, useQuiescence: true }
     };
 
