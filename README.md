@@ -31,9 +31,9 @@
 - **Ủng hộ tác giả (Donate Ko-fi):**
   - Tích hợp Modal hiển thị Mã QR Ko-fi độ nét cao để người dùng quét ủng hộ bằng điện thoại.
 - **Tính Năng Dự Kiến (Lộ Trình Tương Lai):**
-  - **Phase 2 — Đấu AI Cloud Nâng Cao:** Tích hợp engine mạnh mẽ từ API bên ngoài, nâng cấp độ khó lên mức Kiện tướng (~1500 - 2750 ELO), giới hạn quota 3 trận/ngày.
-  - **Phase 3 — Puzzle Mode (Giải Đố):** Chế độ giải thế cờ thích ứng theo điểm ELO (từ database Lichess), có hệ thống gợi ý và giới hạn quota 3 câu đố/ngày.
-  - **Phase 4 — PvP Online:** Cho phép tạo phòng đấu online với bạn bè bằng mã 6 ký tự, đồng bộ nước đi thời gian thực (quota 3 trận/ngày).
+  - **Phase 2 — Đấu AI Cloud Nâng Cao:** Tích hợp engine mạnh mẽ từ API bên ngoài, nâng cấp độ khó lên mức Kiện tướng (~1500 - 2750 ELO).
+  - **Phase 3 — Puzzle Mode (Giải Đố):** Chế độ giải thế cờ thích ứng theo điểm ELO (từ database Lichess), có hệ thống gợi ý.
+  - **Phase 4 — PvP Online:** Cho phép tạo phòng đấu online với bạn bè bằng mã 6 ký tự, đồng bộ nước đi thời gian thực.
   - **Phase 5 — Bảng Thống Kê Chi Tiết:** Biểu đồ lịch sử ELO, thống kê tỉ lệ thắng/thua, chuỗi thắng (streak), và tiếp tục tối ưu hóa sâu trải nghiệm E-ink.
 
 ---
@@ -65,9 +65,9 @@
 - **Support the Author (Donate Ko-fi):**
   - Integrated high-quality Ko-fi QR code modal for easy mobile scanning.
 - **Planned Features (Future Roadmap):**
-  - **Phase 2 — Advanced Cloud AI:** Integrate strong external chess engines for master level difficulty (~1500 - 2750 ELO) with a quota of 3 matches per day.
-  - **Phase 3 — Puzzle Mode:** Elo-adaptive tactics puzzles (sourced from Lichess db) with a hint system and a quota of 3 puzzles per day.
-  - **Phase 4 — Online PvP:** Create custom rooms with 6-character codes to play online with friends, synchronized via a lightweight polling system (quota of 3 matches per day).
+  - **Phase 2 — Advanced Cloud AI:** Integrate strong external chess engines for master level difficulty (~1500 - 2750 ELO).
+  - **Phase 3 — Puzzle Mode:** Elo-adaptive tactics puzzles (sourced from Lichess db) with a hint system.
+  - **Phase 4 — Online PvP:** Create custom rooms with 6-character codes to play online with friends, synchronized via a lightweight polling system.
   - **Phase 5 — Detailed Stats Dashboard:** Historic ELO charts, win/loss ratios, winning streaks, and further deep optimizations for E-ink devices.
 
 ---
