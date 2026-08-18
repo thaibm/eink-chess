@@ -7,7 +7,7 @@
     <meta name="description"
         content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
     <title>Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=43">
+    <link rel="stylesheet" href="css/einkchess.css?v=45">
 </head>
 
 <body>
@@ -262,11 +262,19 @@
                 selectHomeLevel(selectedLvl);
                 selectHomeSide(selectedSide);
             }
-            document.getElementById('home-setup-modal').className = 'modal-overlay active';
+            var modal = document.getElementById('home-setup-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
         }
 
         function closeHomeSetupModal() {
-            document.getElementById('home-setup-modal').className = 'modal-overlay';
+            var modal = document.getElementById('home-setup-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
         }
 
         function openFeatureModal(type) {
@@ -282,11 +290,19 @@
             if (bodyEl && typeof ChessI18n !== 'undefined') {
                 bodyEl.innerHTML = ChessI18n.t('home.mode_coming_soon');
             }
-            document.getElementById('feature-modal').className = 'modal-overlay active';
+            var modal = document.getElementById('feature-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
         }
 
         function closeFeatureModal() {
-            document.getElementById('feature-modal').className = 'modal-overlay';
+            var modal = document.getElementById('feature-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
         }
 
         function selectHomeLevel(lvl) {

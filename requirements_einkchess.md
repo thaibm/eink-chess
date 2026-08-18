@@ -56,12 +56,17 @@
 
 ### 3.1. Trình duyệt Kindle Experimental Browser
 - Trình duyệt trên máy đọc sách Kindle là **Experimental Web Browser** (dựa trên WebKit cũ), **không phải** Silk Browser (Silk chỉ có trên Fire Tablet).
-- **Ràng buộc:**
+- **Ràng buộc & Giải pháp tương thích Firmware cũ (5.13, 5.16, Paperwhite 3):**
   - **Không hỗ trợ WebAssembly (WASM)** $\rightarrow$ Không thể chạy trực tiếp Stockfish WASM trên client Kindle.
   - **Không hỗ trợ Web Workers** $\rightarrow$ Tính toán AI nặng trên client sẽ khóa UI.
   - **JavaScript Engine hạn chế:** Bắt buộc tuân thủ **ES5** (không dùng `const`, `let`, arrow functions `() => {}`, template literals `` ` `` , `class`, `async/await`, `fetch` nếu không có fallback XHR).
   - **CSS:** Không hỗ trợ CSS `clamp()`, `aspect-ratio`, flexbox `gap`. Bàn cờ sử dụng layout table-cell đồng nhất (`display: table-row`, `display: table-cell; height: 12.5%`) kết hợp tính toán kích thước bàn cờ và `fontSize` quân cờ qua JavaScript để tránh lỗi `position: absolute` bị tính sai chiều cao (lệch top) trên WebKit cũ.
-  - **Touch:** Loại bỏ tap highlight (`-webkit-tap-highlight-color: transparent`) để tránh sinh thêm chu kỳ chớp màn hình e-ink khi chạm.
+  - **Cơ chế Touch & Click Delegation (Chuẩn ChessTwinkle):**
+    - Đăng ký bộ lắng nghe sự kiện ngay tại Container bàn cờ (`table.onclick`, `table.ontouchstart`, `table.onmousedown`) để bắt sự kiện chạm lập tức khi người dùng vừa chạm vào màn hình e-ink.
+    - Xử lý `onFastInput` với `e.preventDefault()` để ngăn chặn trình duyệt Kindle sinh thêm click trễ hoặc cuộn trang ngoài ý muốn, đồng thời giới hạn throttle (120ms) và khử trùng lặp click (700ms).
+    - Tra cứu ô cờ tương ứng bằng cách duyệt ngược cây DOM `tgt = tgt.parentNode` cho đến khi tìm thấy phần tử có thuộc tính `data-r` và `data-c`.
+    - Các Modal Overlay luôn có thuộc tính tường minh `style.display = 'block'` / `style.display = 'none'` để tránh overlay vô hình chặn touch hit trên các lớp DOM bên dưới.
+  - **Touch Highlight:** Loại bỏ tap highlight (`-webkit-tap-highlight-color: transparent`) để tránh sinh thêm chu kỳ chớp màn hình e-ink khi chạm.
 
 ### 3.2. Kỹ thuật Render tối ưu E-ink (Incremental DOM Patching)
 - Mỗi lần DOM thay đổi gây thay đổi pixel sẽ kích hoạt e-ink refresh.
