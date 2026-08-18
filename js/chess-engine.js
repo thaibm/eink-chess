@@ -201,6 +201,14 @@
         }
     };
 
+    ChessEngine.prototype.toJSON = function() {
+        return this.exportState();
+    };
+
+    ChessEngine.prototype.fromJSON = function(state) {
+        return this.importState(state);
+    };
+
     ChessEngine.prototype.getPosKey = function() {
         var parts = this.toFEN().split(' ');
         return parts[0] + ' ' + parts[1] + ' ' + parts[2] + ' ' + parts[3];

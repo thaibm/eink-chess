@@ -156,7 +156,12 @@
   - **Thua / Đầu hàng:** $- \Delta ELO$.
   - **Hòa:** Điều chỉnh nhẹ theo kỳ vọng.
 - **Popup kết quả ván đấu:** Hiển thị thắng/thua/hòa, lý do (Chiếu hết, Đầu hàng, Stalemate, 50-move rule), điểm ELO thay đổi (Ví dụ: `+16 → 1216`), kèm 2 nút bấm: `[Chơi tiếp]` và `[Trang chủ]`.
-- **Auto-save:** Tự động lưu thế cờ sau mỗi nước đi vào `localStorage`, khi mở lại trình duyệt sẽ hiển thị thông báo tiếp tục ván cũ.
+- **Auto-save & Resume Game State (Lưu và Khôi phục ván đấu):**
+  - Tự động lưu toàn bộ trạng thái ván cờ vào `localStorage` (`einkchess_saved_bot_game`) sau mỗi nước đi của người chơi, nước đi của Bot, hoặc khi Đi lại (Undo), cũng như sự kiện thoát trang (`beforeunload`/`pagehide`).
+  - Dữ liệu lưu gồm: Cấp độ Bot (`botLevel`), bên cầm quân (`playerSide`), engine state (`fen`, `history`, `positionCounts`, `turn`, `castling`, `epSquare`, `halfmoveClock`), và nước đi gần nhất (`lastMove`).
+  - **Tải lại trang (Reload / F5):** Trực tiếp khôi phục bàn cờ, thế cờ và lượt đi đang chơi dở mà không khởi động lại ván mới hay mở popup cài đặt. Nếu đến lượt Bot đi dở, Bot sẽ tự động suy nghĩ và đi tiếp.
+  - **Trang chủ (`index.html`):** Thẻ Play vs Bot hiển thị tag `Saved Game (Lvl X)` kèm 2 nút: `[Tiếp tục ván đấu (Resume Game)]` (quay lại tiếp tục chơi) và `[Ván mới (New Game)]` (mở modal cấu hình ván mới).
+  - **Xóa trạng thái đã lưu:** Khi ván đấu kết thúc tự nhiên (Chiếu hết, Hòa) hoặc người chơi chủ động Đầu hàng (Resign), hệ thống tự động xóa dữ liệu ván đấu đã lưu trong `localStorage` để sẵn sàng cho ván mới tiếp theo.
 
 ---
 
@@ -283,7 +288,7 @@
   - `einkchess_puzzle_elo`: Điểm ELO giải đố (Mặc định: 400).
   - `einkchess_puzzle_streak`: Chuỗi câu đố giải đúng liên tiếp hiện tại và kỷ lục.
   - `einkchess_puzzle_setup_done`: Đánh dấu đã hoàn tất chọn trình độ giải đố khởi đầu (`true` / `false`).
-  - `einkchess_saved_game`: Trạng thái bàn cờ, lịch sử nước đi ván đang chơi dở với Bot.
+  - `einkchess_saved_bot_game`: Trạng thái bàn cờ, lịch sử nước đi ván đang chơi dở với Bot.
   - `einkchess_saved_puzzle`: Trạng thái câu đố đang giải dở (object gồm puzzle data, index nước cờ, trạng thái sai/gợi ý).
   - `einkchess_pid`: UUID định danh thiết bị duy nhất.
   - `einkchess_pvp_code`: Mã phòng PvP đang hoạt động.

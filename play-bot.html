@@ -165,7 +165,7 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=7"></script>
+    <script src="js/chess-engine.js?v=8"></script>
     <script src="js/chess-ai.js?v=8"></script>
     <script src="js/chess-storage.js?v=15"></script>
     <script src="js/chess-i18n.js?v=27"></script>
@@ -192,6 +192,25 @@
             4: 1400,
             5: 1600
         };
+
+        function saveCurrentGameState() {
+            if (typeof ChessStorage === 'undefined') return;
+            if (gameOver) {
+                ChessStorage.clearSavedBotGame();
+                return;
+            }
+            if (engine) {
+                var last = engine.history.length > 0 ? engine.history[engine.history.length - 1] : null;
+                var engineState = typeof engine.exportState === 'function' ? engine.exportState() : (typeof engine.toJSON === 'function' ? engine.toJSON() : { fen: engine.toFEN() });
+                ChessStorage.saveBotGame({
+                    botLevel: botLevel,
+                    playerSide: playerSide,
+                    engine: engineState,
+                    lastMove: last ? { from: last.from, to: last.to } : null,
+                    gameOver: false
+                });
+            }
+        }
 
         function initGame() {
             try {
@@ -224,7 +243,7 @@
                 }
             }
 
-            var savedGame = ChessStorage.getSavedBotGame();
+            var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGame() : null;
 
             if (urlParams['new'] === '1') {
                 pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevel();
@@ -245,7 +264,7 @@
                 });
 
                 startConfiguredGame();
-            } else if (savedGame && savedGame.engine) {
+            } else if (savedGame && savedGame.engine && !savedGame.gameOver) {
                 botLevel = savedGame.botLevel || 1;
                 playerSide = savedGame.playerSide || 'w';
                 pendingLevel = botLevel;
@@ -253,7 +272,13 @@
 
                 ai.level = botLevel;
                 engine = new ChessEngine();
-                engine.fromJSON(savedGame.engine);
+                if (typeof engine.importState === 'function') {
+                    engine.importState(savedGame.engine);
+                } else if (typeof engine.fromJSON === 'function') {
+                    engine.fromJSON(savedGame.engine);
+                } else if (savedGame.engine.fen) {
+                    engine.loadFEN(savedGame.engine.fen);
+                }
 
                 board = new ChessBoard('board-container', {
                     engine: engine,
@@ -448,6 +473,8 @@
             board.setEngine(engine);
             board.setLastMove(null, null);
 
+            saveCurrentGameState();
+
             if (playerSide === 'b') {
                 isThinking = true;
                 updateStatus();
@@ -466,6 +493,10 @@
             board.setLastMove(move.from, move.to);
 
             checkGameEnd();
+
+            if (!gameOver) {
+                saveCurrentGameState();
+            }
 
             if (!gameOver && engine.turn !== playerSide) {
                 isThinking = true;
@@ -489,6 +520,11 @@
             }
 
             checkGameEnd();
+
+            if (!gameOver) {
+                saveCurrentGameState();
+            }
+
             updateStatus();
         }
 
@@ -578,6 +614,7 @@
 
             var last = engine.history.length > 0 ? engine.history[engine.history.length - 1] : null;
             board.setLastMove(last ? last.from : null, last ? last.to : null);
+            saveCurrentGameState();
             updateStatus();
         }
 
@@ -653,6 +690,13 @@
             if (isGameInitialized) return;
             isGameInitialized = true;
             initGame();
+        }
+
+        if (typeof window !== 'undefined') {
+            if (window.addEventListener) {
+                window.addEventListener('beforeunload', saveCurrentGameState);
+                window.addEventListener('pagehide', saveCurrentGameState);
+            }
         }
 
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
