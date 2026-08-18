@@ -32,6 +32,49 @@
         var table = document.createElement('div');
         table.className = 'chess-board';
 
+        var self = this;
+        var lastFastInputTime = 0;
+
+        function onFastInput(e) {
+            var now = Date.now ? Date.now() : new Date().getTime();
+            if (lastFastInputTime && now - lastFastInputTime < 120) {
+                if (e && e.preventDefault) e.preventDefault();
+                return false;
+            }
+            lastFastInputTime = now;
+            if (e && e.preventDefault) e.preventDefault();
+            onContainerClick(e, true);
+            return false;
+        }
+
+        function onContainerClick(e, fromTouch) {
+            var now = Date.now ? Date.now() : new Date().getTime();
+            if (!fromTouch && lastFastInputTime && (now - lastFastInputTime < 700)) {
+                return false;
+            }
+
+            var tgt = (e && (e.target || e.srcElement)) || null;
+            while (tgt && tgt.getAttribute && (tgt.getAttribute('data-r') === null || tgt.getAttribute('data-c') === null)) {
+                tgt = tgt.parentNode;
+            }
+            if (!tgt || !tgt.getAttribute) return;
+
+            var rAttr = tgt.getAttribute('data-r');
+            var cAttr = tgt.getAttribute('data-c');
+            if (rAttr === null || cAttr === null) return;
+
+            var r = parseInt(rAttr, 10);
+            var c = parseInt(cAttr, 10);
+            if (isNaN(r) || isNaN(c)) return;
+
+            self.handleSquareClick(r, c);
+            return false;
+        }
+
+        table.onclick = onContainerClick;
+        table.ontouchstart = onFastInput;
+        table.onmousedown = onFastInput;
+
         this.squaresDOM = [];
         for (var r = 0; r < 8; r++) {
             var rowDOM = document.createElement('div');
@@ -50,13 +93,6 @@
                 pieceInner.className = 'piece-inner';
                 pieceHolder.appendChild(pieceInner);
                 sq.appendChild(pieceHolder);
-
-                var self = this;
-                (function(row, col) {
-                    sq.onclick = function() {
-                        self.handleSquareClick(row, col);
-                    };
-                })(r, c);
 
                 rowDOM.appendChild(sq);
                 rowSquares.push(sq);
@@ -204,6 +240,7 @@
             (function(selectedMove) {
                 btn.onclick = function() {
                     modal.className = 'modal-overlay';
+                    modal.style.display = 'none';
                     self.selectedSquare = null;
                     self.validMoves = [];
                     self.onMove(selectedMove);
@@ -215,12 +252,14 @@
 
         cancelBtn.onclick = function() {
             modal.className = 'modal-overlay';
+            modal.style.display = 'none';
             self.selectedSquare = null;
             self.validMoves = [];
             self.render();
         };
 
         modal.className = 'modal-overlay active';
+        modal.style.display = 'block';
     };
 
     ChessBoard.prototype.render = function() {
