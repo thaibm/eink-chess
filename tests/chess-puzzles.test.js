@@ -75,9 +75,9 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
     });
 
     test('Action Bar button visibility state toggling', () => {
-        const skipBtn = { style: { display: '' } };
-        const nextBtn = { style: { display: 'none' } };
-        const hintBtn = { style: { display: '' } };
+        const skipBtn = { style: { display: '' }, className: '' };
+        const nextBtn = { style: { display: 'none' }, className: '' };
+        const hintBtn = { style: { display: '' }, className: '' };
 
         global.document = {
             getElementById: (id) => {
@@ -91,16 +91,20 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         // Playing state
         PuzzleManager.isSolved = false;
         PuzzleManager.updateActionBarUI();
-        expect(skipBtn.style.display).toBe('');
+        expect(skipBtn.style.display).toBe('block');
         expect(nextBtn.style.display).toBe('none');
-        expect(hintBtn.style.display).toBe('');
+        expect(nextBtn.className).toContain('hidden');
+        expect(hintBtn.style.display).toBe('block');
 
         // Solved state
         PuzzleManager.isSolved = true;
         PuzzleManager.updateActionBarUI();
         expect(skipBtn.style.display).toBe('none');
-        expect(nextBtn.style.display).toBe('');
+        expect(skipBtn.className).toContain('hidden');
+        expect(nextBtn.style.display).toBe('block');
+        expect(nextBtn.className).toBe('btn btn-primary');
         expect(hintBtn.style.display).toBe('none');
+        expect(hintBtn.className).toContain('hidden');
     });
 
     test('getSkipPenalty returns exact absolute loss points', () => {
@@ -340,12 +344,16 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(btn400.className).toBe('puzzle-skill-btn');
 
         // Confirm
+        ChessStorage.savePuzzle({ puzzle: { FEN: 'dummy', Moves: 'e2e4' }, currentMoveIndex: 1 });
+        ChessStorage.setPuzzleStreak(5);
         let loadCalled = false;
         PuzzleManager.loadPuzzle = () => { loadCalled = true; };
         PuzzleManager.confirmSkillLevel();
 
         expect(ChessStorage.getPuzzleElo()).toBe(800);
         expect(ChessStorage.hasChosenPuzzleSkill()).toBe(true);
+        expect(ChessStorage.getSavedPuzzle()).toBeNull();
+        expect(ChessStorage.getPuzzleStreak()).toBe(0);
         expect(loadCalled).toBe(true);
     });
 
@@ -497,6 +505,36 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(removedChild).toBe(mockOverlay);
         expect(rendered).toBe(true);
         jest.useRealTimers();
+    });
+
+    test('openSkillModal highlights closest skill bucket', () => {
+        const modal = { className: 'modal-overlay', style: { display: 'none' } };
+        const buttons = [
+            { getAttribute: (attr) => (attr === 'data-elo' ? '400' : null), className: '' },
+            { getAttribute: (attr) => (attr === 'data-elo' ? '800' : null), className: '' },
+            { getAttribute: (attr) => (attr === 'data-elo' ? '1200' : null), className: '' },
+            { getAttribute: (attr) => (attr === 'data-elo' ? '1600' : null), className: '' },
+            { getAttribute: (attr) => (attr === 'data-elo' ? '2000' : null), className: '' }
+        ];
+
+        global.document = {
+            getElementById: (id) => (id === 'skill-modal' ? modal : null),
+            querySelectorAll: (sel) => (sel === '.puzzle-skill-btn' ? buttons : [])
+        };
+
+        // Test ELO 550 -> closest is 400 (diff 150) or 800 (diff 250), so 400
+        ChessStorage.setPuzzleElo(550);
+        PuzzleManager.openSkillModal();
+        expect(PuzzleManager.selectedInitialElo).toBe(400);
+        expect(buttons[0].className).toBe('puzzle-skill-btn active');
+        expect(buttons[1].className).toBe('puzzle-skill-btn');
+        expect(modal.className).toBe('modal-overlay active');
+
+        // Test ELO 1500 -> closest is 1600 (diff 100)
+        ChessStorage.setPuzzleElo(1500);
+        PuzzleManager.openSkillModal();
+        expect(PuzzleManager.selectedInitialElo).toBe(1600);
+        expect(buttons[3].className).toBe('puzzle-skill-btn active');
     });
 });
 

@@ -98,7 +98,17 @@
             if (typeof document === 'undefined') return;
             var storage = getStorage();
             var curElo = storage ? storage.getPuzzleElo() : 400;
-            this.selectSkillLevel(curElo || 400);
+            var buckets = [400, 800, 1200, 1600, 2000];
+            var closestElo = buckets[0];
+            var minDiff = Math.abs(curElo - buckets[0]);
+            for (var i = 1; i < buckets.length; i++) {
+                var diff = Math.abs(curElo - buckets[i]);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestElo = buckets[i];
+                }
+            }
+            this.selectSkillLevel(closestElo);
             var modal = document.getElementById('skill-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
@@ -135,6 +145,17 @@
             if (storage) {
                 storage.setPuzzleElo(elo);
                 storage.setPuzzleSkillChosen(true);
+                storage.clearSavedPuzzle();
+                storage.setPuzzleStreak(0);
+            }
+            this.currentPuzzle = null;
+            this.solutionMoves = [];
+            this.currentMoveIndex = 0;
+            this.isSolved = false;
+            this.hasFailed = false;
+            if (this.board) {
+                this.board.selectedSquare = null;
+                this.board.validDestinations = [];
             }
             this.closeSkillModal();
             this.updateHeaderUI();
@@ -148,13 +169,31 @@
             var hintBtn = document.getElementById('btn-hint');
 
             if (this.isSolved) {
-                if (skipBtn) skipBtn.style.display = 'none';
-                if (nextBtn) nextBtn.style.display = '';
-                if (hintBtn) hintBtn.style.display = 'none';
+                if (skipBtn) {
+                    skipBtn.className = 'btn hidden';
+                    skipBtn.style.display = 'none';
+                }
+                if (nextBtn) {
+                    nextBtn.className = 'btn btn-primary';
+                    nextBtn.style.display = 'block';
+                }
+                if (hintBtn) {
+                    hintBtn.className = 'btn hidden';
+                    hintBtn.style.display = 'none';
+                }
             } else {
-                if (skipBtn) skipBtn.style.display = '';
-                if (nextBtn) nextBtn.style.display = 'none';
-                if (hintBtn) hintBtn.style.display = '';
+                if (skipBtn) {
+                    skipBtn.className = 'btn';
+                    skipBtn.style.display = 'block';
+                }
+                if (nextBtn) {
+                    nextBtn.className = 'btn btn-primary hidden';
+                    nextBtn.style.display = 'none';
+                }
+                if (hintBtn) {
+                    hintBtn.className = 'btn';
+                    hintBtn.style.display = 'block';
+                }
             }
         },
 
@@ -356,7 +395,7 @@
             // Read manifest to find number of files in this bucket
             var manifest = (typeof PUZZLE_MANIFEST !== 'undefined') ? PUZZLE_MANIFEST : null;
             var manifestVer = (typeof PUZZLE_MANIFEST_VERSION !== 'undefined') ? PUZZLE_MANIFEST_VERSION : '';
-            var cacheBust = manifestVer ? ('?v=' + encodeURIComponent(manifestVer)) : '';
+            var cacheBust = manifestVer ? ('?v=' + encodeURIComponent(manifestVer)) : ('?t=' + (new Date().getTime()));
             var fileCount = 0;
             var url = '';
 
@@ -389,7 +428,7 @@
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
+                    if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304 || (xhr.status === 0 && xhr.responseText)) {
                         try {
                             var puzzles = JSON.parse(xhr.responseText);
                             self.pickPuzzle(puzzles);
@@ -441,7 +480,15 @@
                 if (storage) {
                     storage.clearPlayedPuzzles();
                 }
-                unplayed = puzzles;
+                var currentId = this.currentPuzzle ? this.currentPuzzle.PuzzleId : '';
+                for (var j = 0; j < puzzles.length; j++) {
+                    if (puzzles[j].PuzzleId !== currentId) {
+                        unplayed.push(puzzles[j]);
+                    }
+                }
+                if (unplayed.length === 0) {
+                    unplayed = puzzles;
+                }
             }
 
             var rIdx = Math.floor(Math.random() * unplayed.length);
@@ -757,10 +804,20 @@
 
         nextPuzzle: function() {
             this.closeModal();
+            this.currentPuzzle = null;
+            this.solutionMoves = [];
+            this.currentMoveIndex = 0;
+            this.isSolved = false;
+            this.hasFailed = false;
+            if (this.board) {
+                this.board.selectedSquare = null;
+                this.board.validDestinations = [];
+            }
             var storage = getStorage();
             if (storage) {
                 storage.clearSavedPuzzle();
             }
+            this.updateActionBarUI();
             this.loadPuzzle();
         },
 

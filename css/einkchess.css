@@ -420,9 +420,9 @@ button,
     width: 100% !important;
     min-height: 44px !important;
     line-height: 20px !important;
-    padding: 10px 4px !important;
+    padding: 10px 2px !important;
     margin: 0 !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: bold !important;
     text-align: center !important;
     white-space: nowrap !important;
@@ -432,8 +432,11 @@ button,
     -webkit-box-sizing: border-box !important;
 }
 
-/* Ensure display:none inline style is not overridden by display:block !important above */
-.action-bar-cell .btn[style*="display: none"] {
+/* Ensure display:none inline style or .hidden is not overridden by display:block !important above */
+.hidden,
+.action-bar-cell .btn.hidden,
+.action-bar-cell .btn[style*="display: none"],
+.action-bar-cell .btn[style*="display:none"] {
     display: none !important;
 }
 

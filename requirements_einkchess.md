@@ -203,16 +203,17 @@
   - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
   - Sai câu khó → phạt nhẹ (VD: puzzle 1800, player 1200 → $-3$)
 
-#### E. Action Buttons trong màn Giải đố (Bố cục 4 Cột Dàn Đều Ngang Hàng):
-- Áp dụng cấu trúc lưới đồng bộ `.action-bar-grid` chia 4 cột bằng nhau (25% mỗi cột) với khoảng cách phân bổ đều (`border-spacing: 4px`):
-  - **Cột 1 (Bottom-Left):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`) có chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm.
-  - **Cột 2:** Nút **`[♙ Gợi ý (Hint)]`** (ẩn đi khi đã hoàn thành câu đố).
+#### E. Action Buttons trong màn Giải đố (Bố cục 5 Cột Dàn Đều Ngang Hàng):
+- Áp dụng cấu trúc lưới đồng bộ `.action-bar-grid` chia 5 cột với khoảng cách phân bổ đều (`border-spacing: 4px`):
+  - **Cột 1 (Bottom-Left):** Nút **`[Cấp độ (Level)]`** (`#btn-level`): Mở popup chọn lại trình độ ELO (`#skill-modal`), tự động highlight mốc ELO gần nhất với điểm hiện tại.
+  - **Cột 2:** Nút **`[Làm mới (Refresh)]`** (`#btn-refresh`): Tạo flash trắng 200ms để refresh vật lý màn hình E-ink, xóa bóng mờ ghosting.
+  - **Cột 3 (Center):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`, `#puzzle-meta`): Chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm, hiển thị `#ID · ELO`.
+  - **Cột 4:** Nút **`[♙ Gợi ý (Hint)]`** (`#btn-hint`, ẩn đi khi đã hoàn thành câu đố):
     - Khi bấm **`[Gợi ý]`** lần đầu trong câu đố: Hiển thị popup xác nhận (`Confirm Hint Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn xem gợi ý cho thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
     - Nếu người dùng bấm `[Hủy]`: Đóng popup, không tiết lộ gợi ý và giữ nguyên điểm ELO.
     - Nếu người dùng bấm `[Đồng ý xem gợi ý]`: Đóng popup, áp dụng trừ ELO proportional ngay lập tức, reset chuỗi Streak về 0, đánh dấu `hintUsed = true`, highlight ô chứa quân cờ cần đi (`board.selectedSquare`) và hiển thị các ô đi hợp lệ.
     - Nếu người dùng bấm lại `[Gợi ý]` sau khi đã xác nhận trước đó: Hệ thống tự động re-highlight ô cờ gợi ý mà không hiển thị popup và không trừ thêm điểm.
-  - **Cột 3:** Nút **`[Làm mới (Refresh)]`** (tạo flash trắng 200ms để refresh vật lý màn hình E-ink, xóa bóng mờ ghosting).
-  - **Cột 4 (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** nổi bật khi câu đố đã giải xong.
+  - **Cột 5 (Bottom-Right):** Nút **`[⏭ Bỏ qua (Skip)]`** (`#btn-skip`) khi đang giải dở, tự động chuyển thành nút **`[Tiếp theo (Next)]`** (`#btn-next`) nổi bật khi câu đố đã giải xong.
     - Khi bấm **`[Bỏ qua]`**: Hiển thị popup xác nhận (`Confirm Skip Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn bỏ qua thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
     - Nếu người dùng bấm `[Hủy]`: Đóng popup, giữ nguyên ván cờ.
     - Nếu người dùng bấm `[Đồng ý bỏ qua]`: Đóng popup, áp dụng trừ ELO proportional theo công thức, reset chuỗi Streak về 0, cập nhật điểm trên Header và tải câu đố mới.
@@ -224,7 +225,7 @@
 - **Chống gian lận (Anti-Cheat):** Ngăn chặn người chơi tải lại trang để đổi câu đố khác hoặc xóa cờ phạm quy/gợi ý mà không bị trừ điểm ELO. Muốn đổi câu khác bắt buộc phải bấm **`[Bỏ qua]`** (bị trừ ELO proportional theo quy định).
 - **Xóa trạng thái lưu:** Tự động xóa khỏi `localStorage` khi câu đố đã hoàn thành (`puzzleSolved`), khi bấm **`[Tiếp theo]`** (`nextPuzzle`), hoặc khi xác nhận **`[Đồng ý bỏ qua]`** (`confirmSkip`).
 
-#### G. Chọn Trình độ Khởi đầu Lần đầu Tiên (First-Time Puzzle Skill Selection):
+#### G. Chọn Trình độ Khởi đầu và Tái Chọn Trình Độ (Puzzle Skill Selection):
 - **Cơ chế Onboarding:** Khi người dùng lần đầu tiên truy cập chế độ Giải đố (`puzzles.html` hoặc click từ `index.html`), nếu chưa từng thiết lập trình độ ban đầu (`einkchess_puzzle_setup_done` chưa được lưu), hệ thống sẽ tự động hiển thị popup **`[CHỌN TRÌNH ĐỘ KHỞI ĐẦU]`** trước khi tải câu đố.
 - **Tùy chọn trình độ:** Cung cấp 5 mức độ rõ ràng, thân thiện cho màn hình E-ink:
   1. **Cấp 1 (~400 ELO):** Mới chơi / Beginner (*Mặc định / Dễ nhất*).
@@ -233,8 +234,8 @@
   4. **Cấp 4 (~1600 ELO):** Nâng cao / Advanced (Chiến thuật phức tạp).
   5. **Cấp 5 (~2000 ELO):** Chuyên gia / Master (Thử thách đỉnh cao).
 - **Mặc định:** Chọn sẵn mức dễ nhất (**400 ELO - Mới chơi**).
-- **Xác nhận:** Khi người dùng bấm **`[Bắt đầu Giải đố]`**, hệ thống lưu điểm ELO đã chọn vào `einkchess_puzzle_elo`, đánh dấu `einkchess_puzzle_setup_done = true`, đóng popup, cập nhật điểm ELO trên header và tải câu đố từ dải bucket tương ứng.
-- **Tái chọn trình độ bất cứ lúc nào:** Người dùng có thể chạm vào huy hiệu ELO (`#puzzle-elo-badge`) trên thanh tiêu đề của trang `puzzles.html` để mở lại popup chọn trình độ và làm mới ván cờ.
+- **Xác nhận:** Khi người dùng bấm **`[Bắt đầu Giải đố]`**, hệ thống lưu điểm ELO đã chọn vào `einkchess_puzzle_elo`, đánh dấu `einkchess_puzzle_setup_done = true`, xóa câu đố dở dang trước đó khỏi `localStorage` (`clearSavedPuzzle`), reset streak về 0, đóng popup, cập nhật điểm ELO trên header và tải ngay câu đố mới từ dải bucket tương ứng với trình độ vừa chọn.
+- **Tái chọn trình độ bất cứ lúc nào:** Người dùng có thể bấm nút **`[Cấp độ (Level)]`** ở thanh footer hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`) trên thanh tiêu đề của trang `puzzles.html` để mở lại popup chọn trình độ; sau khi chọn và xác nhận, hệ thống sẽ hủy câu đố cũ và tải câu đố mới phù hợp với level mới.
 
 ---
 
@@ -387,8 +388,8 @@
   - [x] Hỗ trợ các chế độ: `node scripts/build-puzzles.js` (đọc .zst local), `--fetch-lichess` (download từ Lichess), `--count=N` (tùy biến số lượng), `--clean-only` (xóa sạch thư mục).
   - [x] GitHub Actions weekly cron & manual trigger (`.github/workflows/refresh-puzzles.yml`): tự động xoay vòng bộ puzzle mỗi thứ Hai hoặc bấm nút Run workflow thủ công với các tham số tùy chọn.
 - **Giao diện `puzzles.html`:**
-  - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, status bar hiển thị lượt đi, board container, action bar).
-  - [x] Nút hành động: Gợi ý (♙ Hint), Bỏ qua (Skip), Tiếp theo (Next). Không dùng emoji tránh lỗi font Kindle.
+  - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, status bar hiển thị lượt đi, board container, action bar 5 cột: Level, Refresh, Puzzle Meta, Hint, Skip/Next).
+  - [x] Nút hành động: Cấp độ (Level), Làm mới (Refresh), Gợi ý (♙ Hint), Bỏ qua (Skip), Tiếp theo (Next). Không dùng emoji tránh lỗi font Kindle.
   - [x] Modal hoàn thành gọn nhẹ (`max-width: 320px`, căn giữa) hiển thị kết quả ELO thay đổi.
   - [x] Scripts load order: `chess-engine.js` → `chess-storage.js` → `chess-i18n.js` → `chess-backend.js` → `chess-board.js` → `manifest.js` → `chess-puzzles.js`.
 - **Logic `js/chess-puzzles.js` (ES5 thuần):**
@@ -406,7 +407,7 @@
   - [x] Thêm STORAGE_KEYS: `PUZZLE_STREAK`, `PLAYED_PUZZLES`, `SAVED_PUZZLE`.
   - [x] Thêm hàm: `getPuzzleStreak()`, `setPuzzleStreak()`, `getPlayedPuzzles()`, `getPlayedPuzzlesHash()` (O(1) lookup), `addPlayedPuzzle(id)` (giới hạn 5000 ID gần nhất), `clearPlayedPuzzles()`, `savePuzzle(state)`, `getSavedPuzzle()`, `clearSavedPuzzle()`.
 - **Cập nhật `js/chess-i18n.js`:**
-  - [x] Thêm các key dịch VI/EN cho Puzzle Mode: `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.status_skipped`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.hint_solved_msg`, `puzzle.confirm_hint_title`, `puzzle.confirm_hint_body`, `puzzle.btn_confirm_hint`, `puzzle.confirm_skip_title`, `puzzle.confirm_skip_body`, `puzzle.btn_confirm_skip`, `puzzle.elo_change`.
+  - [x] Thêm các key dịch VI/EN cho Puzzle Mode: `puzzle.btn_level`, `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.status_skipped`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.hint_solved_msg`, `puzzle.confirm_hint_title`, `puzzle.confirm_hint_body`, `puzzle.btn_confirm_hint`, `puzzle.confirm_skip_title`, `puzzle.confirm_skip_body`, `puzzle.btn_confirm_skip`, `puzzle.elo_change`.
   - [x] Thêm hàm alias `getTranslation(key, params)` → `this.t(key, params)`.
 - **Cập nhật `index.html`:**
   - [x] Nút "Bắt đầu Giải đố" trỏ trực tiếp `window.location.href='puzzles.html'` (thay vì mở modal "coming soon").

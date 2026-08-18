@@ -39,9 +39,17 @@
         <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
         <div class="board-container" id="board-container"></div>
 
-        <!-- 4. ACTION BAR (4 COLUMNS: PUZZLE INFO, HINT, SKIP/NEXT, REFRESH) -->
+        <!-- 4. ACTION BAR (5 COLUMNS: LEVEL, REFRESH, PUZZLE INFO, HINT, SKIP/NEXT) -->
         <div class="action-bar action-bar-grid">
             <div class="action-bar-row">
+                <div class="action-bar-cell">
+                    <button class="btn" id="btn-level" onclick="PuzzleManager.openSkillModal()"
+                        data-i18n="puzzle.btn_level">Level</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="btn" id="btn-refresh" onclick="PuzzleManager.refreshScreen()"
+                        data-i18n="game.btn_refresh">Refresh</button>
+                </div>
                 <div class="action-bar-cell">
                     <span id="puzzle-meta" class="puzzle-meta-box">-</span>
                 </div>
@@ -54,9 +62,6 @@
                         data-i18n="puzzle.btn_skip">Skip</button>
                     <button class="btn btn-primary" id="btn-next" style="display: none;"
                         onclick="PuzzleManager.nextPuzzle()" data-i18n="puzzle.btn_next">Next</button>
-                </div>
-                <div class="action-bar-cell">
-                    <button class="btn" onclick="PuzzleManager.refreshScreen()" data-i18n="game.btn_refresh">Refresh</button>
                 </div>
             </div>
         </div>
@@ -187,11 +192,11 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
     <script src="js/chess-storage.js?v=15"></script>
-    <script src="js/chess-i18n.js?v=24"></script>
+    <script src="js/chess-i18n.js?v=25"></script>
     <script src="js/chess-backend.js?v=11"></script>
     <script src="js/chess-board.js?v=16"></script>
     <script src="data/puzzles/manifest.js?v=20260817"></script>
-    <script src="js/chess-puzzles.js?v=20"></script>
+    <script src="js/chess-puzzles.js?v=23"></script>
 </body>
 
 </html>

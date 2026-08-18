@@ -129,6 +129,7 @@
             'stats.total_pageviews_all_time': 'Tổng lượt truy cập tích lũy',
             'stats.desc_info': 'Dữ liệu được thống kê tự động thông qua SQL View từ bảng active_pings trên hệ thống Supabase của EinkChess.',
 
+            'puzzle.btn_level': 'Cấp độ',
             'puzzle.btn_hint': '♙ Gợi ý',
             'puzzle.btn_skip': 'Bỏ qua',
             'puzzle.btn_next': 'Tiếp theo',
@@ -290,6 +291,7 @@
             'stats.total_pageviews_all_time': 'Total Pageviews (All time)',
             'stats.desc_info': 'Data is compiled automatically via a database view in the Supabase instance of EinkChess.',
 
+            'puzzle.btn_level': 'Level',
             'puzzle.btn_hint': '♙ Hint',
             'puzzle.btn_skip': 'Skip',
             'puzzle.btn_next': 'Next',
