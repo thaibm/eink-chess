@@ -171,7 +171,8 @@
   - **Tự động mở Pull Request (`auto/refresh-puzzles`):** Do nhánh `main` được bảo vệ (branch protection), GitHub Action tự động tạo PR để chủ dự án review và merge an toàn thay vì push trực tiếp.
   - Hỗ trợ lệnh CLI cục bộ: `npm run puzzles:fetch` (tải trực tiếp từ Lichess), `npm run puzzles:build` (build từ file `.zst` local), và `npm run puzzles:clean`.
   - Tự động cập nhật query param version trong `puzzles.html` (`manifest.js?v=TIMESTAMP`) và gắn query param `?v=` khi XHR fetch JSON để chống cache trên trình duyệt E-ink/Kindle.
-- Phân bổ dải ELO câu đố rộng từ **400 đến 2800** (25 dải, Đủ mọi cấp từ dễ đến siêu khó).
+- Phân bổ dải ELO câu đố rộng từ **400 đến 3400** (31 dải, Đủ mọi cấp từ dễ đến siêu khó, kiện tướng và siêu đại kiện tướng).
+- **Bộ lọc RatingDeviation linh hoạt:** Áp dụng `RatingDeviation <= 100` cho ELO < 3000 để lọc câu đố chuẩn xác, và mở rộng `RatingDeviation <= 300` cho các câu đố ELO đỉnh cao $\ge 3000$ để thu thập tối đa các thế cờ hiếm từ Kiện tướng / Siêu máy tính.
 - **Cơ chế ghép thế cờ & Tự động đổi bucket theo ELO:** Hệ thống tự động lấy câu đố có rating xấp xỉ điểm **Puzzle ELO** hiện tại của người dùng (làm tròn xuống mốc 100). Mỗi khi tải trang hoặc chuyển sang câu đố tiếp theo (`nextPuzzle()`), hệ thống đọc lại điểm ELO mới nhất trong Storage, tự động tính lại bucket (`Math.floor(elo / 100) * 100`) và thực hiện tải file JSON mới tương ứng với dải ELO mới nếu người dùng tăng/giảm vượt mốc 100 điểm. Client random chọn 1 file ~28KB từ folder bucket tương ứng.
 
 #### B. Quy trình Gameplay (Flow):
@@ -227,12 +228,15 @@
 
 #### G. Chọn Trình độ Khởi đầu và Tái Chọn Trình Độ (Puzzle Skill Selection):
 - **Cơ chế Onboarding:** Khi người dùng lần đầu tiên truy cập chế độ Giải đố (`puzzles.html` hoặc click từ `index.html`), nếu chưa từng thiết lập trình độ ban đầu (`einkchess_puzzle_setup_done` chưa được lưu), hệ thống sẽ tự động hiển thị popup **`[CHỌN TRÌNH ĐỘ KHỞI ĐẦU]`** trước khi tải câu đố.
-- **Tùy chọn trình độ:** Cung cấp 5 mức độ rõ ràng, thân thiện cho màn hình E-ink:
+- **Tùy chọn trình độ:** Cung cấp 8 mức độ rõ ràng, thân thiện cho màn hình E-ink:
   1. **Cấp 1 (~400 ELO):** Mới chơi / Beginner (*Mặc định / Dễ nhất*).
   2. **Cấp 2 (~800 ELO):** Tập sự / Casual (Biết luật cơ bản).
   3. **Cấp 3 (~1200 ELO):** Trung bình / Intermediate (Nắm vững chiến thuật).
   4. **Cấp 4 (~1600 ELO):** Nâng cao / Advanced (Chiến thuật phức tạp).
-  5. **Cấp 5 (~2000 ELO):** Chuyên gia / Master (Thử thách đỉnh cao).
+  5. **Cấp 5 (~2000 ELO):** Chuyên gia / Expert (Thế cờ bán chuyên).
+  6. **Cấp 6 (~2400 ELO):** Kiện tướng / Master (Đòn phối hợp đỉnh cao).
+  7. **Cấp 7 (~2800 ELO):** Đại kiện tướng / Grandmaster (Thử thách siêu cấp).
+  8. **Cấp 8 (~3100+ ELO):** Huyền thoại / Super GM (Đỉnh cao tối thượng).
 - **Mặc định:** Chọn sẵn mức dễ nhất (**400 ELO - Mới chơi**).
 - **Xác nhận:** Khi người dùng bấm **`[Bắt đầu Giải đố]`**, hệ thống lưu điểm ELO đã chọn vào `einkchess_puzzle_elo`, đánh dấu `einkchess_puzzle_setup_done = true`, xóa câu đố dở dang trước đó khỏi `localStorage` (`clearSavedPuzzle`), reset streak về 0, đóng popup, cập nhật điểm ELO trên header và tải ngay câu đố mới từ dải bucket tương ứng với trình độ vừa chọn.
 - **Tái chọn trình độ bất cứ lúc nào:** Người dùng có thể bấm nút **`[Cấp độ (Level)]`** ở thanh footer hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`) trên thanh tiêu đề của trang `puzzles.html` để mở lại popup chọn trình độ; sau khi chọn và xác nhận, hệ thống sẽ hủy câu đố cũ và tải câu đố mới phù hợp với level mới.

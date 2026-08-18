@@ -168,7 +168,13 @@
             'puzzle.skill_lvl4_name': 'Nâng cao (~1600 ELO)',
             'puzzle.skill_lvl4_desc': 'Chiến thuật phức tạp',
             'puzzle.skill_lvl5_name': 'Chuyên gia (~2000 ELO)',
-            'puzzle.skill_lvl5_desc': 'Thử thách đỉnh cao',
+            'puzzle.skill_lvl5_desc': 'Thế cờ bán chuyên',
+            'puzzle.skill_lvl6_name': 'Kiện tướng (~2400 ELO)',
+            'puzzle.skill_lvl6_desc': 'Đòn phối hợp đỉnh cao',
+            'puzzle.skill_lvl7_name': 'Đại kiện tướng (~2800 ELO)',
+            'puzzle.skill_lvl7_desc': 'Thử thách siêu cấp',
+            'puzzle.skill_lvl8_name': 'Huyền thoại (~3100+ ELO)',
+            'puzzle.skill_lvl8_desc': 'Đỉnh cao tối thượng',
             'puzzle.btn_start_puzzle': 'Bắt đầu Giải đố'
         },
         en: {
@@ -329,8 +335,14 @@
             'puzzle.skill_lvl3_desc': 'Solid tactical knowledge',
             'puzzle.skill_lvl4_name': 'Advanced (~1600 ELO)',
             'puzzle.skill_lvl4_desc': 'Complex combinations',
-            'puzzle.skill_lvl5_name': 'Master (~2000 ELO)',
-            'puzzle.skill_lvl5_desc': 'Peak challenge',
+            'puzzle.skill_lvl5_name': 'Expert (~2000 ELO)',
+            'puzzle.skill_lvl5_desc': 'Semi-pro tactics',
+            'puzzle.skill_lvl6_name': 'Master (~2400 ELO)',
+            'puzzle.skill_lvl6_desc': 'High-level master play',
+            'puzzle.skill_lvl7_name': 'Grandmaster (~2800 ELO)',
+            'puzzle.skill_lvl7_desc': 'Grandmaster tier challenge',
+            'puzzle.skill_lvl8_name': 'Super GM (~3100+ ELO)',
+            'puzzle.skill_lvl8_desc': 'Ultimate elite puzzle',
             'puzzle.btn_start_puzzle': 'Start Puzzles'
         }
     };

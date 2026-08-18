@@ -68,10 +68,10 @@
 
         <!-- 5. INITIAL PUZZLE SKILL LEVEL MODAL (FIRST-TIME ONBOARDING) -->
         <div id="skill-modal" class="modal-overlay" onclick="if(event.target===this) PuzzleManager.closeSkillModal()">
-            <div class="modal-box" style="max-width: 360px; margin-top: 8vh; padding: 14px;">
+            <div class="modal-box" style="max-width: 360px; margin-top: 3vh; padding: 12px;">
                 <div class="modal-title" data-i18n="puzzle.skill_modal_title" style="text-align: center;">CHOOSE STARTING SKILL</div>
-                <div class="modal-body" style="font-size: 13px; padding: 6px 0;">
-                    <div style="margin-bottom: 8px;" data-i18n="puzzle.skill_modal_desc">Choose a level suited to your chess skill to start solving puzzles:</div>
+                <div class="modal-body" style="font-size: 13px; padding: 4px 0; max-height: 62vh; overflow-y: auto;">
+                    <div style="margin-bottom: 6px;" data-i18n="puzzle.skill_modal_desc">Choose a level suited to your chess skill to start solving puzzles:</div>
                     <div id="puzzle-skill-list" class="puzzle-skill-list">
                         <button type="button" class="puzzle-skill-btn active" data-elo="400"
                             onclick="PuzzleManager.selectSkillLevel(400)">
@@ -98,9 +98,24 @@
                             <strong data-i18n="puzzle.skill_lvl5_name">Expert (~2000 ELO)</strong> — <span
                                 data-i18n="puzzle.skill_lvl5_desc">Master challenges</span>
                         </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="2400"
+                            onclick="PuzzleManager.selectSkillLevel(2400)">
+                            <strong data-i18n="puzzle.skill_lvl6_name">Master (~2400 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl6_desc">High-level master play</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="2800"
+                            onclick="PuzzleManager.selectSkillLevel(2800)">
+                            <strong data-i18n="puzzle.skill_lvl7_name">Grandmaster (~2800 ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl7_desc">Grandmaster tier challenge</span>
+                        </button>
+                        <button type="button" class="puzzle-skill-btn" data-elo="3100"
+                            onclick="PuzzleManager.selectSkillLevel(3100)">
+                            <strong data-i18n="puzzle.skill_lvl8_name">Super GM (~3100+ ELO)</strong> — <span
+                                data-i18n="puzzle.skill_lvl8_desc">Ultimate elite puzzle</span>
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 10px;">
+                <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 8px;">
                     <button class="btn btn-primary btn-block" onclick="PuzzleManager.confirmSkillLevel()"
                         data-i18n="puzzle.btn_start_puzzle" style="font-size: 15px; padding: 10px 8px; margin: 0;">Start Puzzles</button>
                 </div>
@@ -192,11 +207,11 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
     <script src="js/chess-storage.js?v=15"></script>
-    <script src="js/chess-i18n.js?v=25"></script>
+    <script src="js/chess-i18n.js?v=27"></script>
     <script src="js/chess-backend.js?v=11"></script>
     <script src="js/chess-board.js?v=16"></script>
-    <script src="data/puzzles/manifest.js?v=20260817"></script>
-    <script src="js/chess-puzzles.js?v=23"></script>
+    <script src="data/puzzles/manifest.js?v=20260818105644"></script>
+    <script src="js/chess-puzzles.js?v=25"></script>
 </body>
 
 </html>

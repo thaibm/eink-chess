@@ -24,9 +24,9 @@
   - Hỗ trợ nút **Đi lại (Undo)** và **Đầu hàng (Resign)** có popup xác nhận tránh chạm nhầm.
   - Popup chọn cấp độ & bên cầm quân trước khi vào bàn cờ.
 - **Giải Đố Cờ Thế (Tactics Puzzle Mode - Lichess Database):**
-  - Hơn 25 dải ELO (từ 400 đến 2800) trích xuất từ Lichess Open Database.
+  - 31 dải ELO (từ 400 đến 3400) trích xuất từ Lichess Open Database.
   - Tự động điều chỉnh độ khó và ghép thế cờ thích ứng theo điểm **Puzzle ELO** của người chơi.
-  - Setup trình độ khởi đầu (Onboarding 5 cấp độ từ 400 đến 2000 ELO) khi mới bắt đầu.
+  - Setup trình độ khởi đầu (Onboarding 8 cấp độ từ 400 đến 3100+ ELO) khi mới bắt đầu hoặc chọn lại bất kỳ lúc nào.
   - Hệ thống tính điểm ELO chuẩn xác (Proportional rating system) và đếm chuỗi giải đúng (Streak).
   - Hỗ trợ nút **Gợi ý (Hint)**, nút **Bỏ qua (Skip)** có xác nhận trừ điểm, và tự động lưu/khôi phục tiến độ câu đố (chống gian lận/reload).
   - Hiển thị badge mã thế cờ (`#PuzzleId · ELO`), chủ đề chiến thuật (Themes), và link phân tích ván đấu Lichess.
@@ -64,9 +64,9 @@
   - Safe actions with **Undo** and **Resign** buttons requiring confirmation popups to prevent accidental taps.
   - Interactive setup dialog to choose game settings (side and difficulty) before starting.
 - **Chess Tactics Puzzles (Lichess Database):**
-  - Sourced from the Lichess Open Database spanning 25 ELO buckets from 400 to 2800.
+  - Sourced from the Lichess Open Database spanning 31 ELO buckets from 400 to 3400.
   - Elo-adaptive puzzle matchmaking automatically delivering puzzles matching your current rating.
-  - Initial skill selection onboarding (5 levels from 400 to 2000 ELO) for first-time players.
+  - Initial skill selection onboarding (8 levels from 400 to 3100+ ELO) for players of all strengths.
   - Proportional ELO scoring system and winning streak tracking.
   - Interactive actions including **Hint**, **Skip** (with confirmation & proportional penalty), and in-progress puzzle auto-save / resume (anti-cheat).
   - Puzzle badges (`#PuzzleId · ELO`), tactical themes, and direct Lichess analysis board links.

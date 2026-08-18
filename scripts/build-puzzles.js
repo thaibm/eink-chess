@@ -18,8 +18,9 @@ var ZST_FILE = path.join(__dirname, '..', 'lichess_db_puzzle.csv.zst');
 var PUZZLES_PER_BUCKET = 200;   // Default puzzles per ELO bucket
 var PUZZLES_PER_FILE = 100;     // Puzzles per JSON file
 var MIN_ELO = 400;
-var MAX_ELO = 2800;
-var MAX_RD = 100;               // RatingDeviation <= 100
+var MAX_ELO = 3400;
+var MAX_RD = 100;               // RatingDeviation <= 100 for ELO < 3000
+var MAX_RD_HIGH_ELO = 300;      // Relaxed RD <= 300 for ELO >= 3000 (allows rare high-rated puzzles)
 
 // --- Parse CLI args ---
 var fetchLichess = process.argv.indexOf('--fetch-lichess') !== -1;
@@ -257,7 +258,7 @@ getInputStream(function(inputStream) {
     var totalProcessed = 0;
     var totalQualifying = 0;
 
-    console.log('Filtering: RatingDeviation <= ' + MAX_RD + ', ELO range ' + MIN_ELO + '-' + MAX_ELO);
+    console.log('Filtering: RatingDeviation <= ' + MAX_RD + ' (<= ' + MAX_RD_HIGH_ELO + ' for ELO>=3000), ELO range ' + MIN_ELO + '-' + MAX_ELO);
     console.log('Sampling: ' + PUZZLES_PER_BUCKET + ' puzzles/bucket (reservoir sampling)');
     console.log('Processing...\n');
 
@@ -279,7 +280,8 @@ getInputStream(function(inputStream) {
         var rd = parseInt(parts[4], 10);
 
         // Fast reject before creating object
-        if (rd > MAX_RD) return;
+        var maxRd = rating >= 3000 ? MAX_RD_HIGH_ELO : MAX_RD;
+        if (rd > maxRd) return;
         var bucket = getBucket(rating);
         if (bucket === -1) return;
 
@@ -302,7 +304,7 @@ getInputStream(function(inputStream) {
     rl.on('close', function() {
         process.stdout.write('\r');
         console.log('Processed ' + totalProcessed + ' total lines.');
-        console.log('Qualifying puzzles (RD<=' + MAX_RD + '): ' + totalQualifying);
+        console.log('Qualifying puzzles: ' + totalQualifying);
         writeOutput();
     });
 });

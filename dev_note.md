@@ -135,14 +135,14 @@ Vercel là một nền tảng tuyệt vời để lưu trữ và quản lý tên
 ### Kiến trúc Folder-Based + Weekly Rotation
 ```
 data/puzzles/
-├── manifest.js          ← var PUZZLE_MANIFEST = {"400":2,"500":2,...,"2800":2};
+├── manifest.js          ← var PUZZLE_MANIFEST = {"400":2,"500":2,...,"3400":2};
 ├── 400/
 │   ├── 001.json         ← 100 puzzles, ~28KB
 │   └── 002.json
-├── 500/ ... └── 2800/   ← 25 folders (400→2800, mỗi mốc 100)
+├── 500/ ... └── 3400/   ← 31 folders (400→3400, mỗi mốc 100)
 ```
 
-- **Tổng:** 5,000 puzzles / 50 files / 25 buckets / ~1.2 MB
+- **Tổng:** ~6,200 puzzles / 62 files / 31 buckets / ~1.5 MB
 - **Ngân hàng gốc:** ~5.3 triệu câu đố (RD ≤ 100)
 - **Xoay vòng tự động:** GitHub Actions chạy mỗi thứ Hai, random sample bộ mới
 
@@ -159,7 +159,7 @@ Script `scripts/build-puzzles.js` sẽ:
 1. Đọc CSV stream từ file `.zst` local (mặc định) hoặc download từ Lichess (`--fetch-lichess`).
 2. Lọc câu đố chất lượng cao: `RatingDeviation ≤ 100`.
 3. Reservoir sampling: random chọn tối đa **200 câu/bucket** từ ~5.3M câu đố.
-4. Chia thành 25 dải ELO (400→2800), ghi `data/puzzles/{ELO}/{NNN}.json` (100 câu/file).
+4. Chia thành 31 dải ELO (400→3400), ghi `data/puzzles/{ELO}/{NNN}.json` (100 câu/file).
 5. Ghi `data/puzzles/manifest.js` chứa số lượng file mỗi bucket.
 
 ### Tự động hóa (GitHub Actions)

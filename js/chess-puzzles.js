@@ -49,7 +49,7 @@
 
         // ELO bucket range
         MIN_BUCKET: 400,
-        MAX_BUCKET: 2800,
+        MAX_BUCKET: 3400,
         selectedInitialElo: 400,
 
         init: function() {
@@ -98,7 +98,7 @@
             if (typeof document === 'undefined') return;
             var storage = getStorage();
             var curElo = storage ? storage.getPuzzleElo() : 400;
-            var buckets = [400, 800, 1200, 1600, 2000];
+            var buckets = [400, 800, 1200, 1600, 2000, 2400, 2800, 3100];
             var closestElo = buckets[0];
             var minDiff = Math.abs(curElo - buckets[0]);
             for (var i = 1; i < buckets.length; i++) {
