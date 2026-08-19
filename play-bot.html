@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=47">
+    <link rel="stylesheet" href="css/einkchess.css?v=50">
 </head>
 
 <body>
@@ -16,9 +16,11 @@
             <div class="header-top">
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
                 <div class="header-center">
-                    <span class="elo-badge" id="bot-elo-badge">ELO: 1600</span>
-                    <span id="bot-level-name" style="font-weight: normal; font-size: 12px;">(Bot Lvl 1 - ELO
-                        ~800)</span>
+                    <button type="button" class="header-status-btn" onclick="openSetupModal()" title="Bot Match Setup">
+                        <span class="header-elo-text" id="bot-elo-badge">ELO: 1600</span>
+                        <span class="header-divider">·</span>
+                        <span class="header-sub-text" id="bot-level-name">(Bot Lvl 1 - ELO ~800)</span>
+                    </button>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
@@ -168,7 +170,7 @@
     <script src="js/chess-engine.js?v=8"></script>
     <script src="js/chess-ai.js?v=8"></script>
     <script src="js/chess-storage.js?v=16"></script>
-    <script src="js/chess-i18n.js?v=29"></script>
+    <script src="js/chess-i18n.js?v=33"></script>
     <script src="js/chess-board.js?v=16"></script>
     <script src="js/chess-backend.js?v=11"></script>
 

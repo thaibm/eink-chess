@@ -200,13 +200,16 @@
 #### C. Hiển thị Thông tin Câu đố & Thống kê Người chơi (Puzzle Meta & Player Stats Modal):
 - **Nút Thông tin Thế cờ (#puzzle-meta - Action Bar Cột 3):** Hiển thị ngắn gọn thông tin câu đố dạng nút bấm (`#PuzzleId · ELO`, ví dụ: `#Xvpch · 1598 ELO`).
   - Khi người chơi click vào nút `#puzzle-meta`, hiển thị popup Modal **Thông tin Thế cờ & Kỷ lục Người chơi** (`#puzzle-info-modal`):
-    - **Phần 1 - Thống kê Người chơi (Nhấn mạnh ELO):**
-      - Thẻ ELO Người chơi với viền dày, tương phản cao, số điểm to rõ ràng kèm icon `♟`.
-      - Chuỗi giải đúng hiện tại (`Current Streak`) kèm icon `🔥`.
-      - Kỷ lục chuỗi cao nhất (`Max/Best Streak`) kèm icon `🏆`.
+    - **Phần 1 - Thống kê Người chơi (Nhấn mạnh ELO & Cấp độ):**
+      - Thẻ ELO Người chơi (`.player-elo-banner`) với viền dày, tương phản cao, số điểm to rõ ràng kèm icon `♟`.
+      - Huy hiệu Cấp độ Hành trình (`.player-elo-banner-level`, `#info-modal-journey-level`): Nằm tích hợp trực quan ngay dưới điểm ELO, hiển thị ngắn gọn cấp độ tương ứng (ví dụ: `★ Level 1: Beginner` / `★ Cấp 1: Mới chơi`).
+      - Chuỗi giải đúng hiện tại (`Current Streak`) kèm icon vector lửa.
+      - Kỷ lục chuỗi cao nhất (`Max/Best Streak`) kèm icon vector cúp.
     - **Phần 2 - Thông tin Thế cờ hiện tại:** Mã câu đố (`#PuzzleId`), Độ khó thế cờ (`Rating ELO`), Bên bạn cầm quân (`White/Black`), Chủ đề đòn thế chiến thuật (`Themes`).
     - Nút bấm `[Đóng (Close)]`.
-- **Nhấn mạnh ELO Người chơi trên Header:** Huy hiệu ELO (`#puzzle-elo-badge`) được thiết kế nổi bật với viền 2px tương phản cao, font đậm nét để người chơi dễ dàng theo dõi chỉ số ELO cờ thế của mình.
+- **Nút Trạng thái Thống nhất trên Header (.header-status-btn):**
+  - **Màn Giải cờ thế (`puzzles.html`):** Gộp ELO và Chuỗi (`Streak`) vào 1 nút bấm trung tâm (`[ ELO: 400 · Streak: 0 ]`). Khi bấm mở ngay modal Hành trình giải cờ thế (`#skill-modal`).
+  - **Màn Đấu Bot (`play-bot.html`):** Gộp Bot ELO và Cấp độ Bot vào 1 nút bấm trung tâm (`[ ELO: 1600 · (Bot Lvl 1 - ELO ~800) ]`). Khi bấm mở modal Cài đặt ván đấu (`#setup-modal`).
 - **Trong Modal Hoàn thành (#gameover-modal):** Hiển thị kết quả giải đố, biến động ELO, và danh sách chủ đề đòn thế (`Themes`). Không hiển thị liên kết ra ngoài để tối ưu trải nghiệm tập trung.
 
 #### D. Quy tắc tính điểm ELO Puzzle (Proportional System):
@@ -259,6 +262,7 @@
   - Mỗi khi người chơi giải đố thành công và điểm ELO tăng vượt ngưỡng của cấp độ tiếp theo, cấp độ mới sẽ được tự động mở khóa và lưu vào `einkchess_puzzle_max_unlocked_lvl`.
 - **Chuyển đổi linh hoạt giữa các Level đã mở:**
   - Người chơi có thể tự do mở modal Hành trình (`#skill-modal`) qua nút **`[Hành trình (Journey)]`** hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`).
+  - Modal Footer bố trí 2 nút bấm: Nút **`[Đóng (Close)]`** màu đen nổi bật (Primary) giúp người dùng an tâm đóng modal mà không đổi trạng thái; Nút **`[Bắt đầu Hành trình mới (Start New Journey)]`** viền trắng (Secondary) chỉ dùng khi người chơi chủ động muốn chọn lại cấp độ và khởi tạo lại điểm ELO.
   - Khi chọn chuyển về level thấp hơn (VD: đang ở Level 4 chuyển về Level 1), điểm ELO hiện tại được đặt về mốc của Level 1 (400 ELO) để giải đố từ đầu, nhưng **không làm mất cấp độ cao nhất đã mở khóa (`max_unlocked_level = 4`)**. Người chơi vẫn có thể mở lại Journey để chuyển đến các cấp độ 2, 3, 4 bất cứ lúc nào.
 
 ---

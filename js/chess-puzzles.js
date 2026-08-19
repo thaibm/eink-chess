@@ -53,14 +53,14 @@
         selectedInitialElo: 400,
 
         SKILL_LEVELS: [
-            { level: 1, elo: 400, nameKey: 'puzzle.skill_lvl1_name', descKey: 'puzzle.skill_lvl1_desc' },
-            { level: 2, elo: 800, nameKey: 'puzzle.skill_lvl2_name', descKey: 'puzzle.skill_lvl2_desc' },
-            { level: 3, elo: 1200, nameKey: 'puzzle.skill_lvl3_name', descKey: 'puzzle.skill_lvl3_desc' },
-            { level: 4, elo: 1600, nameKey: 'puzzle.skill_lvl4_name', descKey: 'puzzle.skill_lvl4_desc' },
-            { level: 5, elo: 2000, nameKey: 'puzzle.skill_lvl5_name', descKey: 'puzzle.skill_lvl5_desc' },
-            { level: 6, elo: 2400, nameKey: 'puzzle.skill_lvl6_name', descKey: 'puzzle.skill_lvl6_desc' },
-            { level: 7, elo: 2800, nameKey: 'puzzle.skill_lvl7_name', descKey: 'puzzle.skill_lvl7_desc' },
-            { level: 8, elo: 3100, nameKey: 'puzzle.skill_lvl8_name', descKey: 'puzzle.skill_lvl8_desc' }
+            { level: 1, elo: 400, titleKey: 'puzzle.skill_lvl1_title', nameKey: 'puzzle.skill_lvl1_name', descKey: 'puzzle.skill_lvl1_desc' },
+            { level: 2, elo: 800, titleKey: 'puzzle.skill_lvl2_title', nameKey: 'puzzle.skill_lvl2_name', descKey: 'puzzle.skill_lvl2_desc' },
+            { level: 3, elo: 1200, titleKey: 'puzzle.skill_lvl3_title', nameKey: 'puzzle.skill_lvl3_name', descKey: 'puzzle.skill_lvl3_desc' },
+            { level: 4, elo: 1600, titleKey: 'puzzle.skill_lvl4_title', nameKey: 'puzzle.skill_lvl4_name', descKey: 'puzzle.skill_lvl4_desc' },
+            { level: 5, elo: 2000, titleKey: 'puzzle.skill_lvl5_title', nameKey: 'puzzle.skill_lvl5_name', descKey: 'puzzle.skill_lvl5_desc' },
+            { level: 6, elo: 2400, titleKey: 'puzzle.skill_lvl6_title', nameKey: 'puzzle.skill_lvl6_name', descKey: 'puzzle.skill_lvl6_desc' },
+            { level: 7, elo: 2800, titleKey: 'puzzle.skill_lvl7_title', nameKey: 'puzzle.skill_lvl7_name', descKey: 'puzzle.skill_lvl7_desc' },
+            { level: 8, elo: 3100, titleKey: 'puzzle.skill_lvl8_title', nameKey: 'puzzle.skill_lvl8_name', descKey: 'puzzle.skill_lvl8_desc' }
         ],
 
         init: function() {
@@ -176,6 +176,17 @@
             }
         },
 
+        getCurrentLevel: function(elo) {
+            var curElo = (typeof elo === 'number') ? elo : (getStorage() ? getStorage().getPuzzleElo() : 400);
+            var matched = this.SKILL_LEVELS[0];
+            for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
+                if (curElo >= this.SKILL_LEVELS[i].elo) {
+                    matched = this.SKILL_LEVELS[i];
+                }
+            }
+            return matched;
+        },
+
         openPuzzleInfoModal: function() {
             if (typeof document === 'undefined') return;
             var modal = document.getElementById('puzzle-info-modal');
@@ -187,6 +198,8 @@
             var playerElo = storage ? storage.getPuzzleElo() : 400;
             var currentStreak = storage ? storage.getPuzzleStreak() : 0;
             var maxStreak = storage ? storage.getMaxPuzzleStreak() : 0;
+            var curLevelObj = this.getCurrentLevel(playerElo);
+            var curLevelName = i18n ? i18n.t(curLevelObj.titleKey || curLevelObj.nameKey) : ('Level ' + curLevelObj.level);
 
             var pId = (this.currentPuzzle && this.currentPuzzle.PuzzleId) ? ('#' + this.currentPuzzle.PuzzleId) : '-';
             var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? (this.currentPuzzle.Rating + ' ELO') : '-';
@@ -208,6 +221,7 @@
             var eloEl = document.getElementById('info-modal-player-elo');
             var streakEl = document.getElementById('info-modal-current-streak');
             var maxStreakEl = document.getElementById('info-modal-max-streak');
+            var jLvlEl = document.getElementById('info-modal-journey-level');
             var pIdEl = document.getElementById('info-modal-puzzle-id');
             var pEloEl = document.getElementById('info-modal-puzzle-elo');
             var pSideEl = document.getElementById('info-modal-player-side');
@@ -216,6 +230,7 @@
             if (eloEl) eloEl.innerText = playerElo;
             if (streakEl) streakEl.innerText = currentStreak;
             if (maxStreakEl) maxStreakEl.innerText = maxStreak;
+            if (jLvlEl) jLvlEl.innerText = '★ ' + curLevelName;
             if (pIdEl) pIdEl.innerText = pId;
             if (pEloEl) pEloEl.innerText = pElo;
             if (pSideEl) pSideEl.innerText = sideTxt;

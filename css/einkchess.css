@@ -103,6 +103,51 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Unified Header Status Button (ELO + Streak / Level) */
+.header-status-btn {
+    display: inline-block;
+    background-color: #ffffff;
+    border: 2px solid #000000 !important;
+    padding: 2px 8px;
+    margin: 0;
+    cursor: pointer;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 18px;
+    color: #000000;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+.header-status-btn:active {
+    background-color: #e0e0e0 !important;
+}
+
+.header-status-btn .header-elo-text {
+    font-size: 13px;
+    font-weight: 900;
+    display: inline-block;
+}
+
+.header-status-btn .header-divider {
+    display: inline-block;
+    margin: 0 4px;
+    color: #444444;
+    font-weight: bold;
+}
+
+.header-status-btn .header-sub-text {
+    font-size: 12px;
+    font-weight: normal;
+    color: #222222;
+    display: inline-block;
+}
+
 /* --- 4. Buttons & Controls (Kindle Optimized) --- */
 button,
 .btn {
@@ -850,6 +895,18 @@ button,
     letter-spacing: 1px;
     color: #000000;
     line-height: 1.2;
+}
+
+.player-elo-banner-level {
+    font-size: 13px;
+    font-weight: bold;
+    color: #222222;
+    margin-top: 5px;
+    display: inline-block;
+    padding: 2px 10px;
+    border: 1px solid #444444;
+    background-color: #ffffff;
+    letter-spacing: 0.3px;
 }
 
 .player-stats-grid {

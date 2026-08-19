@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Chess Puzzles on Kindle - EinkChess">
     <title>Chess Puzzles - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=49">
+    <link rel="stylesheet" href="css/einkchess.css?v=50">
 </head>
 
 <body>
@@ -16,9 +16,12 @@
             <div class="header-top">
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
                 <div class="header-center">
-                    <span class="elo-badge puzzle-elo-highlight" id="puzzle-elo-badge" onclick="PuzzleManager.openSkillModal()"
-                        style="cursor: pointer;">ELO: 400</span>
-                    <span id="puzzle-streak-name" style="font-weight: normal; font-size: 12px;">Streak: 0</span>
+                    <button type="button" class="header-status-btn" onclick="PuzzleManager.openSkillModal()"
+                        title="Puzzle Journey">
+                        <span class="header-elo-text" id="puzzle-elo-badge">ELO: 400</span>
+                        <span class="header-divider">·</span>
+                        <span class="header-sub-text" id="puzzle-streak-name">Streak: 0</span>
+                    </button>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
@@ -51,7 +54,8 @@
                         data-i18n="game.btn_refresh">Refresh</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button type="button" id="puzzle-meta" class="btn puzzle-meta-box" onclick="PuzzleManager.openPuzzleInfoModal()">-</button>
+                    <button type="button" id="puzzle-meta" class="btn puzzle-meta-box"
+                        onclick="PuzzleManager.openPuzzleInfoModal()">-</button>
                 </div>
                 <div class="action-bar-cell">
                     <button class="btn" id="btn-hint" onclick="PuzzleManager.useHint()" data-i18n="puzzle.btn_hint">♙
@@ -118,9 +122,10 @@
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 8px;">
-                    <button class="btn btn-primary btn-block" onclick="PuzzleManager.confirmSkillLevel()"
-                        data-i18n="puzzle.btn_start_puzzle" style="font-size: 15px; padding: 10px 8px; margin: 0;">Start
-                        Journey</button>
+                    <button type="button" class="btn" onclick="PuzzleManager.confirmSkillLevel()"
+                        data-i18n="puzzle.btn_start_puzzle" style="font-size: 14px; margin-right: 6px;">Start New Journey</button>
+                    <button type="button" class="btn btn-primary" onclick="PuzzleManager.closeSkillModal()"
+                        data-i18n="puzzle.btn_close" style="font-size: 14px; min-width: 80px;">Close</button>
                 </div>
             </div>
         </div>
@@ -183,24 +188,35 @@
         <div id="puzzle-info-modal" class="modal-overlay"
             onclick="if(event.target===this) PuzzleManager.closePuzzleInfoModal()">
             <div class="modal-box" style="max-width: 380px; margin-top: 4vh; padding: 12px;">
-                <div class="modal-title" data-i18n="puzzle.info_modal_title" style="text-align: center;">PUZZLE &amp; PLAYER STATS</div>
+                <div class="modal-title" data-i18n="puzzle.info_modal_title" style="text-align: center;">PUZZLE &amp;
+                    PLAYER STATS</div>
                 <div class="modal-body" style="padding: 4px 0; max-height: 65vh; overflow-y: auto;">
                     <!-- Player Stats Card (Prominent ELO) -->
                     <div class="puzzle-info-card">
-                        <div class="puzzle-info-card-header" data-i18n="puzzle.info_section_player">PLAYER STATISTICS</div>
+                        <div class="puzzle-info-card-header" data-i18n="puzzle.info_section_player">PLAYER STATISTICS
+                        </div>
                         <div class="player-elo-banner">
                             <div class="player-elo-banner-title">
                                 <span>♟ </span><span data-i18n="puzzle.info_player_elo">Your Puzzle ELO</span>
                             </div>
                             <div class="player-elo-banner-score" id="info-modal-player-elo">400</div>
+                            <div class="player-elo-banner-level" id="info-modal-journey-level">★ Level 1: Beginner</div>
                         </div>
                         <div class="player-stats-grid">
                             <div class="player-stat-col">
-                                <span class="player-stat-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: -1px; display: inline-block;"><path d="M13.5 2C13.5 2 13 4.5 11 6.5C9 8.5 7 10 7 13C7 16.31 9.69 19 13 19C16.31 19 19 16.31 19 13C19 9 16 5.5 16 5.5C16 5.5 15.5 7.5 14 8C14 8 15 5 13.5 2Z"/></svg> <span data-i18n="puzzle.info_current_streak">Current Streak:</span></span>
+                                <span class="player-stat-label"><svg width="13" height="13" viewBox="0 0 24 24"
+                                        fill="currentColor" style="vertical-align: -1px; display: inline-block;">
+                                        <path
+                                            d="M13.5 2C13.5 2 13 4.5 11 6.5C9 8.5 7 10 7 13C7 16.31 9.69 19 13 19C16.31 19 19 16.31 19 13C19 9 16 5.5 16 5.5C16 5.5 15.5 7.5 14 8C14 8 15 5 13.5 2Z" />
+                                    </svg> <span data-i18n="puzzle.info_current_streak">Current Streak:</span></span>
                                 <span class="player-stat-value" id="info-modal-current-streak">0</span>
                             </div>
                             <div class="player-stat-col">
-                                <span class="player-stat-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: -1px; display: inline-block;"><path d="M19 5H17V3H7V5H5C3.9 5 3 5.9 3 7V9C3 11.21 4.79 13 7 13H7.5C8.3 14.5 9.8 15.6 11.5 15.9V19H8V21H16V19H12.5V15.9C14.2 15.6 15.7 14.5 16.5 13H17C19.21 13 21 11.21 21 9V7C21 5.9 20.1 5 19 5ZM5 9V7H7V11C5.9 11 5 10.1 5 9ZM19 9C19 10.1 18.1 11 17 11V7H19V9Z"/></svg> <span data-i18n="puzzle.info_max_streak">Best Streak:</span></span>
+                                <span class="player-stat-label"><svg width="13" height="13" viewBox="0 0 24 24"
+                                        fill="currentColor" style="vertical-align: -1px; display: inline-block;">
+                                        <path
+                                            d="M19 5H17V3H7V5H5C3.9 5 3 5.9 3 7V9C3 11.21 4.79 13 7 13H7.5C8.3 14.5 9.8 15.6 11.5 15.9V19H8V21H16V19H12.5V15.9C14.2 15.6 15.7 14.5 16.5 13H17C19.21 13 21 11.21 21 9V7C21 5.9 20.1 5 19 5ZM5 9V7H7V11C5.9 11 5 10.1 5 9ZM19 9C19 10.1 18.1 11 17 11V7H19V9Z" />
+                                    </svg> <span data-i18n="puzzle.info_max_streak">Best Streak:</span></span>
                                 <span class="player-stat-value" id="info-modal-max-streak">0</span>
                             </div>
                         </div>
@@ -230,8 +246,9 @@
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center; border-top: 2px solid #000; padding-top: 8px;">
-                    <button type="button" class="btn btn-primary btn-block" onclick="PuzzleManager.closePuzzleInfoModal()"
-                        data-i18n="puzzle.btn_close" style="font-size: 15px; padding: 10px 8px; margin: 0;">Close</button>
+                    <button type="button" class="btn btn-primary btn-block"
+                        onclick="PuzzleManager.closePuzzleInfoModal()" data-i18n="puzzle.btn_close"
+                        style="font-size: 15px; padding: 10px 8px; margin: 0;">Close</button>
                 </div>
             </div>
         </div>
@@ -271,11 +288,11 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=7"></script>
     <script src="js/chess-storage.js?v=17"></script>
-    <script src="js/chess-i18n.js?v=30"></script>
+    <script src="js/chess-i18n.js?v=33"></script>
     <script src="js/chess-backend.js?v=11"></script>
     <script src="js/chess-board.js?v=16"></script>
     <script src="data/puzzles/manifest.js?v=20260818105644"></script>
-    <script src="js/chess-puzzles.js?v=28"></script>
+    <script src="js/chess-puzzles.js?v=30"></script>
 </body>
 
 </html>

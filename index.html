@@ -7,7 +7,7 @@
     <meta name="description"
         content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
     <title>Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=47">
+    <link rel="stylesheet" href="css/einkchess.css?v=50">
 </head>
 
 <body>
@@ -37,7 +37,8 @@
                     <div class="card-tag" id="bot-card-tag" data-i18n="home.bot_card_tag">Free &amp; Unlimited</div>
                 </div>
                 <div class="card-desc" data-i18n="home.bot_card_desc">
-                    Practice chess against 5 offline Minimax AI bot levels (Beginner, Casual, Club). ELO rating updates after each game.
+                    Practice chess against 5 offline Minimax AI bot levels (Beginner, Casual, Club). ELO rating updates
+                    after each game.
                 </div>
                 <div id="bot-card-actions">
                     <button class="btn btn-primary card-btn" onclick="openHomeSetupModal()"
@@ -49,10 +50,11 @@
             <div class="home-card">
                 <div class="card-header">
                     <div class="card-title" data-i18n="home.puzzle_card_title">Chess Puzzles</div>
-                    <div class="card-tag" data-i18n="home.puzzle_card_tag">500+ Puzzles</div>
+                    <div class="card-tag" data-i18n="home.puzzle_card_tag">5M+ Puzzles</div>
                 </div>
                 <div class="card-desc" data-i18n="home.puzzle_card_desc">
-                    Sharpen your tactical skills with thousands of Lichess puzzles. Automatically adapts to your ELO rating.
+                    Sharpen your tactical skills with thousands of Lichess puzzles. Automatically adapts to your ELO
+                    rating.
                 </div>
                 <button class="btn card-btn" onclick="window.location.href='puzzles.html'"
                     data-i18n="home.puzzle_card_btn">Start Puzzles</button>
@@ -105,7 +107,8 @@
                     <div class="btn-group" id="home-side-group">
                         <div class="btn-group-item active" onclick="selectHomeSide('w')" data-i18n="home.side_white">
                             White (First)</div>
-                        <div class="btn-group-item" onclick="selectHomeSide('b')" data-i18n="home.side_black">Black (Second)</div>
+                        <div class="btn-group-item" onclick="selectHomeSide('b')" data-i18n="home.side_black">Black
+                            (Second)</div>
                     </div>
                 </div>
                 <div class="modal-footer" style="display: table; width: 100%;">
@@ -116,7 +119,8 @@
                     </div>
                     <div style="display: table-cell; width: 55%; padding-left: 4px;">
                         <button class="btn btn-primary btn-block" onclick="launchGame()"
-                            style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="home.btn_launch">Start Game</button>
+                            style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="home.btn_launch">Start
+                            Game</button>
                     </div>
                 </div>
             </div>
@@ -141,7 +145,8 @@
             <div class="modal-box">
                 <div class="modal-title" data-i18n="donate.title">Support EinkChess Author</div>
                 <div class="modal-body">
-                    <span data-i18n="donate.body">You can scan the QR code below with your phone to buy the author a coffee via <strong>Ko-fi</strong> or <strong>Momo</strong>:</span>
+                    <span data-i18n="donate.body">You can scan the QR code below with your phone to buy the author a
+                        coffee via <strong>Ko-fi</strong> or <strong>Momo</strong>:</span>
 
                     <div class="qr-wrapper">
                         <div class="qr-item">
@@ -156,7 +161,8 @@
                             <div class="qr-link-text">Momo QR</div>
                         </div>
                     </div>
-                    <span data-i18n="donate.note">Your support helps maintain server costs and develop new features!</span>
+                    <span data-i18n="donate.note">Your support helps maintain server costs and develop new
+                        features!</span>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
@@ -168,7 +174,7 @@
 
     <!-- SCRIPTS -->
     <script src="js/chess-storage.js?v=16"></script>
-    <script src="js/chess-i18n.js?v=29"></script>
+    <script src="js/chess-i18n.js?v=33"></script>
     <script src="js/chess-backend.js?v=11"></script>
     <script>
         var selectedLvl = 1;

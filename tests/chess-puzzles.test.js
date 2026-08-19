@@ -294,6 +294,7 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         const eloEl = { innerText: '' };
         const streakEl = { innerText: '' };
         const maxStreakEl = { innerText: '' };
+        const jLvlEl = { innerText: '' };
         const pIdEl = { innerText: '' };
         const pEloEl = { innerText: '' };
         const pSideEl = { innerText: '' };
@@ -305,6 +306,7 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
                 if (id === 'info-modal-player-elo') return eloEl;
                 if (id === 'info-modal-current-streak') return streakEl;
                 if (id === 'info-modal-max-streak') return maxStreakEl;
+                if (id === 'info-modal-journey-level') return jLvlEl;
                 if (id === 'info-modal-puzzle-id') return pIdEl;
                 if (id === 'info-modal-puzzle-elo') return pEloEl;
                 if (id === 'info-modal-player-side') return pSideEl;
@@ -331,6 +333,7 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(eloEl.innerText).toBe(1450);
         expect(streakEl.innerText).toBe(4);
         expect(maxStreakEl.innerText).toBe(8);
+        expect(jLvlEl.innerText).toContain('Level 3');
         expect(pIdEl.innerText).toBe('#test_info_01');
         expect(pEloEl.innerText).toBe('1300 ELO');
         expect(pThemesEl.innerText).toBe('fork, endgame');
