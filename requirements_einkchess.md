@@ -200,23 +200,23 @@
 #### C. Hiển thị Thông tin Câu đố & Thống kê Người chơi (Puzzle Meta & Player Stats Modal):
 - **Nút Thông tin Thế cờ (#puzzle-meta - Action Bar Cột 3):** Hiển thị ngắn gọn thông tin câu đố dạng nút bấm (`#PuzzleId · ELO`, ví dụ: `#Xvpch · 1598 ELO`).
   - Khi người chơi click vào nút `#puzzle-meta`, hiển thị popup Modal **Thông tin Thế cờ & Kỷ lục Người chơi** (`#puzzle-info-modal`):
-    - **Phần 1 - Thống kê Người chơi (Nhấn mạnh ELO & Cấp độ):**
+    - **Phần 1 - Thống kê Người chơi (Nhấn mạnh ELO & Thanh Tiến trình Cấp độ):**
       - Thẻ ELO Người chơi (`.player-elo-banner`) với viền dày, tương phản cao, số điểm to rõ ràng kèm icon `♟`.
-      - Huy hiệu Cấp độ Hành trình (`.player-elo-banner-level`, `#info-modal-journey-level`): Nằm tích hợp trực quan ngay dưới điểm ELO, hiển thị ngắn gọn cấp độ tương ứng (ví dụ: `★ Level 1: Beginner` / `★ Cấp 1: Mới chơi`).
+      - **Thanh Tiến trình Cấp độ (.level-progress-tracker):** Hiển thị trực quan icon quân cờ chuẩn Unicode của Cấp hiện tại và Cấp tiếp theo, thanh phần trăm tiến độ ELO (`%`) và số điểm ELO còn lại để thăng cấp (ví dụ: `♙ Lvl 1 (400) ───[60%]─── ♘ Lvl 2 (800) · Cần thêm 150 ELO để lên ♘ Tập sự`).
       - Chuỗi giải đúng hiện tại (`Current Streak`) kèm icon vector lửa.
       - Kỷ lục chuỗi cao nhất (`Max/Best Streak`) kèm icon vector cúp.
-    - **Phần 2 - Thông tin Thế cờ hiện tại:** Mã câu đố (`#PuzzleId`), Độ khó thế cờ (`Rating ELO`), Bên bạn cầm quân (`White/Black`), Chủ đề đòn thế chiến thuật (`Themes`).
+    - **Phần 2 - Thông tin Thế cờ hiện tại:** Mã câu đố (`#PuzzleId`), Độ khó thế cờ (`Rating ELO`), Bên bạn cầm quân (`White/Black`). (Chủ đề đòn thế `Themes` chỉ hiển thị sau khi giải xong trong `#gameover-modal` để tránh spoil chiến thuật).
     - Nút bấm `[Đóng (Close)]`.
 - **Nút Trạng thái Thống nhất trên Header (.header-status-btn):**
   - **Màn Giải cờ thế (`puzzles.html`):** Gộp ELO và Chuỗi (`Streak`) vào 1 nút bấm trung tâm (`[ ELO: 400 · Streak: 0 ]`). Khi bấm mở ngay modal Hành trình giải cờ thế (`#skill-modal`).
   - **Màn Đấu Bot (`play-bot.html`):** Gộp Bot ELO và Cấp độ Bot vào 1 nút bấm trung tâm (`[ ELO: 1600 · (Bot Lvl 1 - ELO ~800) ]`). Khi bấm mở modal Cài đặt ván đấu (`#setup-modal`).
-- **Trong Modal Hoàn thành (#gameover-modal):** Hiển thị kết quả giải đố, biến động ELO, và danh sách chủ đề đòn thế (`Themes`). Không hiển thị liên kết ra ngoài để tối ưu trải nghiệm tập trung.
+- **Trong Modal Hoàn thành (#gameover-modal):** Hiển thị kết quả giải đố, biến động ELO, thanh Tiến trình Cấp độ trực quan kèm icon quân cờ (`.level-progress-tracker`), và danh sách chủ đề đòn thế (`Themes`). Không hiển thị liên kết ra ngoài để tối ưu trải nghiệm tập trung.
 
 #### D. Quy tắc tính điểm ELO Puzzle (Proportional System):
 - **Công thức:** $E = 1 / (1 + 10^{(puzzleRating - playerELO) / 400})$, $K = 32$
-- **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\\text{round}(K \\times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak và tự động cập nhật Kỷ lục chuỗi (`max_streak`).
-- **Dùng Gợi ý (Hint):** Bị trừ điểm ELO proportional ngay khi xác nhận xem gợi ý ($-\\text{round}(K \\times E)$), Reset chuỗi Streak về 0. Sau khi đã dùng gợi ý, người dùng đi sai hoặc giải xong sẽ $+0\\text{ ELO}$ (không bị trừ điểm thêm).
-- **Đi sai (không dùng gợi ý) rồi giải xong / Bấm Bỏ qua:** $-\\text{round}(K \\times E)$, Reset chuỗi Streak về 0.
+- **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\text{round}(K \times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak và tự động cập nhật Kỷ lục chuỗi (`max_streak`).
+- **Dùng Gợi ý (Hint):** Bị trừ điểm ELO proportional ngay khi xác nhận xem gợi ý ($-\text{round}(K \times E)$), Reset chuỗi Streak về 0. Sau khi đã dùng gợi ý, người dùng đi sai hoặc giải xong sẽ $+0 \text{ ELO}$ (không bị trừ điểm thêm).
+- **Đi sai (không dùng gợi ý) rồi giải xong / Bấm Bỏ qua:** $-\text{round}(K \times E)$, Reset chuỗi Streak về 0.
   - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
   - Sai câu khó → phạt nhẹ (VD: puzzle 1800, player 1200 → $-3$)
 

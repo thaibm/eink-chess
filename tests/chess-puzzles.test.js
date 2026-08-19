@@ -267,6 +267,7 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         PuzzleManager.puzzleSolved();
 
         expect(body.innerHTML).toContain('advantage, discoveredAttack, endgame');
+        expect(body.innerHTML).toContain('level-progress-tracker');
         expect(body.innerHTML).not.toContain('https://lichess.org/training');
     });
 
@@ -294,11 +295,10 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         const eloEl = { innerText: '' };
         const streakEl = { innerText: '' };
         const maxStreakEl = { innerText: '' };
-        const jLvlEl = { innerText: '' };
+        const jLvlEl = { innerHTML: '', innerText: '' };
         const pIdEl = { innerText: '' };
         const pEloEl = { innerText: '' };
         const pSideEl = { innerText: '' };
-        const pThemesEl = { innerText: '' };
 
         global.document = {
             getElementById: (id) => {
@@ -310,7 +310,6 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
                 if (id === 'info-modal-puzzle-id') return pIdEl;
                 if (id === 'info-modal-puzzle-elo') return pEloEl;
                 if (id === 'info-modal-player-side') return pSideEl;
-                if (id === 'info-modal-puzzle-themes') return pThemesEl;
                 return null;
             }
         };
@@ -333,10 +332,10 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(eloEl.innerText).toBe(1450);
         expect(streakEl.innerText).toBe(4);
         expect(maxStreakEl.innerText).toBe(8);
-        expect(jLvlEl.innerText).toContain('Level 3');
+        expect(jLvlEl.innerHTML).toContain('Level 3');
+        expect(jLvlEl.innerHTML).toContain('Level 4');
         expect(pIdEl.innerText).toBe('#test_info_01');
         expect(pEloEl.innerText).toBe('1300 ELO');
-        expect(pThemesEl.innerText).toBe('fork, endgame');
 
         PuzzleManager.closePuzzleInfoModal();
         expect(modal.style.display).toBe('none');

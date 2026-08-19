@@ -53,14 +53,14 @@
         selectedInitialElo: 400,
 
         SKILL_LEVELS: [
-            { level: 1, elo: 400, titleKey: 'puzzle.skill_lvl1_title', nameKey: 'puzzle.skill_lvl1_name', descKey: 'puzzle.skill_lvl1_desc' },
-            { level: 2, elo: 800, titleKey: 'puzzle.skill_lvl2_title', nameKey: 'puzzle.skill_lvl2_name', descKey: 'puzzle.skill_lvl2_desc' },
-            { level: 3, elo: 1200, titleKey: 'puzzle.skill_lvl3_title', nameKey: 'puzzle.skill_lvl3_name', descKey: 'puzzle.skill_lvl3_desc' },
-            { level: 4, elo: 1600, titleKey: 'puzzle.skill_lvl4_title', nameKey: 'puzzle.skill_lvl4_name', descKey: 'puzzle.skill_lvl4_desc' },
-            { level: 5, elo: 2000, titleKey: 'puzzle.skill_lvl5_title', nameKey: 'puzzle.skill_lvl5_name', descKey: 'puzzle.skill_lvl5_desc' },
-            { level: 6, elo: 2400, titleKey: 'puzzle.skill_lvl6_title', nameKey: 'puzzle.skill_lvl6_name', descKey: 'puzzle.skill_lvl6_desc' },
-            { level: 7, elo: 2800, titleKey: 'puzzle.skill_lvl7_title', nameKey: 'puzzle.skill_lvl7_name', descKey: 'puzzle.skill_lvl7_desc' },
-            { level: 8, elo: 3100, titleKey: 'puzzle.skill_lvl8_title', nameKey: 'puzzle.skill_lvl8_name', descKey: 'puzzle.skill_lvl8_desc' }
+            { level: 1, elo: 400, icon: '♙', titleKey: 'puzzle.skill_lvl1_title', nameKey: 'puzzle.skill_lvl1_name', descKey: 'puzzle.skill_lvl1_desc' },
+            { level: 2, elo: 800, icon: '♘', titleKey: 'puzzle.skill_lvl2_title', nameKey: 'puzzle.skill_lvl2_name', descKey: 'puzzle.skill_lvl2_desc' },
+            { level: 3, elo: 1200, icon: '♗', titleKey: 'puzzle.skill_lvl3_title', nameKey: 'puzzle.skill_lvl3_name', descKey: 'puzzle.skill_lvl3_desc' },
+            { level: 4, elo: 1600, icon: '♖', titleKey: 'puzzle.skill_lvl4_title', nameKey: 'puzzle.skill_lvl4_name', descKey: 'puzzle.skill_lvl4_desc' },
+            { level: 5, elo: 2000, icon: '♕', titleKey: 'puzzle.skill_lvl5_title', nameKey: 'puzzle.skill_lvl5_name', descKey: 'puzzle.skill_lvl5_desc' },
+            { level: 6, elo: 2400, icon: '♔', titleKey: 'puzzle.skill_lvl6_title', nameKey: 'puzzle.skill_lvl6_name', descKey: 'puzzle.skill_lvl6_desc' },
+            { level: 7, elo: 2800, icon: '♚', titleKey: 'puzzle.skill_lvl7_title', nameKey: 'puzzle.skill_lvl7_name', descKey: 'puzzle.skill_lvl7_desc' },
+            { level: 8, elo: 3100, icon: '♛', titleKey: 'puzzle.skill_lvl8_title', nameKey: 'puzzle.skill_lvl8_name', descKey: 'puzzle.skill_lvl8_desc' }
         ],
 
         init: function() {
@@ -166,7 +166,8 @@
             for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
                 var lvl = this.SKILL_LEVELS[i];
                 var isLocked = lvl.level > maxUnlocked;
-                var nameTxt = i18n ? i18n.t(lvl.nameKey) : ('Level ' + lvl.level + ' (~' + lvl.elo + ' ELO)');
+                var iconPrefix = lvl.icon ? (lvl.icon + ' ') : '';
+                var nameTxt = iconPrefix + (i18n ? i18n.t(lvl.nameKey) : ('Level ' + lvl.level + ' (~' + lvl.elo + ' ELO)'));
                 var descTxt = i18n ? i18n.t(lvl.descKey) : '';
                 var lockedTxt = i18n ? i18n.t('puzzle.level_locked', { elo: lvl.elo }) : ('Locked (Reach ' + lvl.elo + ' ELO)');
 
@@ -208,6 +209,59 @@
             return matched;
         },
 
+        getNextLevel: function(elo) {
+            var curElo = (typeof elo === 'number') ? elo : (getStorage() ? getStorage().getPuzzleElo() : 400);
+            for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
+                if (this.SKILL_LEVELS[i].elo > curElo) {
+                    return this.SKILL_LEVELS[i];
+                }
+            }
+            return null;
+        },
+
+        getLevelBadgeHtml: function(elo) {
+            var i18n = getI18n();
+            var curElo = (typeof elo === 'number') ? elo : (getStorage() ? getStorage().getPuzzleElo() : 400);
+            var curLvl = this.getCurrentLevel(curElo);
+            var nextLvl = this.getNextLevel(curElo);
+
+            if (!nextLvl) {
+                var maxName = (curLvl.icon || '♛') + ' ' + (i18n ? i18n.t(curLvl.nameKey) : ('Level ' + curLvl.level + ' (~' + curLvl.elo + ' ELO)'));
+                var maxText = i18n ? i18n.t('puzzle.max_level_reached') : 'Max Tier Reached ♔';
+                return '<div class="level-progress-tracker" style="margin-top: 4px; width: 100%; text-align: center;">' +
+                    '<div style="font-size: 12px; font-weight: bold;">' + maxName + '</div>' +
+                    '<div style="font-size: 11px; color: #444444; margin-top: 2px; font-weight: bold;">' + maxText + '</div>' +
+                    '</div>';
+            }
+
+            var minElo = curLvl.elo;
+            var maxElo = nextLvl.elo;
+            var pct = 0;
+            if (maxElo > minElo) {
+                pct = Math.round(((curElo - minElo) / (maxElo - minElo)) * 100);
+                if (pct < 0) pct = 0;
+                if (pct > 100) pct = 100;
+            }
+            var diff = maxElo - curElo;
+            if (diff < 0) diff = 0;
+
+            var curTitle = (curLvl.icon || '') + ' Lvl ' + curLvl.level + ' (' + minElo + ')';
+            var nextTitle = (nextLvl.icon || '') + ' Lvl ' + nextLvl.level + ' (' + maxElo + ')';
+            var nextNameShort = (nextLvl.icon || '') + ' ' + (i18n ? i18n.t(nextLvl.titleKey || nextLvl.nameKey) : ('Lvl ' + nextLvl.level));
+            var progressMsg = i18n ? i18n.t('puzzle.elo_to_next_level', { diff: diff, name: nextNameShort }) : (diff + ' ELO to ' + nextNameShort);
+
+            return '<div class="level-progress-tracker" style="margin-top: 4px; width: 100%; text-align: center;">' +
+                '<div style="display: table; width: 100%; font-size: 11px; font-weight: bold; margin-bottom: 2px;">' +
+                '<div style="display: table-cell; text-align: left;">' + curTitle + '</div>' +
+                '<div style="display: table-cell; text-align: right;">' + nextTitle + '</div>' +
+                '</div>' +
+                '<div style="width: 100%; height: 6px; border: 1px solid #000000; background-color: #ffffff; padding: 0; box-sizing: border-box; overflow: hidden;">' +
+                '<div style="height: 100%; width: ' + pct + '%; background-color: #000000;"></div>' +
+                '</div>' +
+                '<div style="font-size: 11px; color: #333333; margin-top: 2px; font-weight: bold;">' + progressMsg + '</div>' +
+                '</div>';
+        },
+
         openPuzzleInfoModal: function() {
             if (typeof document === 'undefined') return;
             var modal = document.getElementById('puzzle-info-modal');
@@ -219,8 +273,6 @@
             var playerElo = storage ? storage.getPuzzleElo() : 400;
             var currentStreak = storage ? storage.getPuzzleStreak() : 0;
             var maxStreak = storage ? storage.getMaxPuzzleStreak() : 0;
-            var curLevelObj = this.getCurrentLevel(playerElo);
-            var curLevelName = i18n ? i18n.t(curLevelObj.titleKey || curLevelObj.nameKey) : ('Level ' + curLevelObj.level);
 
             var pId = (this.currentPuzzle && this.currentPuzzle.PuzzleId) ? ('#' + this.currentPuzzle.PuzzleId) : '-';
             var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? (this.currentPuzzle.Rating + ' ELO') : '-';
@@ -232,13 +284,6 @@
                 sideTxt = i18n ? i18n.t('puzzle.side_black') : 'Black (Plays Second)';
             }
 
-            var themesTxt = '-';
-            if (this.currentPuzzle && this.currentPuzzle.Themes) {
-                themesTxt = this.currentPuzzle.Themes.split(' ').join(', ');
-            } else {
-                themesTxt = i18n ? i18n.t('puzzle.none') : 'None';
-            }
-
             var eloEl = document.getElementById('info-modal-player-elo');
             var streakEl = document.getElementById('info-modal-current-streak');
             var maxStreakEl = document.getElementById('info-modal-max-streak');
@@ -246,16 +291,14 @@
             var pIdEl = document.getElementById('info-modal-puzzle-id');
             var pEloEl = document.getElementById('info-modal-puzzle-elo');
             var pSideEl = document.getElementById('info-modal-player-side');
-            var pThemesEl = document.getElementById('info-modal-puzzle-themes');
 
             if (eloEl) eloEl.innerText = playerElo;
             if (streakEl) streakEl.innerText = currentStreak;
             if (maxStreakEl) maxStreakEl.innerText = maxStreak;
-            if (jLvlEl) jLvlEl.innerText = '★ ' + curLevelName;
+            if (jLvlEl) jLvlEl.innerHTML = this.getLevelBadgeHtml(playerElo);
             if (pIdEl) pIdEl.innerText = pId;
             if (pEloEl) pEloEl.innerText = pElo;
             if (pSideEl) pSideEl.innerText = sideTxt;
-            if (pThemesEl) pThemesEl.innerText = themesTxt;
 
             modal.className = 'modal-overlay active';
             modal.style.display = 'block';
@@ -1047,6 +1090,9 @@
                     '</div>';
             }
 
+            // Prepare Current & Next Level Progress Tracker
+            var levelHtml = '<div style="margin-top: 6px; padding: 4px 6px; border: 1px solid #000000; background-color: #ffffff; width: 100%; box-sizing: border-box;">' + this.getLevelBadgeHtml(result.newElo) + '</div>';
+
             // Set title and body based on outcome
             if (hintUsed) {
                 if (title) {
@@ -1057,6 +1103,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + hintMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + hintEloStr + '</div>' +
+                        levelHtml +
                         themesHtml;
                 }
             } else if (this.hasFailed) {
@@ -1069,6 +1116,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + failedMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + failedEloStr + '</div>' +
+                        levelHtml +
                         themesHtml;
                 }
             } else {
@@ -1081,6 +1129,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + succMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + succEloStr + '</div>' +
+                        levelHtml +
                         themesHtml;
                 }
             }
