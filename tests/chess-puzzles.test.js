@@ -358,6 +358,8 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
             className: 'modal-overlay',
             style: { display: 'none' }
         };
+        const closeBtn = { style: { display: '' } };
+        const startBtn = { className: '', style: { marginRight: '' } };
         const btn400 = { getAttribute: () => '400', className: 'puzzle-skill-btn' };
         const btn800 = { getAttribute: () => '800', className: 'puzzle-skill-btn' };
         const btn1200 = { getAttribute: () => '1200', className: 'puzzle-skill-btn' };
@@ -366,6 +368,8 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         global.document = {
             getElementById: (id) => {
                 if (id === 'skill-modal') return modal;
+                if (id === 'btn-close-skill') return closeBtn;
+                if (id === 'btn-start-journey') return startBtn;
                 return null;
             },
             querySelectorAll: (sel) => {
@@ -377,6 +381,8 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         PuzzleManager.openSkillModal();
         expect(modal.className).toBe('modal-overlay active');
         expect(modal.style.display).toBe('block');
+        expect(closeBtn.style.display).toBe('none');
+        expect(startBtn.className).toBe('btn btn-primary btn-block');
         expect(PuzzleManager.selectedInitialElo).toBe(400);
         expect(btn400.className).toBe('puzzle-skill-btn active');
         expect(btn800.className).toBe('puzzle-skill-btn');

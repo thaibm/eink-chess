@@ -262,7 +262,9 @@
   - Mỗi khi người chơi giải đố thành công và điểm ELO tăng vượt ngưỡng của cấp độ tiếp theo, cấp độ mới sẽ được tự động mở khóa và lưu vào `einkchess_puzzle_max_unlocked_lvl`.
 - **Chuyển đổi linh hoạt giữa các Level đã mở:**
   - Người chơi có thể tự do mở modal Hành trình (`#skill-modal`) qua nút **`[Hành trình (Journey)]`** hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`).
-  - Modal Footer bố trí 2 nút bấm: Nút **`[Đóng (Close)]`** màu đen nổi bật (Primary) giúp người dùng an tâm đóng modal mà không đổi trạng thái; Nút **`[Bắt đầu Hành trình mới (Start New Journey)]`** viền trắng (Secondary) chỉ dùng khi người chơi chủ động muốn chọn lại cấp độ và khởi tạo lại điểm ELO.
+  - **Modal Footer linh hoạt:**
+    - **Lần đầu tiên vào Puzzle:** Nút **`[Đóng (Close)]`** được ẩn đi (`display: none`), nút **`[Bắt đầu Hành trình mới (Start New Journey)]`** chuyển thành Primary toàn chiều rộng (`btn btn-primary btn-block`) để bắt buộc người chơi thiết lập cấp độ khởi đầu. Người chơi không thể tắt modal ra màn hình trống.
+    - **Khi đã thiết lập (Người chơi thông thường):** Modal hiển thị 2 nút: Nút **`[Đóng (Close)]`** màu đen nổi bật (Primary) giúp người dùng an tâm đóng modal mà không đổi trạng thái; Nút **`[Bắt đầu Hành trình mới (Start New Journey)]`** viền trắng (Secondary) chỉ dùng khi người chơi chủ động muốn chọn lại cấp độ và khởi tạo lại điểm ELO.
   - Khi chọn chuyển về level thấp hơn (VD: đang ở Level 4 chuyển về Level 1), điểm ELO hiện tại được đặt về mốc của Level 1 (400 ELO) để giải đố từ đầu, nhưng **không làm mất cấp độ cao nhất đã mở khóa (`max_unlocked_level = 4`)**. Người chơi vẫn có thể mở lại Journey để chuyển đến các cấp độ 2, 3, 4 bất cứ lúc nào.
 
 ---

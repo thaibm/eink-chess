@@ -112,6 +112,7 @@
         openSkillModal: function() {
             if (typeof document === 'undefined') return;
             var storage = getStorage();
+            var isFirstTime = storage ? !storage.hasChosenPuzzleSkill() : false;
             var curElo = storage ? storage.getPuzzleElo() : 400;
             var maxUnlocked = storage ? storage.getMaxUnlockedPuzzleLevel() : 1;
 
@@ -129,6 +130,22 @@
             this.selectedInitialElo = closestElo;
             this.renderSkillList();
             this.selectSkillLevel(closestElo);
+
+            var closeBtn = document.getElementById('btn-close-skill');
+            var startBtn = document.getElementById('btn-start-journey');
+            if (closeBtn) {
+                closeBtn.style.display = isFirstTime ? 'none' : 'inline-block';
+            }
+            if (startBtn) {
+                if (isFirstTime) {
+                    startBtn.className = 'btn btn-primary btn-block';
+                    startBtn.style.marginRight = '0';
+                } else {
+                    startBtn.className = 'btn';
+                    startBtn.style.marginRight = '6px';
+                }
+            }
+
             var modal = document.getElementById('skill-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
@@ -168,6 +185,10 @@
         },
 
         closeSkillModal: function() {
+            var storage = getStorage();
+            if (storage && !storage.hasChosenPuzzleSkill()) {
+                return;
+            }
             if (typeof document === 'undefined') return;
             var modal = document.getElementById('skill-modal');
             if (modal) {
