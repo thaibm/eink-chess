@@ -14,8 +14,8 @@
     var CONFIG = {
         SUPABASE_URL: '%%SUPABASE_URL%%', // e.g. 'https://xyzcompany.supabase.co'
         SUPABASE_ANON_KEY: '%%SUPABASE_ANON_KEY%%', // e.g. 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-        KOFI_URL: 'https://ko-fi.com/thaibm', // Author's Ko-fi URL
-        KOFI_QR_IMAGE: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ko-fi.com/thaibm'
+        KOFI_URL: 'https://ko-fi.com/sendwebtokindle', // Author's Ko-fi URL
+        KOFI_QR_IMAGE: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ko-fi.com/sendwebtokindle'
     };
 
     var ChessBackend = {

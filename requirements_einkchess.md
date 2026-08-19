@@ -49,6 +49,7 @@
   2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng ELO Puzzle từ API trực tuyến.
   3. **Chơi với Bạn Bè (PvP Online)**: Phòng đấu qua Game Code 6 ký tự kết nối realtime.
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 27-30vh`), tăng kích thước chữ (Title 17-18px, Desc 14px, Button 15-16px) và touch target (nút bấm chính min 44-48px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
+- **Chân trang (Footer):** Hiển thị liên kết xem "Traffic Stats" (`stats.html`) và thông tin ghi nhận "Power by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`).
 
 ---
 
@@ -343,7 +344,7 @@
 3. **Lộ trình Tính phí & Ủng hộ (Monetization):**
    - **Giai đoạn 1 (Hiện tại): Donate — Support me on Ko-fi & Momo:**
      - Tích hợp nút **`[☕ Ủng hộ tác giả (Support on Ko-fi)]`** trên Header / Footer / Popup khi hết lượt.
-     - Hiển thị **Mã QR Ko-fi & Momo** rõ nét để người dùng dùng điện thoại quét và donate nhanh chóng.
+      - Hiển thị **Mã QR Ko-fi (`https://ko-fi.com/sendwebtokindle`) & Momo** rõ nét để người dùng dùng điện thoại quét và donate nhanh chóng.
    - **Giai đoạn 2 (Tương lai khi SEO & User Base lớn): Gói Đăng ký định kỳ (Subscription):**
      - Đăng ký theo tháng/năm qua kích hoạt thiết bị bằng QR Code từ điện thoại.
      - Mở khóa chơi không giới hạn mọi chế độ.

@@ -747,13 +747,15 @@ button,
 
 .qr-item {
     display: inline-block;
-    width: 160px;
-    margin: 6px;
+    width: 192px;
+    margin: 4px 6px;
     padding: 8px;
     background-color: #ffffff;
     border: 1px solid #000000;
     vertical-align: top;
     text-align: center;
+    box-sizing: border-box;
+    min-height: 228px;
 }
 
 .qr-item-title {
@@ -763,22 +765,27 @@ button,
     border-bottom: 1px solid #000000;
     padding-bottom: 2px;
     text-transform: uppercase;
+    min-height: 18px;
+    line-height: 18px;
 }
 
 .qr-image {
+    height: 168px;
     max-width: 100%;
-    max-height: 140px;
-    height: auto;
     display: inline-block;
     border: 2px solid #000000;
+    background-color: #ffffff;
 }
 
 .qr-link-text {
     font-family: monospace;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
-    margin-top: 4px;
+    margin-top: 6px;
     word-break: break-all;
+    min-height: 30px;
+    line-height: 15px;
+    display: block;
 }
 
 /* --- 10. Pawn Promotion Modal (High-Contrast E-ink) --- */

@@ -7,7 +7,7 @@
     <meta name="description"
         content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
     <title>Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=50">
+    <link rel="stylesheet" href="css/einkchess.css?v=52">
 </head>
 
 <body>
@@ -76,10 +76,16 @@
 
         <!-- 2.5 FOOTER LINKS -->
         <div class="footer-links"
-            style="margin-top: 6px; margin-bottom: 2px; text-align: center; border-top: 1px solid #000000; padding-top: 6px; clear: both;">
-            <a href="stats.html"
-                style="font-size: 13px; font-weight: bold; color: #000000; text-decoration: underline; min-height: 44px; display: inline-block; line-height: 44px; padding: 0 10px;"
-                data-i18n="footer.stats">Traffic Stats</a>
+            style="margin-top: 6px; margin-bottom: 4px; text-align: center; border-top: 1px solid #000000; padding-top: 6px; clear: both;">
+            <div>
+                <a href="stats.html"
+                    style="font-size: 13px; font-weight: bold; color: #000000; text-decoration: underline; display: inline-block; padding: 4px 10px;"
+                    data-i18n="footer.stats">Traffic Stats</a>
+            </div>
+            <div style="font-size: 12px; color: #333333; margin-top: 4px; padding-bottom: 4px;">
+                Power by <a href="https://sendwebtokindle.xyz" target="_blank" rel="noopener noreferrer"
+                    style="color: #000000; font-weight: bold; text-decoration: underline;">sendwebtokindle.xyz</a>
+            </div>
         </div>
 
         <!-- 3. MATCH SETUP POPUP MODAL ON HOME -->
@@ -151,9 +157,9 @@
                     <div class="qr-wrapper">
                         <div class="qr-item">
                             <div class="qr-item-title" data-i18n="donate.kofi_label">Ko-fi (International)</div>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/thaibm"
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/sendwebtokindle"
                                 alt="Ko-fi QR Code" class="qr-image">
-                            <div class="qr-link-text">ko-fi.com/thaibm</div>
+                            <div class="qr-link-text">ko-fi.com/sendwebtokindle</div>
                         </div>
                         <div class="qr-item">
                             <div class="qr-item-title" data-i18n="donate.momo_label">Momo (Vietnam)</div>
@@ -175,7 +181,7 @@
     <!-- SCRIPTS -->
     <script src="js/chess-storage.js?v=16"></script>
     <script src="js/chess-i18n.js?v=34"></script>
-    <script src="js/chess-backend.js?v=11"></script>
+    <script src="js/chess-backend.js?v=12"></script>
     <script>
         var selectedLvl = 1;
         var selectedSide = 'w';
