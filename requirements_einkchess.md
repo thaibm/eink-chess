@@ -197,13 +197,21 @@
      - **KHÔNG trừ ELO ngay** — cho phép người chơi thử lại.
      - Khi giải xong (dù đã sai trước đó): áp dụng trừ ELO proportional.
 
-#### C. Hiển thị Thông tin Câu đố (Puzzle Meta & Themes - Phương án B):
-- **Góc dưới bên trái (Bottom-Left Action Bar):** Hiển thị ngắn gọn thông tin câu đố đang giải ở dạng badge (`#PuzzleId · ELO`, ví dụ: `#Xvpch · 1598 ELO`), ngang hàng với các nút hành động (Hint / Skip / Next). Không hiển thị tên đòn chiến thuật trước để tránh làm lộ bài (spoiler).
-- **Trong Modal Hoàn thành:** Hiển thị đầy đủ kết quả, điểm ELO thay đổi, danh sách các chủ đề chiến thuật nguyên bản tiếng Anh (`Themes`), và đường dẫn phân tích chi tiết thế cờ trên Lichess (`lichess.org/training/{PuzzleId}`).
+#### C. Hiển thị Thông tin Câu đố & Thống kê Người chơi (Puzzle Meta & Player Stats Modal):
+- **Nút Thông tin Thế cờ (#puzzle-meta - Action Bar Cột 3):** Hiển thị ngắn gọn thông tin câu đố dạng nút bấm (`#PuzzleId · ELO`, ví dụ: `#Xvpch · 1598 ELO`).
+  - Khi người chơi click vào nút `#puzzle-meta`, hiển thị popup Modal **Thông tin Thế cờ & Kỷ lục Người chơi** (`#puzzle-info-modal`):
+    - **Phần 1 - Thống kê Người chơi (Nhấn mạnh ELO):**
+      - Thẻ ELO Người chơi với viền dày, tương phản cao, số điểm to rõ ràng kèm icon `♟`.
+      - Chuỗi giải đúng hiện tại (`Current Streak`) kèm icon `🔥`.
+      - Kỷ lục chuỗi cao nhất (`Max/Best Streak`) kèm icon `🏆`.
+    - **Phần 2 - Thông tin Thế cờ hiện tại:** Mã câu đố (`#PuzzleId`), Độ khó thế cờ (`Rating ELO`), Bên bạn cầm quân (`White/Black`), Chủ đề đòn thế chiến thuật (`Themes`).
+    - Nút bấm `[Đóng (Close)]`.
+- **Nhấn mạnh ELO Người chơi trên Header:** Huy hiệu ELO (`#puzzle-elo-badge`) được thiết kế nổi bật với viền 2px tương phản cao, font đậm nét để người chơi dễ dàng theo dõi chỉ số ELO cờ thế của mình.
+- **Trong Modal Hoàn thành (#gameover-modal):** Hiển thị kết quả giải đố, biến động ELO, và danh sách chủ đề đòn thế (`Themes`). Không hiển thị liên kết ra ngoài để tối ưu trải nghiệm tập trung.
 
 #### D. Quy tắc tính điểm ELO Puzzle (Proportional System):
 - **Công thức:** $E = 1 / (1 + 10^{(puzzleRating - playerELO) / 400})$, $K = 32$
-- **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\\text{round}(K \\times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak.
+- **Giải đúng ngay từ đầu (clean, không dùng gợi ý):** $+\\text{round}(K \\times (1 - E))$, tối thiểu $+3$. Tăng chuỗi Streak và tự động cập nhật Kỷ lục chuỗi (`max_streak`).
 - **Dùng Gợi ý (Hint):** Bị trừ điểm ELO proportional ngay khi xác nhận xem gợi ý ($-\\text{round}(K \\times E)$), Reset chuỗi Streak về 0. Sau khi đã dùng gợi ý, người dùng đi sai hoặc giải xong sẽ $+0\\text{ ELO}$ (không bị trừ điểm thêm).
 - **Đi sai (không dùng gợi ý) rồi giải xong / Bấm Bỏ qua:** $-\\text{round}(K \\times E)$, Reset chuỗi Streak về 0.
   - Sai câu dễ → phạt nặng (VD: puzzle 800, player 1200 → $-29$)
@@ -211,9 +219,9 @@
 
 #### E. Action Buttons trong màn Giải đố (Bố cục 5 Cột Dàn Đều Ngang Hàng):
 - Áp dụng cấu trúc lưới đồng bộ `.action-bar-grid` chia 5 cột với khoảng cách phân bổ đều (`border-spacing: 4px`):
-  - **Cột 1 (Bottom-Left):** Nút **`[Cấp độ (Level)]`** (`#btn-level`): Mở popup chọn lại trình độ ELO (`#skill-modal`), tự động highlight mốc ELO gần nhất với điểm hiện tại.
+  - **Cột 1 (Bottom-Left):** Nút **`[Hành trình (Journey)]`** (`#btn-level`): Mở popup Hành trình giải cờ thế (`#skill-modal`), hiển thị tiến độ mở khóa các cấp độ và cho phép chọn chuyển đổi giữa các cấp độ đã mở.
   - **Cột 2:** Nút **`[Làm mới (Refresh)]`** (`#btn-refresh`): Tạo flash trắng 200ms để refresh vật lý màn hình E-ink, xóa bóng mờ ghosting.
-  - **Cột 3 (Center):** Khối hiển thị thông tin câu đố (`.puzzle-meta-box`, `#puzzle-meta`): Chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm, hiển thị `#ID · ELO`.
+  - **Cột 3 (Center):** Nút **`[Thông tin Thế cờ / Thống kê]`** (`.puzzle-meta-box`, `#puzzle-meta`): Chiều cao chuẩn 44px, viền 2px đồng bộ hoàn toàn với các nút bấm, hiển thị `#ID · ELO`. Khi bấm mở popup `#puzzle-info-modal`.
   - **Cột 4:** Nút **`[♙ Gợi ý (Hint)]`** (`#btn-hint`, ẩn đi khi đã hoàn thành câu đố):
     - Khi bấm **`[Gợi ý]`** lần đầu trong câu đố: Hiển thị popup xác nhận (`Confirm Hint Modal`), chỉ rõ số điểm ELO sẽ bị trừ (VD: *"Bạn có chắc muốn xem gợi ý cho thế cờ này? Điểm ELO sẽ bị trừ 16 ELO và chuỗi Streak về 0"*).
     - Nếu người dùng bấm `[Hủy]`: Đóng popup, không tiết lộ gợi ý và giữ nguyên điểm ELO.
@@ -231,10 +239,12 @@
 - **Chống gian lận (Anti-Cheat):** Ngăn chặn người chơi tải lại trang để đổi câu đố khác hoặc xóa cờ phạm quy/gợi ý mà không bị trừ điểm ELO. Muốn đổi câu khác bắt buộc phải bấm **`[Bỏ qua]`** (bị trừ ELO proportional theo quy định).
 - **Xóa trạng thái lưu:** Tự động xóa khỏi `localStorage` khi câu đố đã hoàn thành (`puzzleSolved`), khi bấm **`[Tiếp theo]`** (`nextPuzzle`), hoặc khi xác nhận **`[Đồng ý bỏ qua]`** (`confirmSkip`).
 
-#### G. Chọn Trình độ Khởi đầu và Tái Chọn Trình Độ (Puzzle Skill Selection):
-- **Cơ chế Onboarding:** Khi người dùng lần đầu tiên truy cập chế độ Giải đố (`puzzles.html` hoặc click từ `index.html`), nếu chưa từng thiết lập trình độ ban đầu (`einkchess_puzzle_setup_done` chưa được lưu), hệ thống sẽ tự động hiển thị popup **`[CHỌN TRÌNH ĐỘ KHỞI ĐẦU]`** trước khi tải câu đố.
-- **Tùy chọn trình độ:** Cung cấp 8 mức độ rõ ràng, thân thiện cho màn hình E-ink:
-  1. **Cấp 1 (~400 ELO):** Mới chơi / Beginner (*Mặc định / Dễ nhất*).
+#### G. Hành trình Giải Cờ Thế & Quản lý Cấp độ Mở khóa theo ELO (Puzzle Journey & Tier Progression):
+- **Cơ chế Khởi đầu & Reset 1 lần (Migration v1):**
+  - Khi bắt đầu hoặc sau đợt cập nhật lộ trình mới, dữ liệu người chơi được reset 1 lần duy nhất về mốc ban đầu: `puzzle_elo = 400`, `puzzle_streak = 0`, `max_unlocked_level = 1`.
+  - Hiển thị popup **`[HÀNH TRÌNH GIẢI CỜ THẾ (PUZZLE JOURNEY)]`** để giới thiệu lộ trình, mặc định chọn Level 1 và khóa các Level 2–8.
+- **8 Cấp độ trong Lộ trình:**
+  1. **Cấp 1 (~400 ELO):** Mới chơi / Beginner (*Mở khóa mặc định / Dễ nhất*).
   2. **Cấp 2 (~800 ELO):** Tập sự / Casual (Biết luật cơ bản).
   3. **Cấp 3 (~1200 ELO):** Trung bình / Intermediate (Nắm vững chiến thuật).
   4. **Cấp 4 (~1600 ELO):** Nâng cao / Advanced (Chiến thuật phức tạp).
@@ -242,9 +252,14 @@
   6. **Cấp 6 (~2400 ELO):** Kiện tướng / Master (Đòn phối hợp đỉnh cao).
   7. **Cấp 7 (~2800 ELO):** Đại kiện tướng / Grandmaster (Thử thách siêu cấp).
   8. **Cấp 8 (~3100+ ELO):** Huyền thoại / Super GM (Đỉnh cao tối thượng).
-- **Mặc định:** Chọn sẵn mức dễ nhất (**400 ELO - Mới chơi**).
-- **Xác nhận:** Khi người dùng bấm **`[Bắt đầu Giải đố]`**, hệ thống lưu điểm ELO đã chọn vào `einkchess_puzzle_elo`, đánh dấu `einkchess_puzzle_setup_done = true`, xóa câu đố dở dang trước đó khỏi `localStorage` (`clearSavedPuzzle`), reset streak về 0, đóng popup, cập nhật điểm ELO trên header và tải ngay câu đố mới từ dải bucket tương ứng với trình độ vừa chọn.
-- **Tái chọn trình độ bất cứ lúc nào:** Người dùng có thể bấm nút **`[Cấp độ (Level)]`** ở thanh footer hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`) trên thanh tiêu đề của trang `puzzles.html` để mở lại popup chọn trình độ; sau khi chọn và xác nhận, hệ thống sẽ hủy câu đố cũ và tải câu đố mới phù hợp với level mới.
+- **Giao diện Khóa / Mở Khóa trên E-ink:**
+  - Các cấp độ chưa mở khóa hiển thị biểu tượng icon Lock dạng vector inline SVG (tránh lỗi font emoji trên trình duyệt WebKit Kindle), dòng chữ `Đã khóa (Cần {elo} ELO)` / `Locked (Reach {elo} ELO)`, style viền xám đứt đoạn, nền xám nhạt (`.puzzle-skill-btn.locked`), vô hiệu hóa thao tác click (`disabled`).
+  - Các cấp độ đã mở khóa có thể click chọn tự do, hiển thị nút viền đen rõ nét. Cấp độ đang chọn được tô nền đen chữ trắng (`.puzzle-skill-btn.active`).
+- **Cơ chế Mở khóa Tự động khi Leo ELO:**
+  - Mỗi khi người chơi giải đố thành công và điểm ELO tăng vượt ngưỡng của cấp độ tiếp theo, cấp độ mới sẽ được tự động mở khóa và lưu vào `einkchess_puzzle_max_unlocked_lvl`.
+- **Chuyển đổi linh hoạt giữa các Level đã mở:**
+  - Người chơi có thể tự do mở modal Hành trình (`#skill-modal`) qua nút **`[Hành trình (Journey)]`** hoặc chạm vào huy hiệu ELO (`#puzzle-elo-badge`).
+  - Khi chọn chuyển về level thấp hơn (VD: đang ở Level 4 chuyển về Level 1), điểm ELO hiện tại được đặt về mốc của Level 1 (400 ELO) để giải đố từ đầu, nhưng **không làm mất cấp độ cao nhất đã mở khóa (`max_unlocked_level = 4`)**. Người chơi vẫn có thể mở lại Journey để chuyển đến các cấp độ 2, 3, 4 bất cứ lúc nào.
 
 ---
 
@@ -413,10 +428,10 @@
   - [x] `updateTurnStatus()`: Hiển thị "Lượt Trắng đi" / "Lượt Đen đi" / "Đối thủ đang đi..." tương ứng trạng thái.
   - [x] `updateCapturedPieces()`: Hiển thị quân bị bắt trên status bar.
 - **Cập nhật `js/chess-storage.js`:**
-  - [x] Thêm STORAGE_KEYS: `PUZZLE_STREAK`, `PLAYED_PUZZLES`, `SAVED_PUZZLE`.
-  - [x] Thêm hàm: `getPuzzleStreak()`, `setPuzzleStreak()`, `getPlayedPuzzles()`, `getPlayedPuzzlesHash()` (O(1) lookup), `addPlayedPuzzle(id)` (giới hạn 5000 ID gần nhất), `clearPlayedPuzzles()`, `savePuzzle(state)`, `getSavedPuzzle()`, `clearSavedPuzzle()`.
+  - [x] Thêm STORAGE_KEYS: `PUZZLE_STREAK`, `PUZZLE_MAX_STREAK`, `PLAYED_PUZZLES`, `SAVED_PUZZLE`.
+  - [x] Thêm hàm: `getPuzzleStreak()`, `setPuzzleStreak()`, `getMaxPuzzleStreak()`, `setMaxPuzzleStreak()`, `getPlayedPuzzles()`, `getPlayedPuzzlesHash()` (O(1) lookup), `addPlayedPuzzle(id)` (giới hạn 5000 ID gần nhất), `clearPlayedPuzzles()`, `savePuzzle(state)`, `getSavedPuzzle()`, `clearSavedPuzzle()`.
 - **Cập nhật `js/chess-i18n.js`:**
-  - [x] Thêm các key dịch VI/EN cho Puzzle Mode: `puzzle.btn_level`, `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.status_skipped`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.hint_solved_msg`, `puzzle.confirm_hint_title`, `puzzle.confirm_hint_body`, `puzzle.btn_confirm_hint`, `puzzle.confirm_skip_title`, `puzzle.confirm_skip_body`, `puzzle.btn_confirm_skip`, `puzzle.elo_change`.
+  - [x] Thêm các key dịch VI/EN cho Puzzle Mode: `puzzle.btn_level`, `puzzle.btn_hint`, `puzzle.btn_skip`, `puzzle.btn_next`, `puzzle.turn_white`, `puzzle.turn_black`, `puzzle.bot_moving`, `puzzle.status_correct`, `puzzle.status_incorrect`, `puzzle.status_hint_used`, `puzzle.status_playing`, `puzzle.status_skipped`, `puzzle.streak`, `puzzle.success_title`, `puzzle.success_msg`, `puzzle.failed_title`, `puzzle.failed_msg`, `puzzle.hint_solved_msg`, `puzzle.confirm_hint_title`, `puzzle.confirm_hint_body`, `puzzle.btn_confirm_hint`, `puzzle.confirm_skip_title`, `puzzle.confirm_skip_body`, `puzzle.btn_confirm_skip`, `puzzle.elo_change`, `puzzle.info_modal_title`, `puzzle.info_section_puzzle`, `puzzle.info_section_player`, `puzzle.info_puzzle_id`, `puzzle.info_puzzle_elo`, `puzzle.info_player_side`, `puzzle.info_themes`, `puzzle.info_player_elo`, `puzzle.info_current_streak`, `puzzle.info_max_streak`.
   - [x] Thêm hàm alias `getTranslation(key, params)` → `this.t(key, params)`.
 - **Cập nhật `index.html`:**
   - [x] Nút "Bắt đầu Giải đố" trỏ trực tiếp `window.location.href='puzzles.html'` (thay vì mở modal "coming soon").

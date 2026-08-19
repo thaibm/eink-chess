@@ -52,6 +52,17 @@
         MAX_BUCKET: 3400,
         selectedInitialElo: 400,
 
+        SKILL_LEVELS: [
+            { level: 1, elo: 400, nameKey: 'puzzle.skill_lvl1_name', descKey: 'puzzle.skill_lvl1_desc' },
+            { level: 2, elo: 800, nameKey: 'puzzle.skill_lvl2_name', descKey: 'puzzle.skill_lvl2_desc' },
+            { level: 3, elo: 1200, nameKey: 'puzzle.skill_lvl3_name', descKey: 'puzzle.skill_lvl3_desc' },
+            { level: 4, elo: 1600, nameKey: 'puzzle.skill_lvl4_name', descKey: 'puzzle.skill_lvl4_desc' },
+            { level: 5, elo: 2000, nameKey: 'puzzle.skill_lvl5_name', descKey: 'puzzle.skill_lvl5_desc' },
+            { level: 6, elo: 2400, nameKey: 'puzzle.skill_lvl6_name', descKey: 'puzzle.skill_lvl6_desc' },
+            { level: 7, elo: 2800, nameKey: 'puzzle.skill_lvl7_name', descKey: 'puzzle.skill_lvl7_desc' },
+            { level: 8, elo: 3100, nameKey: 'puzzle.skill_lvl8_name', descKey: 'puzzle.skill_lvl8_desc' }
+        ],
+
         init: function() {
             var self = this;
             var i18n = getI18n();
@@ -66,6 +77,10 @@
             var storage = getStorage();
             if (storage && storage.applyAutoLayout) {
                 storage.applyAutoLayout();
+            }
+
+            if (storage && storage.checkAndMigratePuzzleJourney) {
+                storage.checkAndMigratePuzzleJourney();
             }
 
             this.engine = new ChessEngine();
@@ -98,22 +113,58 @@
             if (typeof document === 'undefined') return;
             var storage = getStorage();
             var curElo = storage ? storage.getPuzzleElo() : 400;
-            var buckets = [400, 800, 1200, 1600, 2000, 2400, 2800, 3100];
-            var closestElo = buckets[0];
-            var minDiff = Math.abs(curElo - buckets[0]);
-            for (var i = 1; i < buckets.length; i++) {
-                var diff = Math.abs(curElo - buckets[i]);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closestElo = buckets[i];
+            var maxUnlocked = storage ? storage.getMaxUnlockedPuzzleLevel() : 1;
+
+            var closestElo = 400;
+            var minDiff = Infinity;
+            for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
+                if (this.SKILL_LEVELS[i].level <= maxUnlocked) {
+                    var diff = Math.abs(curElo - this.SKILL_LEVELS[i].elo);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestElo = this.SKILL_LEVELS[i].elo;
+                    }
                 }
             }
+            this.selectedInitialElo = closestElo;
+            this.renderSkillList();
             this.selectSkillLevel(closestElo);
             var modal = document.getElementById('skill-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
                 modal.style.display = 'block';
             }
+        },
+
+        renderSkillList: function() {
+            if (typeof document === 'undefined') return;
+            var container = document.getElementById('puzzle-skill-list');
+            if (!container) return;
+            var storage = getStorage();
+            var maxUnlocked = storage ? storage.getMaxUnlockedPuzzleLevel() : 1;
+            var i18n = getI18n();
+            var lockIconHtml = '<img src="images/lock.svg" class="icon-lock" alt="">';
+
+            var html = '';
+            for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
+                var lvl = this.SKILL_LEVELS[i];
+                var isLocked = lvl.level > maxUnlocked;
+                var nameTxt = i18n ? i18n.t(lvl.nameKey) : ('Level ' + lvl.level + ' (~' + lvl.elo + ' ELO)');
+                var descTxt = i18n ? i18n.t(lvl.descKey) : '';
+                var lockedTxt = i18n ? i18n.t('puzzle.level_locked', { elo: lvl.elo }) : ('Locked (Reach ' + lvl.elo + ' ELO)');
+
+                if (isLocked) {
+                    html += '<button type="button" class="puzzle-skill-btn locked" data-elo="' + lvl.elo + '" data-level="' + lvl.level + '" disabled>' +
+                        '<strong>' + nameTxt + '</strong> — <span>' + lockIconHtml + lockedTxt + '</span>' +
+                        '</button>';
+                } else {
+                    var activeClass = (lvl.elo === this.selectedInitialElo) ? ' active' : '';
+                    html += '<button type="button" class="puzzle-skill-btn' + activeClass + '" data-elo="' + lvl.elo + '" data-level="' + lvl.level + '" onclick="PuzzleManager.selectSkillLevel(' + lvl.elo + ')">' +
+                        '<strong>' + nameTxt + '</strong> — <span>' + descTxt + '</span>' +
+                        '</button>';
+                }
+            }
+            container.innerHTML = html;
         },
 
         closeSkillModal: function() {
@@ -125,16 +176,90 @@
             }
         },
 
+        openPuzzleInfoModal: function() {
+            if (typeof document === 'undefined') return;
+            var modal = document.getElementById('puzzle-info-modal');
+            if (!modal) return;
+
+            var storage = getStorage();
+            var i18n = getI18n();
+
+            var playerElo = storage ? storage.getPuzzleElo() : 400;
+            var currentStreak = storage ? storage.getPuzzleStreak() : 0;
+            var maxStreak = storage ? storage.getMaxPuzzleStreak() : 0;
+
+            var pId = (this.currentPuzzle && this.currentPuzzle.PuzzleId) ? ('#' + this.currentPuzzle.PuzzleId) : '-';
+            var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? (this.currentPuzzle.Rating + ' ELO') : '-';
+            
+            var sideTxt = '-';
+            if (this.puzzleColor === 'w') {
+                sideTxt = i18n ? i18n.t('puzzle.side_white') : 'White (Plays First)';
+            } else if (this.puzzleColor === 'b') {
+                sideTxt = i18n ? i18n.t('puzzle.side_black') : 'Black (Plays Second)';
+            }
+
+            var themesTxt = '-';
+            if (this.currentPuzzle && this.currentPuzzle.Themes) {
+                themesTxt = this.currentPuzzle.Themes.split(' ').join(', ');
+            } else {
+                themesTxt = i18n ? i18n.t('puzzle.none') : 'None';
+            }
+
+            var eloEl = document.getElementById('info-modal-player-elo');
+            var streakEl = document.getElementById('info-modal-current-streak');
+            var maxStreakEl = document.getElementById('info-modal-max-streak');
+            var pIdEl = document.getElementById('info-modal-puzzle-id');
+            var pEloEl = document.getElementById('info-modal-puzzle-elo');
+            var pSideEl = document.getElementById('info-modal-player-side');
+            var pThemesEl = document.getElementById('info-modal-puzzle-themes');
+
+            if (eloEl) eloEl.innerText = playerElo;
+            if (streakEl) streakEl.innerText = currentStreak;
+            if (maxStreakEl) maxStreakEl.innerText = maxStreak;
+            if (pIdEl) pIdEl.innerText = pId;
+            if (pEloEl) pEloEl.innerText = pElo;
+            if (pSideEl) pSideEl.innerText = sideTxt;
+            if (pThemesEl) pThemesEl.innerText = themesTxt;
+
+            modal.className = 'modal-overlay active';
+            modal.style.display = 'block';
+        },
+
+        closePuzzleInfoModal: function() {
+            if (typeof document === 'undefined') return;
+            var modal = document.getElementById('puzzle-info-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
+        },
+
         selectSkillLevel: function(elo) {
-            this.selectedInitialElo = parseInt(elo, 10) || 400;
+            var targetElo = parseInt(elo, 10) || 400;
+            var storage = getStorage();
+            var maxUnlocked = storage ? storage.getMaxUnlockedPuzzleLevel() : 1;
+
+            var targetLvl = 1;
+            for (var j = 0; j < this.SKILL_LEVELS.length; j++) {
+                if (this.SKILL_LEVELS[j].elo === targetElo) {
+                    targetLvl = this.SKILL_LEVELS[j].level;
+                    break;
+                }
+            }
+            if (targetLvl > maxUnlocked) return;
+
+            this.selectedInitialElo = targetElo;
             if (typeof document === 'undefined') return;
             var btns = document.querySelectorAll('.puzzle-skill-btn');
             for (var i = 0; i < btns.length; i++) {
                 var btnElo = parseInt(btns[i].getAttribute('data-elo'), 10);
-                if (btnElo === this.selectedInitialElo) {
-                    btns[i].className = 'puzzle-skill-btn active';
-                } else {
-                    btns[i].className = 'puzzle-skill-btn';
+                var isLocked = btns[i].className && btns[i].className.indexOf('locked') !== -1;
+                if (!isLocked) {
+                    if (btnElo === this.selectedInitialElo) {
+                        btns[i].className = 'puzzle-skill-btn active';
+                    } else {
+                        btns[i].className = 'puzzle-skill-btn';
+                    }
                 }
             }
         },
@@ -303,6 +428,18 @@
             var newElo = Math.max(100, elo + delta);
             if (storage) {
                 storage.setPuzzleElo(newElo);
+                var currentMax = storage.getMaxUnlockedPuzzleLevel ? storage.getMaxUnlockedPuzzleLevel() : 1;
+                var newMax = currentMax;
+                if (this.SKILL_LEVELS) {
+                    for (var i = 0; i < this.SKILL_LEVELS.length; i++) {
+                        if (newElo >= this.SKILL_LEVELS[i].elo && this.SKILL_LEVELS[i].level > newMax) {
+                            newMax = this.SKILL_LEVELS[i].level;
+                        }
+                    }
+                }
+                if (newMax > currentMax && storage.setMaxUnlockedPuzzleLevel) {
+                    storage.setMaxUnlockedPuzzleLevel(newMax);
+                }
             }
             return { oldElo: elo, newElo: newElo, delta: delta };
         },
@@ -863,7 +1000,7 @@
             var title = document.getElementById('gameover-title');
             var pElo = (this.currentPuzzle && this.currentPuzzle.Rating) ? parseInt(this.currentPuzzle.Rating, 10) : 0;
             
-            // Prepare Themes & Analysis Link
+            // Prepare Themes
             var themes = (this.currentPuzzle && this.currentPuzzle.Themes) ? this.currentPuzzle.Themes : '';
             var themesHtml = '';
             if (themes) {
@@ -871,15 +1008,6 @@
                 var themesList = themes.split(' ').join(', ');
                 themesHtml = '<div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #000; font-size: 12px; word-break: break-word;">' +
                     '<strong>' + themesLabel + '</strong> ' + themesList +
-                    '</div>';
-            }
-
-            var pId = (this.currentPuzzle && this.currentPuzzle.PuzzleId) ? this.currentPuzzle.PuzzleId : '';
-            var analysisHtml = '';
-            if (pId) {
-                var analysisLabel = i18n ? i18n.t('puzzle.lichess_analysis') : 'Analyze on Lichess ↗';
-                analysisHtml = '<div style="margin-top: 8px;">' +
-                    '<a href="https://lichess.org/training/' + pId + '" target="_blank" class="btn btn-sm" style="text-decoration: none; display: inline-block; font-size: 11px; padding: 4px 8px;">' + analysisLabel + '</a>' +
                     '</div>';
             }
 
@@ -893,8 +1021,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + hintMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + hintEloStr + '</div>' +
-                        themesHtml +
-                        analysisHtml;
+                        themesHtml;
                 }
             } else if (this.hasFailed) {
                 if (title) {
@@ -906,8 +1033,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + failedMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + failedEloStr + '</div>' +
-                        themesHtml +
-                        analysisHtml;
+                        themesHtml;
                 }
             } else {
                 if (title) {
@@ -919,8 +1045,7 @@
                 if (body) {
                     body.innerHTML = '<div style="margin-bottom: 6px;">' + succMsg + '</div>' +
                         '<div style="font-size: 16px; font-weight: bold;">' + succEloStr + '</div>' +
-                        themesHtml +
-                        analysisHtml;
+                        themesHtml;
                 }
             }
             

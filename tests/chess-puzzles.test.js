@@ -244,7 +244,7 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(metaEl.innerText).toContain('1650');
     });
 
-    test('puzzleSolved renders Themes and Lichess analysis link in modal body', () => {
+    test('puzzleSolved renders Themes in modal body without external Lichess link', () => {
         const modal = { className: '', style: { display: 'none' } };
         const body = { innerHTML: '' };
         const title = { innerText: '' };
@@ -267,8 +267,76 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         PuzzleManager.puzzleSolved();
 
         expect(body.innerHTML).toContain('advantage, discoveredAttack, endgame');
-        expect(body.innerHTML).toContain('https://lichess.org/training/abc99');
-        expect(body.innerHTML).toContain('Analyze on Lichess');
+        expect(body.innerHTML).not.toContain('https://lichess.org/training');
+    });
+
+    test('ChessStorage tracks Max Streak automatically', () => {
+        ChessStorage.setPuzzleStreak(0);
+        ChessStorage.setMaxPuzzleStreak(0);
+        expect(ChessStorage.getPuzzleStreak()).toBe(0);
+        expect(ChessStorage.getMaxPuzzleStreak()).toBe(0);
+
+        ChessStorage.setPuzzleStreak(3);
+        expect(ChessStorage.getPuzzleStreak()).toBe(3);
+        expect(ChessStorage.getMaxPuzzleStreak()).toBe(3);
+
+        ChessStorage.setPuzzleStreak(5);
+        expect(ChessStorage.getMaxPuzzleStreak()).toBe(5);
+
+        // Streak resets to 0, max streak remains 5
+        ChessStorage.setPuzzleStreak(0);
+        expect(ChessStorage.getPuzzleStreak()).toBe(0);
+        expect(ChessStorage.getMaxPuzzleStreak()).toBe(5);
+    });
+
+    test('openPuzzleInfoModal populates puzzle details, prominent player ELO and streaks', () => {
+        const modal = { className: '', style: { display: 'none' } };
+        const eloEl = { innerText: '' };
+        const streakEl = { innerText: '' };
+        const maxStreakEl = { innerText: '' };
+        const pIdEl = { innerText: '' };
+        const pEloEl = { innerText: '' };
+        const pSideEl = { innerText: '' };
+        const pThemesEl = { innerText: '' };
+
+        global.document = {
+            getElementById: (id) => {
+                if (id === 'puzzle-info-modal') return modal;
+                if (id === 'info-modal-player-elo') return eloEl;
+                if (id === 'info-modal-current-streak') return streakEl;
+                if (id === 'info-modal-max-streak') return maxStreakEl;
+                if (id === 'info-modal-puzzle-id') return pIdEl;
+                if (id === 'info-modal-puzzle-elo') return pEloEl;
+                if (id === 'info-modal-player-side') return pSideEl;
+                if (id === 'info-modal-puzzle-themes') return pThemesEl;
+                return null;
+            }
+        };
+
+        ChessStorage.setPuzzleElo(1450);
+        ChessStorage.setPuzzleStreak(4);
+        ChessStorage.setMaxPuzzleStreak(8);
+
+        PuzzleManager.currentPuzzle = {
+            PuzzleId: 'test_info_01',
+            Rating: 1300,
+            Themes: 'fork endgame'
+        };
+        PuzzleManager.puzzleColor = 'w';
+
+        PuzzleManager.openPuzzleInfoModal();
+
+        expect(modal.style.display).toBe('block');
+        expect(modal.className).toContain('active');
+        expect(eloEl.innerText).toBe(1450);
+        expect(streakEl.innerText).toBe(4);
+        expect(maxStreakEl.innerText).toBe(8);
+        expect(pIdEl.innerText).toBe('#test_info_01');
+        expect(pEloEl.innerText).toBe('1300 ELO');
+        expect(pThemesEl.innerText).toBe('fork, endgame');
+
+        PuzzleManager.closePuzzleInfoModal();
+        expect(modal.style.display).toBe('none');
     });
 
     test('First-time user has not chosen puzzle skill and defaults to easiest ELO (400)', () => {
@@ -337,7 +405,8 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
             }
         };
 
-        // Select 800
+        // Select 800 with maxUnlocked set to 2
+        ChessStorage.setMaxUnlockedPuzzleLevel(2);
         PuzzleManager.selectSkillLevel(800);
         expect(PuzzleManager.selectedInitialElo).toBe(800);
         expect(btn800.className).toBe('puzzle-skill-btn active');
@@ -355,6 +424,33 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(ChessStorage.getSavedPuzzle()).toBeNull();
         expect(ChessStorage.getPuzzleStreak()).toBe(0);
         expect(loadCalled).toBe(true);
+    });
+
+    test('Locked levels cannot be selected', () => {
+        ChessStorage.setMaxUnlockedPuzzleLevel(1);
+        PuzzleManager.selectedInitialElo = 400;
+
+        // Try selecting locked level 800 (Level 2)
+        PuzzleManager.selectSkillLevel(800);
+        expect(PuzzleManager.selectedInitialElo).toBe(400); // remains 400
+    });
+
+    test('Solving puzzles automatically unlocks higher tiers and persists maxUnlockedLevel', () => {
+        ChessStorage.setPuzzleElo(790);
+        ChessStorage.setMaxUnlockedPuzzleLevel(1);
+        PuzzleManager.currentPuzzle = { Rating: 800 };
+
+        // Solve cleanly -> ELO should exceed 800
+        const res = PuzzleManager.applyEloChange(true, false);
+        expect(res.newElo).toBeGreaterThanOrEqual(800);
+        expect(ChessStorage.getMaxUnlockedPuzzleLevel()).toBe(2);
+
+        // Switch back to Level 1
+        PuzzleManager.selectSkillLevel(400);
+        PuzzleManager.confirmSkillLevel();
+        expect(ChessStorage.getPuzzleElo()).toBe(400);
+        // Level 2 should still be unlocked!
+        expect(ChessStorage.getMaxUnlockedPuzzleLevel()).toBe(2);
     });
 
     test('getHintPenalty returns proportional loss points', () => {
@@ -522,16 +618,18 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
             querySelectorAll: (sel) => (sel === '.puzzle-skill-btn' ? buttons : [])
         };
 
-        // Test ELO 550 -> closest is 400 (diff 150) or 800 (diff 250), so 400
+        // Test ELO 550 with Level 2 unlocked -> closest is 400 (diff 150) or 800 (diff 250), so 400
         ChessStorage.setPuzzleElo(550);
+        ChessStorage.setMaxUnlockedPuzzleLevel(2);
         PuzzleManager.openSkillModal();
         expect(PuzzleManager.selectedInitialElo).toBe(400);
         expect(buttons[0].className).toBe('puzzle-skill-btn active');
         expect(buttons[1].className).toBe('puzzle-skill-btn');
         expect(modal.className).toBe('modal-overlay active');
 
-        // Test ELO 1500 -> closest is 1600 (diff 100)
+        // Test ELO 1500 with Level 4 unlocked -> closest is 1600 (diff 100)
         ChessStorage.setPuzzleElo(1500);
+        ChessStorage.setMaxUnlockedPuzzleLevel(4);
         PuzzleManager.openSkillModal();
         expect(PuzzleManager.selectedInitialElo).toBe(1600);
         expect(buttons[3].className).toBe('puzzle-skill-btn active');

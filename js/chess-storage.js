@@ -15,7 +15,10 @@
         BOT_ELO: 'einkchess_bot_elo',
         PUZZLE_ELO: 'einkchess_puzzle_elo',
         PUZZLE_STREAK: 'einkchess_puzzle_streak',
+        PUZZLE_MAX_STREAK: 'einkchess_puzzle_max_streak',
         PUZZLE_SETUP_DONE: 'einkchess_puzzle_setup_done',
+        PUZZLE_MAX_UNLOCKED_LEVEL: 'einkchess_puzzle_max_unlocked_lvl',
+        PUZZLE_JOURNEY_MIGRATED: 'einkchess_puzzle_journey_migrated_v1',
         PLAYED_PUZZLES: 'einkchess_played_puzzles',
         SAVED_BOT_GAME: 'einkchess_saved_bot_game',
         SAVED_PUZZLE: 'einkchess_saved_puzzle',
@@ -179,7 +182,44 @@
         },
 
         setPuzzleStreak: function(streak) {
-            return this.set(STORAGE_KEYS.PUZZLE_STREAK, Math.max(0, parseInt(streak, 10)));
+            var s = Math.max(0, parseInt(streak, 10) || 0);
+            this.set(STORAGE_KEYS.PUZZLE_STREAK, s);
+            var maxS = this.getMaxPuzzleStreak();
+            if (s > maxS) {
+                this.setMaxPuzzleStreak(s);
+            }
+            return s;
+        },
+
+        getMaxPuzzleStreak: function() {
+            return parseInt(this.get(STORAGE_KEYS.PUZZLE_MAX_STREAK, 0), 10);
+        },
+
+        setMaxPuzzleStreak: function(maxStreak) {
+            var validMax = Math.max(0, parseInt(maxStreak, 10) || 0);
+            return this.set(STORAGE_KEYS.PUZZLE_MAX_STREAK, validMax);
+        },
+
+        getMaxUnlockedPuzzleLevel: function() {
+            this.checkAndMigratePuzzleJourney();
+            return Math.max(1, Math.min(8, parseInt(this.get(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, 1), 10)));
+        },
+
+        setMaxUnlockedPuzzleLevel: function(lvl) {
+            var validLvl = Math.max(1, Math.min(8, parseInt(lvl, 10) || 1));
+            return this.set(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, validLvl);
+        },
+
+        checkAndMigratePuzzleJourney: function() {
+            var migrated = this.get(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, false);
+            if (!migrated) {
+                this.set(STORAGE_KEYS.PUZZLE_ELO, 400);
+                this.set(STORAGE_KEYS.PUZZLE_STREAK, 0);
+                this.set(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, 1);
+                this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, false);
+                this.remove(STORAGE_KEYS.SAVED_PUZZLE);
+                this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
+            }
         },
 
         getPlayedPuzzles: function() {

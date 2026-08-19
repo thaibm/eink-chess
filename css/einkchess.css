@@ -86,11 +86,21 @@ body {
 
 .elo-badge {
     display: inline-block;
-    border: 1px solid #000000;
-    padding: 1px 5px;
+    border: 2px solid #000000;
+    padding: 1px 6px;
     background-color: #f0f0f0;
     font-size: 12px;
+    font-weight: bold;
     margin: 0 1px;
+}
+
+.puzzle-elo-highlight {
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    font-weight: 900 !important;
+    font-size: 13px !important;
+    padding: 2px 7px !important;
+    letter-spacing: 0.5px;
 }
 
 /* --- 4. Buttons & Controls (Kindle Optimized) --- */
@@ -208,6 +218,21 @@ button,
     background-color: #000000 !important;
     color: #ffffff !important;
     border: 2px solid #000000 !important;
+}
+
+.puzzle-skill-btn.locked {
+    background-color: #f0f0f0 !important;
+    color: #666666 !important;
+    border: 2px dashed #888888 !important;
+    cursor: not-allowed !important;
+}
+
+.icon-lock {
+    display: inline-block;
+    vertical-align: -1px;
+    margin-right: 4px;
+    width: 12px;
+    height: 12px;
 }
 
 /* --- 6. Chess Board Layout (Default / Basic 6") --- */
@@ -754,3 +779,108 @@ button,
     line-height: 1.2;
 }
 
+/* --- 11. Puzzle Info & Player Stats Modal (High Contrast E-ink) --- */
+.puzzle-info-card {
+    border: 2px solid #000000;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background-color: #ffffff;
+    text-align: left;
+}
+
+.puzzle-info-card-header {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.puzzle-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2px 0;
+}
+
+.puzzle-info-table td {
+    padding: 4px 2px;
+    font-size: 13px;
+    vertical-align: top;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.puzzle-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.puzzle-info-label {
+    font-weight: bold;
+    width: 45%;
+    color: #222222;
+}
+
+.puzzle-info-val {
+    font-weight: normal;
+    text-align: right;
+    word-break: break-word;
+}
+
+.player-elo-banner {
+    border: 2px solid #000000;
+    background-color: #f5f5f5;
+    padding: 8px 10px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.player-elo-banner-title {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #333333;
+    margin-bottom: 2px;
+}
+
+.player-elo-banner-score {
+    font-size: 24px;
+    font-weight: 900;
+    font-family: monospace, sans-serif;
+    letter-spacing: 1px;
+    color: #000000;
+    line-height: 1.2;
+}
+
+.player-stats-grid {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 6px 0;
+    margin-top: 4px;
+}
+
+.player-stat-col {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 6px 4px;
+}
+
+.player-stat-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #444444;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.player-stat-value {
+    font-size: 16px;
+    font-weight: 900;
+    font-family: monospace, sans-serif;
+    color: #000000;
+    display: block;
+}

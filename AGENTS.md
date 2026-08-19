@@ -50,4 +50,12 @@ Whenever you work on this project, you MUST strictly adhere to the following rul
 - Preserve existing comments.
 - Do NOT remove comments explaining complex logic — especially stack-based algorithms.
 
+## 12. 🚫 NO Modern Color Emojis (Font Compatibility - CRITICAL)
+- Kindle and E-ink devices lack modern color emoji font glyphs (e.g. 🔥, 🏆, 🎯, 🚀, 💡). They render as broken square boxes ("tofu") or question marks.
+- NEVER use modern color emojis in UI text, buttons, labels, or modals.
+- ONLY use:
+  1. Standard classic Unicode chess glyphs (`♙`, `♟`, `♔`, `♚`, `♖`, `♜`, `♗`, `♝`, `♘`, `♞`)
+  2. Basic geometric / punctuation symbols (`★`, `☆`, `✔`, `✖`, `·`, `↗`, `—`)
+  3. Crisp inline SVGs (`<svg width="..." height="..." ...><path .../></svg>`) or image assets.
+
 By following these rules, we ensure a smooth, flash-free, and functional experience on all Kindle and E-ink devices.
