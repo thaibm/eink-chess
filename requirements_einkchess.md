@@ -64,7 +64,7 @@
   - **Cơ chế Touch & Click Delegation (Chuẩn ChessTwinkle):**
     - Đăng ký bộ lắng nghe sự kiện ngay tại Container bàn cờ (`table.onclick`, `table.ontouchstart`, `table.onmousedown`) để bắt sự kiện chạm lập tức khi người dùng vừa chạm vào màn hình e-ink.
     - Xử lý `onFastInput` với `e.preventDefault()` để ngăn chặn trình duyệt Kindle sinh thêm click trễ hoặc cuộn trang ngoài ý muốn, đồng thời giới hạn throttle (120ms) và khử trùng lặp click (700ms).
-    - Tra cứu ô cờ tương ứng bằng cách duyệt ngược cây DOM `tgt = tgt.parentNode` cho đến khi tìm thấy phần tử có thuộc tính `data-r` và `data-c`.
+    - Tra cứu ô cờ tương ứng bằng cách duyệt ngược cây DOM `tgt = tgt.parentNode` cho đến khi tìm thấy phần tử có thuộc tính `data-r` và `data-c`. (Lưu ý: Bắt buộc phải có bước chuẩn hóa `if (tgt && tgt.nodeType === 3) tgt = tgt.parentNode;` do WebKit cũ trên Kindle có thể trả về `e.target` là TextNode, gây lỗi mất sự kiện chạm).
     - Các Modal Overlay luôn có thuộc tính tường minh `style.display = 'block'` / `style.display = 'none'` để tránh overlay vô hình chặn touch hit trên các lớp DOM bên dưới.
   - **Touch Highlight:** Loại bỏ tap highlight (`-webkit-tap-highlight-color: transparent`) để tránh sinh thêm chu kỳ chớp màn hình e-ink khi chạm.
 

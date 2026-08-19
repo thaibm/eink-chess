@@ -81,13 +81,36 @@ describe('ChessBoard DOM & Touch/Click Delegation (ChessTwinkle pattern)', () =>
         expect(typeof table.ontouchstart).toBe('function');
         expect(typeof table.onmousedown).toBe('function');
 
-        // Simulate touch on piece-inner at row 6, col 4 (e2 pawn)
+        // Simulate touch on piece at row 6, col 4 (e2 pawn)
         const sq = board.squaresDOM[6][4];
-        const pieceInner = sq.children[0].children[0];
+        const pieceSpan = sq.children[0];
 
-        // Call ontouchstart with pieceInner as target
+        // Call ontouchstart with pieceSpan as target
         table.ontouchstart({
-            target: pieceInner,
+            target: pieceSpan,
+            preventDefault: function() {}
+        });
+
+        expect(board.selectedSquare).toEqual({ r: 6, c: 4 });
+        expect(board.validMoves.length).toBe(2);
+    });
+
+    test('Container level click delegation resolves square correctly even if target is TextNode', () => {
+        const table = global.document.getElementById('board-container').children[0];
+        
+        // Simulate touch on piece at row 6, col 4 (e2 pawn)
+        const sq = board.squaresDOM[6][4];
+        const pieceSpan = sq.children[0];
+
+        // Mock a text node inside pieceSpan
+        const textNode = {
+            nodeType: 3,
+            parentNode: pieceSpan,
+            getAttribute: undefined
+        };
+
+        table.ontouchstart({
+            target: textNode,
             preventDefault: function() {}
         });
 
