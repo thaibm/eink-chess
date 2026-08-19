@@ -49,7 +49,7 @@
   2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng ELO Puzzle từ API trực tuyến.
   3. **Chơi với Bạn Bè (PvP Online)**: Phòng đấu qua Game Code 6 ký tự kết nối realtime.
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 27-30vh`), tăng kích thước chữ (Title 17-18px, Desc 14px, Button 15-16px) và touch target (nút bấm chính min 44-48px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
-- **Chân trang (Footer):** Hiển thị liên kết xem "Traffic Stats" (`stats.html`) và thông tin ghi nhận "Power by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`).
+- **Chân trang (Footer):** Hiển thị liên kết xem "Traffic Stats" (`stats.html`) và thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
 
 ---
 

@@ -106,6 +106,7 @@
             'donate.btn_close': 'Đóng',
 
             'footer.stats': 'Thống kê traffic',
+            'footer.powered_by': 'Phát triển bởi',
             'stats.page_title': 'Thống Kê Traffic',
             'stats.btn_refresh': 'Làm mới',
             'stats.loading': 'Đang tải dữ liệu...',
@@ -302,6 +303,7 @@
             'donate.btn_close': 'Close',
 
             'footer.stats': 'Traffic Stats',
+            'footer.powered_by': 'Powered by',
             'stats.page_title': 'Traffic Statistics',
             'stats.btn_refresh': 'Refresh',
             'stats.loading': 'Loading statistics...',
