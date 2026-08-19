@@ -54,10 +54,15 @@
             }
 
             var tgt = (e && (e.target || e.srcElement)) || null;
-            while (tgt && tgt.getAttribute && (tgt.getAttribute('data-r') === null || tgt.getAttribute('data-c') === null)) {
+            if (tgt && tgt.nodeType === 3) {
                 tgt = tgt.parentNode;
             }
-            if (!tgt || !tgt.getAttribute) return;
+            // [FIX PPW3] Sử dụng phủ định để kiểm tra thuộc tính, giúp bắt dính 
+            // cả null (chuẩn) và "" (lỗi của WebKit Kindle cũ) mà không dùng hasAttribute.
+            while (tgt && tgt.getAttribute && (!tgt.getAttribute('data-r') || !tgt.getAttribute('data-c'))) {
+                tgt = tgt.parentNode;
+            }
+            if (!tgt || !tgt.getAttribute || !tgt.getAttribute('data-r')) return;
 
             var rAttr = tgt.getAttribute('data-r');
             var cAttr = tgt.getAttribute('data-c');
@@ -87,12 +92,9 @@
                 sq.setAttribute('data-r', r);
                 sq.setAttribute('data-c', c);
 
-                var pieceHolder = document.createElement('div');
-                pieceHolder.className = 'piece';
-                var pieceInner = document.createElement('div');
-                pieceInner.className = 'piece-inner';
-                pieceHolder.appendChild(pieceInner);
-                sq.appendChild(pieceHolder);
+                var pieceSpan = document.createElement('span');
+                pieceSpan.className = 'piece';
+                sq.appendChild(pieceSpan);
 
                 rowDOM.appendChild(sq);
                 rowSquares.push(sq);
@@ -314,14 +316,14 @@
                 sqDOM.className = cls;
 
                 // Update piece glyph inside
-                var pieceInner = sqDOM.getElementsByTagName('div')[0].getElementsByTagName('div')[0];
+                var pieceEl = sqDOM.getElementsByTagName('span')[0];
                 if (piece) {
                     var isWhitePiece = this.engine.isWhite(piece);
-                    pieceInner.className = 'piece-inner ' + (isWhitePiece ? 'piece-w' : 'piece-b');
-                    pieceInner.innerHTML = this.engine.getGlyph(piece);
+                    pieceEl.className = 'piece piece-' + (isWhitePiece ? 'w' : 'b');
+                    pieceEl.innerHTML = this.engine.getGlyph(piece);
                 } else {
-                    pieceInner.className = 'piece-inner';
-                    pieceInner.innerHTML = '';
+                    pieceEl.className = 'piece';
+                    pieceEl.innerHTML = '';
                 }
             }
         }

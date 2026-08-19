@@ -381,22 +381,10 @@ button,
 
 /* Chess Piece Glyph Inside Square */
 .piece {
-    width: 100%;
-    height: 100%;
-    display: table;
-    table-layout: fixed;
-    text-align: center;
     font-size: 36px;
     line-height: 1;
     font-weight: normal;
     pointer-events: none;
-}
-
-.piece-inner {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-    line-height: 1;
 }
 
 /* White Pieces */
