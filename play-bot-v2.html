@@ -74,16 +74,20 @@
                 <div class="modal-body">
                     <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;"
                         data-i18n="home.setup_level_label">1. Choose AI Level:</div>
-                    <div class="btn-group" id="setup-level-group">
-                        <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_1">Lvl 1
-                            (~800)</div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_2">Lvl 2 (~1000)
+                    <div id="setup-level-group">
+                        <div class="btn-group">
+                            <div class="btn-group-item active" onclick="selectSetupLevel(1)" data-i18n="home.level_v2_1">Lvl 1 (~400)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(2)" data-i18n="home.level_v2_2">Lvl 2 (~600)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_v2_3">Lvl 3 (~800)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(4)" data-i18n="home.level_v2_4">Lvl 4 (~1000)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(5)" data-i18n="home.level_v2_5">Lvl 5 (~1200)</div>
                         </div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(3)" data-i18n="home.level_3">Lvl 3 (~1200)
-                        </div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(4)" data-i18n="home.level_4">Lvl 4 (~1400)
-                        </div>
-                        <div class="btn-group-item" onclick="selectSetupLevel(5)" data-i18n="home.level_5">Lvl 5 (~1600)
+                        <div class="btn-group" style="margin-top: 4px;">
+                            <div class="btn-group-item" onclick="selectSetupLevel(6)" data-i18n="home.level_v2_6">Lvl 6 (~1400)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(7)" data-i18n="home.level_v2_7">Lvl 7 (~1600)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(8)" data-i18n="home.level_v2_8">Lvl 8 (~1800)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(9)" data-i18n="home.level_v2_9">Lvl 9 (~2200)</div>
+                            <div class="btn-group-item" onclick="selectSetupLevel(10)" data-i18n="home.level_v2_10">Lvl 10 (~2400)</div>
                         </div>
                     </div>
 
@@ -94,6 +98,15 @@
                             White (First)</div>
                         <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Black
                             (Second)</div>
+                    </div>
+
+                    <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;"
+                        data-i18n="home.setup_review_label">3. Move Review:</div>
+                    <div class="btn-group" id="setup-review-group">
+                        <div class="btn-group-item active" onclick="selectSetupReview(true)" data-i18n="home.review_on">
+                            ON</div>
+                        <div class="btn-group-item" onclick="selectSetupReview(false)" data-i18n="home.review_off">
+                            OFF</div>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center;">
@@ -168,7 +181,8 @@
 
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=8"></script>
-    <script src="js/chess-ai.js?v=8"></script>
+    <script src="js/tomitank-source.js?v=1"></script>
+    <script src="js/chess-ai-v2.js?v=4"></script>
     <script src="js/chess-storage.js?v=19"></script>
     <script src="js/chess-i18n.js?v=39"></script>
     <script src="js/chess-board.js?v=17"></script>
@@ -186,25 +200,35 @@
 
         var pendingLevel = 1;
         var pendingSide = 'w';
+        var pendingReview = true;
+        var showMoveReview = true;
+        var lastMoveReview = null;
+        var lastPlayerMove = null;
+        var prevBotEval = 0;
 
         var botElos = {
-            1: 800,
-            2: 1000,
-            3: 1200,
-            4: 1400,
-            5: 1600
+            1: 400,
+            2: 600,
+            3: 800,
+            4: 1000,
+            5: 1200,
+            6: 1400,
+            7: 1600,
+            8: 1800,
+            9: 2200,
+            10: 2400
         };
 
         function saveCurrentGameState() {
             if (typeof ChessStorage === 'undefined') return;
             if (gameOver) {
-                ChessStorage.clearSavedBotGame();
+                ChessStorage.clearSavedBotGameV2();
                 return;
             }
             if (engine) {
                 var last = engine.history.length > 0 ? engine.history[engine.history.length - 1] : null;
                 var engineState = typeof engine.exportState === 'function' ? engine.exportState() : (typeof engine.toJSON === 'function' ? engine.toJSON() : { fen: engine.toFEN() });
-                ChessStorage.saveBotGame({
+                ChessStorage.saveBotGameV2({
                     botLevel: botLevel,
                     playerSide: playerSide,
                     engine: engineState,
@@ -231,7 +255,7 @@
                 }
             } catch (e) { }
 
-            ai = new ChessAI(botLevel);
+            ai = new ChessAIV2(botLevel);
             updateEloBadge();
 
             // Check URL parameters for explicit new match request
@@ -245,14 +269,14 @@
                 }
             }
 
-            var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGame() : null;
+            var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGameV2() : null;
 
             if (urlParams['new'] === '1') {
-                pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevel();
+                pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevelV2();
                 pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
 
                 if (typeof ChessStorage !== 'undefined') {
-                    ChessStorage.setDefaultBotLevel(pendingLevel);
+                    ChessStorage.setDefaultBotLevelV2(pendingLevel);
                     ChessStorage.setDefaultSide(pendingSide);
                 }
 
@@ -304,7 +328,7 @@
                     setTimeout(makeBotMove, 300);
                 }
             } else {
-                pendingLevel = ChessStorage.getDefaultBotLevel();
+                pendingLevel = ChessStorage.getDefaultBotLevelV2();
                 pendingSide = ChessStorage.getDefaultSide();
 
                 engine = new ChessEngine();
@@ -343,7 +367,7 @@
             var labelEl = document.getElementById('bot-level-name');
             if (!labelEl) return;
             if (typeof ChessI18n !== 'undefined') {
-                labelEl.innerHTML = ChessI18n.t('game.bot_level_' + botLevel);
+                labelEl.innerHTML = ChessI18n.t('game.bot_level_v2_' + botLevel);
             }
         }
 
@@ -389,35 +413,45 @@
                 ? (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_you') : 'You')
                 : (typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.player_bot') : 'Bot');
 
+            var currentStatus = '';
             if (engine.isCheck(engine.turn)) {
                 if (typeof ChessI18n !== 'undefined') {
-                    statusTextEl.innerHTML = ChessI18n.t('game.status_check', { turn: turnName, player: playerName });
+                    currentStatus = ChessI18n.t('game.status_check', { turn: turnName, player: playerName });
                 } else {
-                    statusTextEl.innerHTML = '[CHECK] ' + turnName + '\'s Turn (' + playerName + ')';
+                    currentStatus = '[CHECK] ' + turnName + '\'s Turn (' + playerName + ')';
                 }
             } else if (isThinking) {
                 if (typeof ChessI18n !== 'undefined') {
-                    statusTextEl.innerHTML = ChessI18n.t('game.status_thinking');
+                    currentStatus = ChessI18n.t('game.status_thinking');
                 } else {
-                    statusTextEl.innerHTML = 'Bot is thinking...';
+                    currentStatus = 'Bot is thinking...';
                 }
             } else {
                 if (typeof ChessI18n !== 'undefined') {
-                    statusTextEl.innerHTML = ChessI18n.t('game.status_turn', { turn: turnName, player: playerName });
+                    currentStatus = ChessI18n.t('game.status_turn', { turn: turnName, player: playerName });
                 } else {
-                    statusTextEl.innerHTML = turnName + '\'s Turn (' + playerName + ')';
+                    currentStatus = turnName + '\'s Turn (' + playerName + ')';
                 }
             }
+
+            if (showMoveReview && lastMoveReview && !isThinking && !gameOver) {
+                var evalLabel = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(lastMoveReview.labelKey) : lastMoveReview.symbol;
+                currentStatus = '[' + lastMoveReview.symbol + ' ' + evalLabel + '] ' + currentStatus;
+            }
+
+            statusTextEl.innerHTML = currentStatus;
         }
 
         // --- Setup Modal Functions ---
         function openSetupModal() {
             if (typeof ChessStorage !== 'undefined') {
-                pendingLevel = ChessStorage.getDefaultBotLevel();
+                pendingLevel = ChessStorage.getDefaultBotLevelV2();
                 pendingSide = ChessStorage.getDefaultSide();
+                pendingReview = ChessStorage.getDefaultBotReview();
             }
             selectSetupLevel(pendingLevel);
             selectSetupSide(pendingSide);
+            selectSetupReview(pendingReview);
             var modal = document.getElementById('setup-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
@@ -436,9 +470,9 @@
         function selectSetupLevel(lvl) {
             pendingLevel = lvl;
             if (typeof ChessStorage !== 'undefined') {
-                ChessStorage.setDefaultBotLevel(lvl);
+                ChessStorage.setDefaultBotLevelV2(lvl);
             }
-            var items = document.getElementById('setup-level-group').getElementsByTagName('div');
+            var items = document.getElementById('setup-level-group').querySelectorAll('.btn-group-item');
             for (var i = 0; i < items.length; i++) {
                 items[i].className = 'btn-group-item' + (i + 1 === lvl ? ' active' : '');
             }
@@ -454,9 +488,28 @@
             items[1].className = 'btn-group-item' + (side === 'b' ? ' active' : '');
         }
 
+        function selectSetupReview(enable) {
+            pendingReview = !!enable;
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setDefaultBotReview(pendingReview);
+            }
+            var reviewGroup = document.getElementById('setup-review-group');
+            if (reviewGroup) {
+                var items = reviewGroup.getElementsByTagName('div');
+                if (items.length >= 2) {
+                    items[0].className = 'btn-group-item' + (pendingReview ? ' active' : '');
+                    items[1].className = 'btn-group-item' + (!pendingReview ? ' active' : '');
+                }
+            }
+        }
+
         function startConfiguredGame() {
             botLevel = pendingLevel;
             playerSide = pendingSide;
+            showMoveReview = pendingReview;
+            lastMoveReview = null;
+            lastPlayerMove = null;
+            prevBotEval = 0;
             ai.level = botLevel;
             board.setOrientation(playerSide);
 
@@ -471,9 +524,17 @@
 
             gameOver = false;
             isThinking = false;
+            
+            // Recreate AI to terminate any ongoing background search and reset state
+            if (typeof ai !== 'undefined' && ai.worker) {
+                ai.worker.terminate();
+            }
+            ai = new ChessAIV2(botLevel);
+
             engine = new ChessEngine();
             board.setEngine(engine);
             board.setLastMove(null, null);
+            board.clearReviewBadge();
 
             saveCurrentGameState();
 
@@ -491,6 +552,7 @@
             if (engine.turn !== playerSide) return;
 
             // Execute player move
+            lastPlayerMove = move;
             engine.makeMove(move);
             board.setLastMove(move.from, move.to);
 
@@ -508,26 +570,71 @@
         }
 
         function makeBotMove() {
+            console.log("play-bot-v2: Entering makeBotMove(). gameOver =", gameOver, "isThinking =", isThinking);
             if (gameOver) {
                 isThinking = false;
                 return;
             }
 
-            var bestMove = ai.getBestMove(engine);
-            isThinking = false;
+            ai.getBestMove(engine, function(bestMove, botScore) {
+                console.log("play-bot-v2: bestMove callback fired. bestMove =", bestMove, "botScore =", botScore);
+                isThinking = false;
 
-            if (bestMove) {
-                engine.makeMove(bestMove);
-                board.setLastMove(bestMove.from, bestMove.to);
-            }
+                try {
+                    if (showMoveReview && lastPlayerMove && typeof botScore === 'number') {
+                        var cpLoss = Math.max(0, botScore - prevBotEval);
+                        console.log("play-bot-v2: Evaluating player move cpLoss =", cpLoss, "botScore =", botScore, "prevBotEval =", prevBotEval);
 
-            checkGameEnd();
+                        var evalObj = null;
+                        if (cpLoss <= 10) {
+                            evalObj = { symbol: '★', labelKey: 'game.eval_best', isDark: true, cpLoss: cpLoss };
+                        } else if (cpLoss <= 50) {
+                            evalObj = { symbol: '✔', labelKey: 'game.eval_good', isDark: false, cpLoss: cpLoss };
+                        } else if (cpLoss <= 150) {
+                            evalObj = { symbol: '?!', labelKey: 'game.eval_inaccuracy', isDark: false, cpLoss: cpLoss };
+                        } else if (cpLoss <= 300) {
+                            evalObj = { symbol: '?', labelKey: 'game.eval_mistake', isDark: false, cpLoss: cpLoss };
+                        } else {
+                            evalObj = { symbol: '??', labelKey: 'game.eval_blunder', isDark: true, cpLoss: cpLoss };
+                        }
 
-            if (!gameOver) {
-                saveCurrentGameState();
-            }
+                        lastMoveReview = evalObj;
+                        if (board) {
+                            board.setReviewBadge(lastPlayerMove.to.r, lastPlayerMove.to.c, evalObj.symbol, evalObj.isDark);
+                        }
+                    } else if (!showMoveReview) {
+                        lastMoveReview = null;
+                        if (board) board.clearReviewBadge();
+                    }
 
-            updateStatus();
+                    prevBotEval = (typeof botScore === 'number') ? botScore : 0;
+
+                    if (bestMove) {
+                        console.log("play-bot-v2: Executing bot move ->", bestMove);
+                        var resultMove = engine.makeMove(bestMove);
+                        console.log("play-bot-v2: engine.makeMove result ->", resultMove);
+                        board.setLastMove(bestMove.from, bestMove.to);
+                    } else {
+                        console.warn("play-bot-v2: No bestMove returned (possible engine error or init lag).");
+                        // If no move is returned because worker was not ready, try again after a short delay
+                        if (!gameOver && engine.turn !== playerSide) {
+                            console.log("play-bot-v2: Retrying makeBotMove in 1000ms...");
+                            isThinking = true;
+                            setTimeout(makeBotMove, 1000);
+                        }
+                    }
+
+                    checkGameEnd();
+
+                    if (!gameOver) {
+                        saveCurrentGameState();
+                    }
+                } catch (err) {
+                    console.error("play-bot-v2: Exception in bestMove callback:", err);
+                }
+
+                updateStatus();
+            });
         }
 
         function checkGameEnd() {
@@ -535,7 +642,7 @@
             if (status.over) {
                 gameOver = true;
                 if (typeof ChessStorage !== 'undefined') {
-                    ChessStorage.clearSavedBotGame();
+                    ChessStorage.clearSavedBotGameV2();
                 }
 
                 var oppElo = botElos[botLevel] || 800;
@@ -607,6 +714,11 @@
             if (gameOver || isThinking) return;
             if (engine.history.length === 0) return;
 
+            lastMoveReview = null;
+            lastPlayerMove = null;
+            prevBotEval = 0;
+            if (board) board.clearReviewBadge();
+
             if (engine.turn === playerSide && engine.history.length >= 2) {
                 engine.undoMove();
                 engine.undoMove();
@@ -643,7 +755,7 @@
 
             gameOver = true;
             if (typeof ChessStorage !== 'undefined') {
-                ChessStorage.clearSavedBotGame();
+                ChessStorage.clearSavedBotGameV2();
             }
 
             var oppElo = botElos[botLevel] || 800;

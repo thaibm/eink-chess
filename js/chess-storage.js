@@ -24,7 +24,10 @@
         SAVED_PUZZLE: 'einkchess_saved_puzzle',
         QUOTA: 'einkchess_quota',
         DEFAULT_BOT_LEVEL: 'einkchess_default_bot_lvl',
-        DEFAULT_SIDE: 'einkchess_default_side'
+        DEFAULT_BOT_LEVEL_V2: 'einkchess_default_bot_lvl_v2',
+        DEFAULT_SIDE: 'einkchess_default_side',
+        DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
+        SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2'
     };
 
     function generateUUID() {
@@ -284,6 +287,18 @@
             return this.remove(STORAGE_KEYS.SAVED_BOT_GAME);
         },
 
+        saveBotGameV2: function(gameState) {
+            return this.set(STORAGE_KEYS.SAVED_BOT_GAME_V2, gameState);
+        },
+
+        getSavedBotGameV2: function() {
+            return this.get(STORAGE_KEYS.SAVED_BOT_GAME_V2, null);
+        },
+
+        clearSavedBotGameV2: function() {
+            return this.remove(STORAGE_KEYS.SAVED_BOT_GAME_V2);
+        },
+
         // --- Auto-Save Puzzle State ---
         savePuzzle: function(puzzleState) {
             return this.set(STORAGE_KEYS.SAVED_PUZZLE, puzzleState);
@@ -298,13 +313,11 @@
         },
 
         // --- Default Bot Match Config ---
-        getDefaultBotLevel: function() {
-            return parseInt(this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL, 1), 10);
-        },
-
-        setDefaultBotLevel: function(lvl) {
-            return this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL, parseInt(lvl, 10));
-        },
+        getDefaultBotLevel: function() { return this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL, 1); },
+        setDefaultBotLevel: function(lvl) { this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL, lvl); },
+        
+        getDefaultBotLevelV2: function() { return this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, 1); },
+        setDefaultBotLevelV2: function(lvl) { this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, parseInt(lvl, 10)); },
 
         getDefaultSide: function() {
             return this.get(STORAGE_KEYS.DEFAULT_SIDE, 'w');
@@ -312,6 +325,14 @@
 
         setDefaultSide: function(side) {
             return this.set(STORAGE_KEYS.DEFAULT_SIDE, side);
+        },
+
+        getDefaultBotReview: function() {
+            return this.get(STORAGE_KEYS.DEFAULT_BOT_REVIEW, true);
+        },
+
+        setDefaultBotReview: function(enabled) {
+            return this.set(STORAGE_KEYS.DEFAULT_BOT_REVIEW, !!enabled);
         },
 
         // --- Local Quota Management ---

@@ -58,4 +58,19 @@ Whenever you work on this project, you MUST strictly adhere to the following rul
   2. Basic geometric / punctuation symbols (`★`, `☆`, `✔`, `✖`, `·`, `↗`, `—`)
   3. Crisp inline SVGs (`<svg width="..." height="..." ...><path .../></svg>`) or image assets.
 
+
+## 13. ♟ AI Difficulty & Elo Rating Calibration
+If you need to adjust or modify the AI difficulty levels or ELO ratings, you MUST strictly adhere to the following workflow:
+- **Core Parameters**: The bot's difficulty is controlled by `thinkTime` (ms) in [`play-bot-v2.html`](file:///Users/thaibuiminh/Projects/eink-chess/play-bot-v2.html) (`botElos` object) and noise injection (`chance` & `noiseCp`) in [`js/chess-ai-v2.js`](file:///Users/thaibuiminh/Projects/eink-chess/js/chess-ai-v2.js) (`AI_MOVE_NOISE_CFG` array).
+- **ELO Scaling Limits**: Tomitank 7.0's peak strength on V8 (Node.js/JIT) is ~3050 Elo. Due to Kindle's slow hardware/JIT-less WebKit engine causing a ~100x slowdown, the peak strength is calibrated to **~2400 ELO** at 4000ms. Maintain this calibrated scale to keep ELO numbers realistic for E-ink players.
+- **Synchronized Updates**: Whenever you modify ELO values or level names, you MUST update them in:
+  1. [`play-bot-v2.html`](file:///Users/thaibuiminh/Projects/eink-chess/play-bot-v2.html) (both `botElos` object and the setup modal buttons).
+  2. [`js/chess-i18n.js`](file:///Users/thaibuiminh/Projects/eink-chess/js/chess-i18n.js) (Vietnamese and English translations).
+  3. [`requirements_einkchess.md`](file:///Users/thaibuiminh/Projects/eink-chess/requirements_einkchess.md) (the Bot level table).
+  4. [`chess_ai_v2_implementation_plan.md`](file:///Users/thaibuiminh/Projects/eink-chess/chess_ai_v2_implementation_plan.md) (the ELO mapping table).
+  5. [`README.md`](file:///Users/thaibuiminh/Projects/eink-chess/README.md) (ELO bounds for bots).
+- **Cache Busting**: Increment the version parameter of `chess-i18n.js` in all HTML files (`index.html`, `play-bot.html`, `play-bot-v2.html`, `puzzles.html`, `stats.html`).
+- **Build**: Run `npm run build` after editing to update the `dist/` directory.
+
 By following these rules, we ensure a smooth, flash-free, and functional experience on all Kindle and E-ink devices.
+

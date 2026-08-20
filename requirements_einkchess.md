@@ -45,7 +45,7 @@
 
 ### 2.5. Bố cục Trang chủ (Home Screen 3-Mode Balanced Layout)
 - Trang chủ hiển thị trực quan 3 thẻ chế độ chơi chính:
-  1. **Chơi với Máy (Bot AI)**: Minimax offline 3 cấp độ, tính điểm ELO Bot.
+  1. **Chơi với Máy (Bot AI)**: Tomitank offline 10 cấp độ, tính điểm ELO Bot.
   2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng ELO Puzzle từ API trực tuyến.
   3. **Chơi với Bạn Bè (PvP Online)**: Phòng đấu qua Game Code 6 ký tự kết nối realtime.
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 27-30vh`), tăng kích thước chữ (Title 17-18px, Desc 14px, Button 15-16px) và touch target (nút bấm chính min 44-48px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
@@ -102,35 +102,40 @@
 
 #### A. Cấu hình trước ván:
 - Chọn bên cầm quân: Trắng / Đen.
-- Chọn cấp độ khó (8 Levels):
+- Chọn cấp độ khó (10 Levels - được sắp xếp thành 2 dòng, mỗi dòng 5 cấp độ để tối ưu touch targets trên thiết bị E-ink):
 
-| Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý | Yêu cầu mạng |
+| Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý (Tomitank Web Worker) | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~800 | Local JS Minimax (Depth 1, Không Quiescence) | Offline |
-| **Level 2** | Tập sự (Novice) | ~1000 | Local JS Minimax (Depth 2, Không Quiescence) | Offline |
-| **Level 3** | Dễ (Casual) | ~1200 | Local JS Minimax (Depth 2, Có Quiescence) | Offline |
-| **Level 4** | Trung bình (Intermediate) | ~1400 | Local JS Minimax (Depth 3, Không Quiescence) | Offline |
-| **Level 5** | Câu lạc bộ (Club) | ~1600 | Local JS Minimax (Depth 3, Có Quiescence) | Offline |
-| **Level 6** | Bán chuyên (Semi-Pro) | ~1800 | Chess-API.com (Stockfish 18, Depth 7) | Cần Internet (☁) |
-| **Level 7** | Chuyên gia (Expert) | ~2000 | Chess-API.com (Stockfish 18, Depth 10) | Cần Internet (☁) |
-| **Level 8** | Dự bị Kiện tướng (Candidate) | ~2200 | Chess-API.com (Stockfish 18, Depth 12) | Cần Internet (☁) |
-| **Level 9** | Kiện tướng (Master) | ~2400 | Chess-API.com (Stockfish 18, Depth 14) | Cần Internet (☁) |
-| **Level 10** | Đại kiện tướng (Grandmaster)| ~2750 | Chess-API.com (Stockfish 18, Depth 18) | Cần Internet (☁) |
+| **Level 1** | Người mới (Beginner) | ~400 | Giới hạn 50ms + Noise rất mạnh (400cp, 100% chance) | Offline |
+| **Level 2** | Tập sự (Novice) | ~600 | Giới hạn 100ms + Noise mạnh (320cp, 90% chance) | Offline |
+| **Level 3** | Dễ (Casual) | ~800 | Giới hạn 200ms + Noise khá (190cp, 70% chance) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1000 | Giới hạn 300ms + Noise trung bình (150cp, 50% chance) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1200 | Giới hạn 400ms + Noise nhẹ (110cp, 40% chance) | Offline |
+| **Level 6** | Bán chuyên (Semi-Pro) | ~1400 | Giới hạn 500ms + Noise hiếm (65cp, 30% chance) | Offline |
+| **Level 7** | Chuyên gia (Expert) | ~1600 | Giới hạn 1000ms + Noise rất hiếm (40cp, 20% chance) | Offline |
+| **Level 8** | Kiện tướng (Master) | ~1800 | Giới hạn 2000ms + Sai sót nhỏ (25cp, 10% chance) | Offline |
+| **Level 9** | Đại kiện tướng (Grandmaster) | ~2200 | Giới hạn 3000ms (Max sức mạnh, không Noise) | Offline |
+| **Level 10** | Siêu cấp (Super GM) | ~2400 | Giới hạn 4000ms (Max sức mạnh, không Noise) | Offline |
 
-***Giải thích về thuật toán tạo độ khó tự nhiên cho Offline Bot:***
-- **Khái niệm Depth (Độ sâu tìm kiếm):** Số lượng nửa-nước đi (Ply) mà bot nhìn trước được. Depth càng cao, bot càng giỏi về dàn quân chiến lược và thế trận.
-- **Khái niệm Quiescence Search (Tính toán ăn quân tĩnh):** Một thuật toán bổ trợ bắt buộc để giải quyết lỗi "Horizon Effect". Nếu không có Quiescence, bot có thể ăn 1 con Tượng đang được bảo vệ ở cuối độ sâu tìm kiếm vì nó tưởng nó "lãi" (không nhìn thấy nước tiếp theo kẻ thù sẽ ăn lại).
-- **Mô phỏng tư duy con người qua từng Level:**
-  - **Level 1 (Depth 1):** Rất thiển cận, chỉ nhìn 1 bước. Chỉ quan tâm ăn quân ngay lập tức, dính mọi bẫy cờ 2 nước.
-  - **Level 2 (Depth 2, No Quiescence):** Nhìn được 1 lượt đi (mình đi, địch đi). Có thể thấy trước một số mối đe dọa cơ bản nhưng vẫn tính toán sai trong các chuỗi đổi quân (Horizon Effect).
-  - **Level 3 (Depth 2, With Quiescence):** Cẩn thận hơn, không bị dính bẫy đổi quân cơ bản nhưng tư duy chiến lược ngắn hạn.
-  - **Level 4 (Depth 3, No Quiescence):** Nhìn sâu hơn về thế trận (điều quân tốt hơn), nhưng thỉnh thoảng tính nhầm/tính sót ở nước thứ 4 của một pha đổi quân phức tạp. Đây là lỗi cực kỳ đặc trưng của người chơi hệ trung bình-khá.
-  - **Level 5 (Depth 3, With Quiescence):** Bot offline mạnh nhất, tính toán sâu cả về thế trận lẫn chuỗi trao đổi quân. Đạt ELO ổn định ~1600.
+- **Tùy chọn Đánh giá nước đi (Move Review: Bật/Tắt):** Người chơi có thể bật hoặc tắt tính năng đánh giá nước đi trong modal Cài đặt ván đấu (lưu tự động vào `ChessStorage`).
+
+***Giải thích về thuật toán tạo độ khó tự nhiên & Đánh giá nước đi cho Offline Bot V2 (Tomitank):***
+- **Sử dụng Engine Tomitank 100% Offline qua Web Worker:** Tất cả 10 cấp độ đều hoạt động offline bằng engine Tomitank (đã tối ưu Hash 16MB cho Kindle).
+- **Thuật toán MultiPV & Noise Injection:** Khác với AI Minimax cũ (ngây ngô và dễ bị bắt bài), Bot V2 mô phỏng tư duy con người bằng cách dùng MultiPV để tìm top 4 nước đi tốt nhất (`best4rootmoves`). Ở các cấp độ thấp (1-8), Bot có tỷ lệ (chance) cố ý chọn nước đi sai lầm trong ngưỡng điểm hao hụt (noiseCp) để "giả lập" con người đánh hỏng.
+- **Phân tích nước đi (Move Evaluation & Badges):** Ứng dụng theo dõi chênh lệch điểm số (Centipawn Loss: $\Delta cp$) sau khi Bot tính toán nước phản hồi để phân loại chất lượng nước đi của người chơi:
+  - $\le 10\text{ cp}$: **`★` Nước đi tốt nhất (Best Move)**
+  - $11 - 50\text{ cp}$: **`✔` Nước đi tốt (Good Move)**
+  - $51 - 150\text{ cp}$: **`?!` Kém chính xác (Inaccuracy)**
+  - $151 - 300\text{ cp}$: **`?` Sai lầm (Mistake)**
+  - $> 300\text{ cp}$: **`??` Đại sai lầm (Blunder)**
+- **Hiển thị kép (Dual Display):**
+  - **Huy hiệu trên bàn cờ (`.sq-review-badge`):** Gắn tại góc ô cờ đích mà người chơi vừa đi tới (tương thích khi xoay bàn cờ và reset khi Đi lại/Ván mới).
+  - **Nhãn trên Thanh trạng thái (Status Bar):** Hiển thị trực tiếp nhãn đánh giá tương ứng (ví dụ: `[★ Nước đi tốt nhất] - Lượt của Bạn`).
 
 #### B. Giao diện Status Bar & Quân cờ bị ăn:
 - **Thanh trạng thái 3 phần (Compact 3-column table):**
   - **Cột trái:** Hiển thị danh sách quân Trắng đã bị ăn (`♙`, `♘`, `♗`, `♖`, `♕`), sắp xếp theo thứ tự giá trị giảm dần.
-  - **Cột giữa:** Hiển thị lượt đi hiện tại (Trắng/Đen), báo Chiếu (`[CHIẾU]`), trạng thái Bot đang tính toán.
+  - **Cột giữa:** Hiển thị đánh giá nước đi của người chơi, lượt đi hiện tại (Trắng/Đen), báo Chiếu (`[CHIẾU]`), trạng thái Bot đang tính toán.
   - **Cột phải:** Hiển thị danh sách quân Đen đã bị ăn (`♟`, `♞`, `♝`, `♜`, `♛`), sắp xếp theo thứ tự giá trị giảm dần.
 - Tự động cập nhật đồng bộ sau mỗi nước đi và khi thực hiện Đi lại (Undo).
 
@@ -161,7 +166,7 @@
   - Tự động lưu toàn bộ trạng thái ván cờ vào `localStorage` (`einkchess_saved_bot_game`) sau mỗi nước đi của người chơi, nước đi của Bot, hoặc khi Đi lại (Undo), cũng như sự kiện thoát trang (`beforeunload`/`pagehide`).
   - Dữ liệu lưu gồm: Cấp độ Bot (`botLevel`), bên cầm quân (`playerSide`), engine state (`fen`, `history`, `positionCounts`, `turn`, `castling`, `epSquare`, `halfmoveClock`), và nước đi gần nhất (`lastMove`).
   - **Tải lại trang (Reload / F5):** Trực tiếp khôi phục bàn cờ, thế cờ và lượt đi đang chơi dở mà không khởi động lại ván mới hay mở popup cài đặt. Nếu đến lượt Bot đi dở, Bot sẽ tự động suy nghĩ và đi tiếp.
-  - **Trang chủ (`index.html`):** Thẻ Play vs Bot hiển thị tag `Saved Game (Lvl X)` kèm 2 nút: `[Tiếp tục ván đấu (Resume Game)]` (quay lại tiếp tục chơi) và `[Ván mới (New Game)]` (mở modal cấu hình ván mới).
+  - **Trang chủ (`index.html`):** Thẻ Play vs Bot hiển thị tag thông báo ván dở (cho V1, V2 hoặc cả hai) kèm 2 nút chọn song song: `[Bot v1 (Local Minimax)]` và `[Bot v2 (Tomitank 7.0)]`. Khi click vào nút tương ứng, nếu đang chơi dở, popup hiển thị hỏi người chơi muốn `[Tiếp tục chơi (Continue Game)]` hay `[Chơi ván mới (New Game)]` để cấu hình lại.
   - **Xóa trạng thái đã lưu:** Khi ván đấu kết thúc tự nhiên (Chiếu hết, Hòa) hoặc người chơi chủ động Đầu hàng (Resign), hệ thống tự động xóa dữ liệu ván đấu đã lưu trong `localStorage` để sẵn sàng cho ván mới tiếp theo.
 
 ---
@@ -407,7 +412,7 @@
 
 ### Phase 2 — Online AI (Level 4-8 Kiện Tướng + Quota 3 trận/ngày)
 - Xây dựng `js/chess-api-client.js`: Giao tiếp API `POST https://chess-api.com/v1` qua XHR.
-- Tích hợp 5 cấp độ nâng cao (~1500 đến ~2750 ELO), độ sâu tính toán depth 4 đến 18.
+- Tích hợp 5 cấp độ nâng cao (~1400 đến ~2400 ELO), độ sâu tính toán depth 4 đến 18.
 - Áp dụng Quota 3 trận Cloud AI/ngày (tự động reset 00:00).
 - Xử lý trạng thái "Đang suy nghĩ..." và cơ chế tự động fallback về local engine khi mất mạng.
 

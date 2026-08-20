@@ -17,6 +17,7 @@
         this.selectedSquare = null; // { r, c }
         this.validMoves = [];       // array of legal moves for selectedSquare
         this.lastMove = null;       // { from: {r,c}, to: {r,c} }
+        this.reviewBadge = null;    // { r: 0..7, c: 0..7, symbol: '★', isDark: true }
         this.squaresDOM = [];       // 8x8 matrix of DOM elements
 
         this.engine = this.options.engine || null;
@@ -120,11 +121,26 @@
         this.selectedSquare = null;
         this.validMoves = [];
         this.lastMove = null;
+        this.reviewBadge = null;
         this.render();
     };
 
     ChessBoard.prototype.setLastMove = function(from, to) {
         this.lastMove = (from && to) ? { from: from, to: to } : null;
+        this.render();
+    };
+
+    ChessBoard.prototype.setReviewBadge = function(r, c, symbol, isDark) {
+        if (r !== null && typeof r !== 'undefined' && c !== null && typeof c !== 'undefined' && symbol) {
+            this.reviewBadge = { r: r, c: c, symbol: symbol, isDark: !!isDark };
+        } else {
+            this.reviewBadge = null;
+        }
+        this.render();
+    };
+
+    ChessBoard.prototype.clearReviewBadge = function() {
+        this.reviewBadge = null;
         this.render();
     };
 
@@ -322,6 +338,21 @@
                 } else {
                     pieceInner.className = 'piece-inner';
                     pieceInner.innerHTML = '';
+                }
+
+                // Update review badge if present on this square
+                var hasBadge = (this.reviewBadge && this.reviewBadge.r === logR && this.reviewBadge.c === logC);
+                var badgeEl = sqDOM.querySelector ? sqDOM.querySelector('.sq-review-badge') : null;
+
+                if (hasBadge) {
+                    if (!badgeEl) {
+                        badgeEl = document.createElement('div');
+                        sqDOM.appendChild(badgeEl);
+                    }
+                    badgeEl.className = 'sq-review-badge' + (this.reviewBadge.isDark ? ' bg-dark' : '');
+                    badgeEl.innerHTML = this.reviewBadge.symbol;
+                } else if (badgeEl && badgeEl.parentNode === sqDOM) {
+                    sqDOM.removeChild(badgeEl);
                 }
             }
         }

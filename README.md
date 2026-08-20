@@ -57,7 +57,7 @@
 
 ### 🚀 Planned Features (Future Roadmap)
 
-- **Phase 2 — Advanced Cloud AI:** Integrate Stockfish 18 via external cloud API for master-level play (Levels 6–10: ~1800 to ~2750 ELO, 3 free games/day quota).
+- **Phase 2 — Advanced Cloud AI:** Integrate Stockfish 18 via external cloud API for master-level play (Levels 6–10: ~1400 to ~2400 ELO, 3 free games/day quota).
 - **Phase 4 — Online PvP (Play a Friend):** Realtime 1v1 multiplayer via 6-character room codes with lightweight 8-second XHR polling.
 - **Phase 5 — Personal Historic Stats Dashboard:** Detailed player performance analytics, historic ELO progression charts, and win/loss breakdown.
 
@@ -110,7 +110,7 @@
 
 ### 🚀 Tính Năng Dự Kiến (Lộ Trình Tương Lai)
 
-- **Phase 2 — Đấu AI Cloud Nâng Cao:** Tích hợp engine Stockfish 18 từ API bên ngoài, nâng cấp độ khó lên mức Kiện tướng (Level 6–10: ~1800 đến ~2750 ELO, miễn phí 3 trận/ngày).
+- **Phase 2 — Đấu AI Cloud Nâng Cao:** Tích hợp engine Stockfish 18 từ API bên ngoài, nâng cấp độ khó lên mức Kiện tướng (Level 6–10: ~1400 đến ~2400 ELO, miễn phí 3 trận/ngày).
 - **Phase 4 — PvP Online (Chơi với bạn bè):** Tạo phòng thi đấu 1v1 thời gian thực qua Game Code 6 ký tự với cơ chế đồng bộ polling 8s qua XHR nhẹ.
 - **Phase 5 — Bảng Thống Kê Cá Nhân Chuyên Sâu:** Biểu đồ lịch sử phát triển ELO, thống kê chi tiết tỷ lệ thắng/thua và phân tích thành tích cá nhân.
 
