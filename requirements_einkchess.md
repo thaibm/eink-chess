@@ -106,16 +106,16 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý (Tomitank Web Worker) | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~400 | Giới hạn 50ms + Noise rất mạnh (400cp, 100% chance) | Offline |
-| **Level 2** | Tập sự (Novice) | ~600 | Giới hạn 100ms + Noise mạnh (320cp, 90% chance) | Offline |
-| **Level 3** | Dễ (Casual) | ~800 | Giới hạn 200ms + Noise khá (190cp, 70% chance) | Offline |
-| **Level 4** | Trung bình (Intermediate) | ~1000 | Giới hạn 300ms + Noise trung bình (150cp, 50% chance) | Offline |
-| **Level 5** | Câu lạc bộ (Club) | ~1200 | Giới hạn 400ms + Noise nhẹ (110cp, 40% chance) | Offline |
-| **Level 6** | Bán chuyên (Semi-Pro) | ~1400 | Giới hạn 500ms + Noise hiếm (65cp, 30% chance) | Offline |
-| **Level 7** | Chuyên gia (Expert) | ~1600 | Giới hạn 1000ms + Noise rất hiếm (40cp, 20% chance) | Offline |
-| **Level 8** | Kiện tướng (Master) | ~1800 | Giới hạn 2000ms + Sai sót nhỏ (25cp, 10% chance) | Offline |
-| **Level 9** | Đại kiện tướng (Grandmaster) | ~2200 | Giới hạn 3000ms (Max sức mạnh, không Noise) | Offline |
-| **Level 10** | Siêu cấp (Super GM) | ~2400 | Giới hạn 4000ms (Max sức mạnh, không Noise) | Offline |
+| **Level 1** | Người mới (Beginner) | ~400 | Giới hạn 200ms + Noise (180cp, 50% chance) | Offline |
+| **Level 2** | Tập sự (Novice) | ~600 | Giới hạn 400ms + Noise (130cp, 40% chance) | Offline |
+| **Level 3** | Dễ (Casual) | ~800 | Giới hạn 700ms + Noise (90cp, 30% chance) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1000 | Giới hạn 1000ms + Noise (60cp, 25% chance) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1200 | Giới hạn 1500ms + Noise (40cp, 20% chance) | Offline |
+| **Level 6** | Bán chuyên (Semi-Pro) | ~1400 | Giới hạn 2000ms + Noise (25cp, 15% chance) | Offline |
+| **Level 7** | Chuyên gia (Expert) | ~1600 | Giới hạn 4000ms + Noise (15cp, 10% chance) | Offline |
+| **Level 8** | Kiện tướng (Master) | ~1800 | Giới hạn 6000ms (Max sức mạnh, không Noise) | Offline |
+| **Level 9** | Đại kiện tướng (Grandmaster) | ~2200 | Giới hạn 8000ms (Max sức mạnh, không Noise) | Offline |
+| **Level 10** | Siêu cấp (Super GM) | ~2400 | Giới hạn 12000ms (Max sức mạnh, không Noise) | Offline |
 
 - **Tùy chọn Đánh giá nước đi (Move Review: Bật/Tắt):** Người chơi có thể bật hoặc tắt tính năng đánh giá nước đi trong modal Cài đặt ván đấu (lưu tự động vào `ChessStorage`).
 

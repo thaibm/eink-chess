@@ -9,16 +9,16 @@ To ensure a safe and bug-free implementation, we will develop the new Tomitank A
 > 
 > | Cấp độ | Thời gian (ms) | Tỷ lệ mắc lỗi (Chance) | Lệch chuẩn tối đa (cpLoss) | ELO Ước lượng |
 > | :--- | :--- | :--- | :--- | :--- |
-> | **Level 1** | 50ms | 100% | 400 (Biếu không quân) | ~400 (Mới học chơi) |
-> | **Level 2** | 100ms | 90% | 320 (Lỗi rất nặng) | ~600 (Tập sự) |
-> | **Level 3** | 200ms | 70% | 190 (Lỗi nặng) | ~800 (Nghiệp dư) |
-> | **Level 4** | 300ms | 50% | 150 (Lỗi vừa) | ~1000 (Trung bình yếu) |
-> | **Level 5** | 400ms | 40% | 110 (Lỗi nhẹ) | ~1200 (Trung bình khá) |
-> | **Level 6** | 500ms | 30% | 65 (Nước đi thiếu chính xác) | ~1500 (Phong trào) |
-> | **Level 7** | 1000ms | 20% | 40 (Thiếu chính xác) | ~1800 (Câu lạc bộ) |
-> | **Level 8** | 2000ms | 10% | 25 (Gần như hoàn hảo) | ~2100 (Chuyên gia) |
-> | **Level 9** | 3000ms | 0% | 0 (Đánh chuẩn tuyệt đối) | ~2400 (Kiện tướng) |
-> | **Level 10**| 4000ms | 0% | 0 (Đánh chuẩn tuyệt đối) | ~2400 (Đại kiện tướng/Siêu cấp) |
+> | **Level 1** | 200ms | 50% | 180 (Sơ hở vị trí) | ~400 (Mới học chơi) |
+> | **Level 2** | 400ms | 40% | 130 (Mất 1 tốt) | ~600 (Tập sự) |
+> | **Level 3** | 700ms | 30% | 90 (Nước đi thụ động) | ~800 (Nghiệp dư) |
+> | **Level 4** | 1000ms | 25% | 60 (Lỗi nhỏ) | ~1000 (Trung bình yếu) |
+> | **Level 5** | 1500ms | 20% | 40 (Thiếu chính xác nhẹ) | ~1200 (Trung bình khá) |
+> | **Level 6** | 2000ms | 15% | 25 (Nước đi thiếu chính xác) | ~1400 (Bán chuyên) |
+> | **Level 7** | 4000ms | 10% | 15 (Rất ít sai sót) | ~1600 (Chuyên gia) |
+> | **Level 8** | 6000ms | 0% | 0 (Đánh chuẩn tuyệt đối) | ~1800 (Kiện tướng) |
+> | **Level 9** | 8000ms | 0% | 0 (Đánh chuẩn tuyệt đối) | ~2200 (Đại kiện tướng) |
+> | **Level 10**| 12000ms | 0% | 0 (Đánh chuẩn tuyệt đối) | ~2400 (Siêu cấp) |
 
 ## Proposed Execution Phases
 

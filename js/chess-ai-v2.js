@@ -96,18 +96,18 @@
     };
 
     ChessAIV2.prototype.applyNoise = function(bestUci, best4, bestScore) {
-        if (this.level > 8 || !best4 || best4.length < 2) return bestUci;
+        if (this.level > 7 || !best4 || best4.length < 2) return bestUci;
         
         var AI_MOVE_NOISE_CFG = [
             { noiseCp: 0, chance: 0 },       // Level 0 (unused)
-            { noiseCp: 400, chance: 1.00 },  // Level 1
-            { noiseCp: 320, chance: 0.90 },  // Level 2
-            { noiseCp: 190, chance: 0.70 },  // Level 3
-            { noiseCp: 150, chance: 0.50 },  // Level 4
-            { noiseCp: 110, chance: 0.40 },  // Level 5
-            { noiseCp: 65, chance: 0.30 },   // Level 6
-            { noiseCp: 40, chance: 0.20 },   // Level 7
-            { noiseCp: 25, chance: 0.10 }    // Level 8
+            { noiseCp: 180, chance: 0.50 },  // Level 1
+            { noiseCp: 130, chance: 0.40 },  // Level 2
+            { noiseCp: 90, chance: 0.30 },   // Level 3
+            { noiseCp: 60, chance: 0.25 },   // Level 4
+            { noiseCp: 40, chance: 0.20 },   // Level 5
+            { noiseCp: 25, chance: 0.15 },   // Level 6
+            { noiseCp: 15, chance: 0.10 },   // Level 7
+            { noiseCp: 0, chance: 0.00 }     // Level 8
         ];
         
         var cfg = AI_MOVE_NOISE_CFG[this.level];
@@ -190,10 +190,10 @@
         this.currentEngine = engine; // Store reference
         this.onMoveFound = callback;
 
-        // Phase 1 Time limits (from ELO plan)
+        // Time limits (ms)
         var ELO_TIME_MAP = {
-            1: 50, 2: 100, 3: 200, 4: 300, 5: 400,
-            6: 500, 7: 1000, 8: 2000, 9: 3000, 10: 4000
+            1: 200, 2: 400, 3: 700, 4: 1000, 5: 1500,
+            6: 2000, 7: 4000, 8: 6000, 9: 8000, 10: 12000
         };
         var thinkTime = ELO_TIME_MAP[this.level] || 1000;
 
