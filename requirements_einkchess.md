@@ -455,7 +455,14 @@
 - Hoàn thiện module PvP trong `js/chess-backend.js`.
 - Xây dựng `play-friend.html` và `js/chess-pvp.js`: Tạo phòng mã 6 ký tự, kết nối đồng bộ nước đi bằng polling 8s, nút Đầu hàng / Xin hòa (Chưa Quota 3 trận/ngày).
 
-### Phase 5 — Dashboard Thống Kê Nâng Cao & Polish Toàn Diện
-- Màn hình thống kê chi tiết trên `index.html`: Lịch sử đấu, tỷ lệ thắng, biểu đồ ELO, kỷ lục streak.
-- Kiểm tra toàn diện tương thích ES5, tối ưu tốc độ phản hồi trên thiết bị Kindle thực tế.
+### Phase 6 — Standalone Offline Single-File (`chess.html`)
+- **Mục tiêu:** Cung cấp 1 file HTML duy nhất (`chess.html`) hoàn toàn độc lập (100% self-contained), không phụ thuộc vào bất kỳ file CSS hay JS bên ngoài nào, để người dùng Kindle có thể lưu và mở trực tiếp ngoại tuyến (offline).
+- **Giao diện & Điều khiển:**
+  - Header: Compact 1-line persistent header gồm Logo EinkChess, nút Cài đặt cấp độ/ELO badge (`#bot-elo-badge`), và nút Menu.
+  - Status bar: 3 cột gồm quân Trắng bị bắt (`#cap-white`), nhãn trạng thái/phân tích (`#status`), và quân Đen bị bắt (`#cap-black`).
+  - Board & SVG Coach: Giữ nguyên bàn cờ và hệ thống vẽ mũi tên phân tích nước đi của Tomitank.
+  - Action Bar: 6 nút bấm lưới (`Undo`, `Resign`, `Flip`, `Refresh`, `Hints`, `New Game`).
+  - Match Setup Modal (`#setup-modal`): 10 cấp độ AI, chọn bên (Trắng/Đen), bật/tắt Hints & Coach.
+  - Confirm Resign Modal (`#resign-modal`): Xác nhận trước khi xử thua.
+
 

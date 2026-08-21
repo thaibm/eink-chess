@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>ChessTwinkle7</title>
+    <title>EinkChess</title>
     <style>
         html {
             font-size: 16px;
@@ -47,201 +47,319 @@
             overflow: hidden;
         }
 
-        /* ── CONTROLS ── */
-        .ctrl-wrap {
+        /* ── 1-LINE PERSISTENT HEADER ── */
+        .header {
             width: 100%;
             max-width: 1000px;
-            margin: 0 auto 0 auto;
+            margin: 0 auto;
+            border-bottom: 2px solid #000;
+            background: #fff;
             -webkit-flex-shrink: 0;
             flex-shrink: 0;
         }
 
-        .ctrl-row {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .ctrl-cell {
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        .ctrl-cell.cell-elo {
-            width: 33.33%;
-        }
-
-        .ctrl-cell.cell-color {
-            width: 33.33%;
-        }
-
-        .ctrl-cell.cell-new {
-            width: 33.34%;
-        }
-
-        .rank-display {
-            display: block;
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
+        .header-top {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 4px 8px;
+            height: 44px;
             box-sizing: border-box;
-            border: 1px solid #000;
-            font-family: Georgia, serif;
-            font-size: 1.05rem;
-            font-weight: bold;
-            background: #fff;
-            text-align: center;
-            line-height: 55px;
-            letter-spacing: 2px;
         }
 
-        .rank-sel {
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            border: 1px solid #000;
-            padding: 0 4px;
-            font-family: Georgia, serif;
-            font-size: 0.95rem;
-            font-weight: bold;
-            background: #fff;
-            cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-            text-align: center;
-            text-align-last: center;
-        }
-
-        .captured-bar {
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            border: 1px solid #000;
-            background: #fff;
-            display: none;
-            position: relative;
-            line-height: 55px;
-            overflow: hidden;
-        }
-
-        .cap-black {
-            position: absolute;
-            left: 4px;
-            top: 0;
-            letter-spacing: -2px;
-        }
-
-        .cap-center {
-            position: absolute;
-            left: 50%;
-            top: 0px;
-            -webkit-transform: translateX(-50%);
-            transform: translateX(-50%);
-        }
-
-        .cap-white {
-            position: absolute;
-            right: 4px;
-            top: 0;
-            letter-spacing: -2px;
-        }
-
-        .cap-piece {
-            display: inline-block;
-            font-size: 1.8rem;
-            line-height: 55px;
-            vertical-align: top;
-        }
-
-        .cap-piece.new {
-            font-size: 3.5rem;
-            line-height: 55px;
-        }
-
-        .btn {
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            border: 1px solid #000;
-            border-left: none;
-            background: #000;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 0 4px;
-            cursor: pointer;
-            font-family: Georgia, serif;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .btn:active {
-            background: #444;
-        }
-
-        .btn-split {
-            display: block;
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .btn-split .btn {
-            display: block;
-            float: left;
-            width: 50%;
-            height: 55px;
-            font-size: 0.78rem;
-            line-height: 49px;
-            padding: 0;
-            white-space: nowrap;
-            letter-spacing: 0;
-        }
-
-        .btn-split .btn-resign {
-            background: #fff;
+        .header-logo {
+            font-size: 1.15rem;
+            font-weight: 900;
             color: #000;
-            border-left: none;
+            text-decoration: none;
+            letter-spacing: -0.5px;
         }
 
-        .btn-split .btn-resign:active {
+        .header-center {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .header-status-btn {
+            background: #f0f0f0;
+            border: 2px solid #000;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .header-status-btn:active {
             background: #ddd;
         }
 
-        .btn-split .btn-new {
-            border-left: 1px solid #000;
+        .header-divider {
+            margin: 0 4px;
         }
 
-        .clr-btn {
-            width: 100%;
-            height: 55px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            border: 1px solid #000;
-            border-left: none;
+        .header-actions .btn-menu {
+            display: inline-block;
+            border: 2px solid #000;
             background: #fff;
-            font-family: Georgia, serif;
-            font-size: 1rem;
+            color: #000;
             font-weight: bold;
-            text-transform: uppercase;
-            padding: 0 4px;
-            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            text-decoration: none;
             text-align: center;
+            font-family: inherit;
         }
 
-        .clr-btn.active {
+        .header-actions .btn-menu:active {
             background: #000;
             color: #fff;
         }
 
-        .clr-btn:active {
+        /* ── STATUS BAR ── */
+        .status-bar {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-bottom: 2px solid #000;
+            background: #fff;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            height: 36px;
+            line-height: 36px;
+            box-sizing: border-box;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        .status-captured {
+            width: 25%;
+            padding: 0 6px;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 1.1rem;
+            line-height: 36px;
+        }
+
+        .status-captured#cap-white {
+            text-align: left;
+        }
+
+        .status-captured#cap-black {
+            text-align: right;
+        }
+
+        .status-text {
+            width: 50%;
+            text-align: center;
+            font-size: 0.92rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        /* ── ACTION BAR (1 ROW, 6 BUTTONS) ── */
+        .action-bar {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border: 2px solid #000;
+            border-top: none;
+            box-sizing: border-box;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        .action-bar-grid {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .action-bar-row {
+            display: table-row;
+        }
+
+        .action-bar-cell {
+            display: table-cell;
+            vertical-align: middle;
+            border-right: 1px solid #000;
+            padding: 0;
+        }
+
+        .action-bar-cell:last-child {
+            border-right: none;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            height: 48px;
+            line-height: 48px;
+            border: none;
+            background: #fff;
+            color: #000;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            font-family: inherit;
+            padding: 0 2px;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .action-btn:active {
             background: #ccc;
+        }
+
+        .action-btn-primary {
+            background: #000;
+            color: #fff;
+        }
+
+        .action-btn-primary:active {
+            background: #444;
+        }
+
+        /* ── MODALS ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 500;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border: 3px solid #000;
+            padding: 16px;
+            max-width: 440px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+        }
+
+        .btn-group {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+            border: 1px solid #000;
+            margin-bottom: 6px;
+        }
+
+        .btn-group-item {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            padding: 8px 2px;
+            font-size: 0.78rem;
+            font-weight: bold;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            border-right: 1px solid #000;
+        }
+
+        .btn-group-item:last-child {
+            border-right: none;
+        }
+
+        .btn-group-item.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .modal-footer {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .modal-footer .btn-m {
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: 2px solid #000;
+            background: #fff;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .modal-footer .btn-m:active {
+            background: #ddd;
+        }
+
+        .modal-footer .btn-m-primary {
+            background: #000;
+            color: #fff;
+        }
+
+        .modal-footer .btn-m-primary:active {
+            background: #444;
+        }
+
+        .modal-footer .btn-m-block {
+            width: 100%;
+            text-align: center;
         }
 
         /* ── GAME-WRAP: centers everything, controls viewport fit ── */
@@ -848,52 +966,32 @@
 <body>
     <div id="game-wrap">
 
-        <div class="ctrl-wrap" id="ctrl-wrap-el">
-            <div class="ctrl-row">
-                <div class="ctrl-cell cell-elo">
-                    <select class="rank-sel" id="rank-sel" onchange="onRankSelect(this.value)">
-                        <option value="0">Cấp 1</option>
-                        <option value="1">Cấp 2</option>
-                        <option value="2">Cấp 3</option>
-                        <option value="3">Cấp 4</option>
-                        <option value="4">Cấp 5</option>
-                        <option value="5">Cấp 6</option>
-                        <option value="6">Cấp 7</option>
-                        <option value="7">Cấp 8</option>
-                        <option value="8">Cấp 9</option>
-                        <option value="9">Cấp 10</option>
-                    </select>
-                    <div class="rank-display" id="rank-display" style="display:none">Cấp 8</div>
-                    <div class="btn-nav" id="phase-nav" style="display:none">
-                        <button class="nav-btn nav-prev" onclick="reviewPhaseJump(-1)">&#9198;</button>
-                        <button class="nav-btn nav-next" onclick="reviewPhaseJump(1)">&#9197;</button>
-                    </div>
+        <!-- 1. COMPACT 1-LINE PERSISTENT HEADER -->
+        <div class="header" id="header-el">
+            <div class="header-top">
+                <a href="index.html" class="header-logo">EinkChess</a>
+                <div class="header-center">
+                    <button type="button" class="header-status-btn" onclick="openSetupModal()" title="Cài đặt trận đấu">
+                        <span class="header-elo-text" id="bot-elo-badge">ELO: 1600</span>
+                        <span class="header-divider">·</span>
+                        <span class="header-sub-text" id="bot-level-name">(Cấp 8 - ELO ~1800)</span>
+                    </button>
                 </div>
-                <div class="ctrl-cell cell-color">
-                    <button class="clr-btn" id="clr-toggle" onclick="toggleColor()">&#9812; Đổi bên</button>
-                    <div class="btn-nav" id="nav-toggle" style="display:none">
-                        <button class="nav-btn nav-prev" onclick="reviewStep(-1)">&#9664;</button>
-                        <button class="nav-btn nav-next" onclick="reviewStep(1)">&#9654;</button>
-                    </div>
-                    <div class="captured-bar" id="captured-bar">
-                        <span class="cap-black" id="cap-black"></span>
-                        <span class="cap-center" id="cap-center"></span>
-                        <span class="cap-white" id="cap-white"></span>
-                    </div>
-                </div>
-                <div class="ctrl-cell cell-new">
-                    <button class="btn" id="main-btn" onclick="onMainButton()">Ván mới</button>
-                    <div class="btn-split" id="split-btn" style="display:none">
-                        <button class="btn btn-resign" onclick="playerResign()">Thua</button>
-                        <button class="btn btn-new" onclick="newGame()">Mới</button>
-                    </div>
+                <div class="header-actions">
+                    <a href="index.html" class="btn-menu">Menu</a>
                 </div>
             </div>
         </div>
 
-        <div class="status" id="status" onclick="showDetailOverlay()">Lượt của bạn</div>
+        <!-- 2. STATUS BAR (3 COLUMNS) -->
+        <div class="status-bar" id="status-bar-el">
+            <div class="status-captured" id="cap-white"></div>
+            <div class="status-text" id="status" onclick="showDetailOverlay()">Lượt của bạn</div>
+            <div class="status-captured" id="cap-black"></div>
+        </div>
         <div class="stats-box" id="stats-box"></div>
 
+        <!-- 3. CHESS BOARD CONTAINER (100% PRESERVED) -->
         <div class="board-outer">
             <div class="board-wrap" id="board-wrap">
                 <div class="board" id="board"></div>
@@ -915,8 +1013,33 @@
             <div class="history" id="history" onclick="showDetailOverlay()">—</div>
         </div>
 
+        <!-- 4. ACTION BUTTONS (1 ROW, 6 BUTTONS) -->
+        <div class="action-bar action-bar-grid" id="action-bar-el">
+            <div class="action-bar-row">
+                <div class="action-bar-cell">
+                    <button class="action-btn" id="btn-undo" onclick="handleUndo()">Undo</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="action-btn" id="btn-resign" onclick="openResignModal()">Resign</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="action-btn" id="btn-flip" onclick="handleFlip()">Flip</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="action-btn" id="btn-refresh" onclick="handleRefresh()">Refresh</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="action-btn" id="btn-hints" onclick="toggleHints()">Hints: ON</button>
+                </div>
+                <div class="action-bar-cell">
+                    <button class="action-btn action-btn-primary" id="btn-new-game" onclick="openSetupModal()">New Game</button>
+                </div>
+            </div>
+        </div>
+
     </div><!-- #game-wrap -->
 
+    <!-- DETAIL OVERLAY -->
     <div class="detail-overlay" id="detail-overlay" onclick="hideDetailOverlay()">
         <div class="detail-box" onclick="event.stopPropagation()">
             <div class="detail-title">&#9812; PGN</div>
@@ -930,6 +1053,7 @@
         </div>
     </div>
 
+    <!-- PROMOTION DIALOG -->
     <div class="promo-bg" id="promo-bg">
         <div class="promo-box">
             <p>Chọn quân phong cấp</p>
@@ -937,8 +1061,59 @@
         </div>
     </div>
 
-    <div class="rank-overlay" id="rank-overlay" onclick="hideRankOverlay()">
-        <div class="rank-list" onclick="event.stopPropagation()" id="rank-list"></div>
+    <!-- MATCH SETUP POPUP MODAL -->
+    <div id="setup-modal" class="modal-overlay" onclick="if(event.target===this) closeSetupModal()">
+        <div class="modal-box">
+            <div class="modal-title">CÀI ĐẶT TRẬN ĐẤU</div>
+            <div class="modal-body">
+                <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">1. Chọn cấp độ AI:</div>
+                <div id="setup-level-group">
+                    <div class="btn-group">
+                        <div class="btn-group-item active" onclick="selectSetupLevel(1)">Cấp 1 (~400)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(2)">Cấp 2 (~600)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(3)">Cấp 3 (~800)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(4)">Cấp 4 (~1000)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(5)">Cấp 5 (~1200)</div>
+                    </div>
+                    <div class="btn-group">
+                        <div class="btn-group-item" onclick="selectSetupLevel(6)">Cấp 6 (~1400)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(7)">Cấp 7 (~1600)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(8)">Cấp 8 (~1800)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(9)">Cấp 9 (~2200)</div>
+                        <div class="btn-group-item" onclick="selectSetupLevel(10)">Cấp 10 (~2400)</div>
+                    </div>
+                </div>
+
+                <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 13px;">2. Chọn bên cầm quân:</div>
+                <div class="btn-group" id="setup-side-group">
+                    <div class="btn-group-item active" onclick="selectSetupSide('w')">Trắng (Đi trước)</div>
+                    <div class="btn-group-item" onclick="selectSetupSide('b')">Đen (Đi sau)</div>
+                </div>
+
+                <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 13px;">3. Gợi ý & AI Coach:</div>
+                <div class="btn-group" id="setup-review-group">
+                    <div class="btn-group-item active" onclick="selectSetupReview(true)">BẬT</div>
+                    <div class="btn-group-item" onclick="selectSetupReview(false)">TẮT</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-m btn-m-primary btn-m-block" onclick="startConfiguredGame()">BẮT ĐẦU VÁN ĐẤU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM RESIGN MODAL -->
+    <div id="resign-modal" class="modal-overlay" onclick="if(event.target===this) closeResignModal()">
+        <div class="modal-box">
+            <div class="modal-title">XÁC NHẬN ĐẦU HÀNG</div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xin thua ván cờ này không?
+            </div>
+            <div class="modal-footer">
+                <button class="btn-m" onclick="closeResignModal()">HỦY</button>
+                <button class="btn-m btn-m-primary" onclick="confirmResign()">XIN THUA</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -3957,25 +4132,6 @@
             return seeScore > 20;
         }
 
-        /* [FIX brilliantIndirect — hoc tu ChessCoach] Quet TOAN BO quan cua player
-           tren ban co (tru quan vua di toSq, tru Vua, tru Tot) xem co quan nao
-           dang bi treo THAT (SEE duong cho doi phuong) hay khong — bat dung dang
-           "hy sinh gian tiep": nuoc di khong tu ban than no dat quan vao o nguy
-           hiem, ma de lo 1 quan KHAC (thuong la quan da dung yen tu truoc) thanh
-           muc tieu an duoc, doi lai lay loi the o cho khac (vd 11.axb4!! trong
-           ván Peruvian Immortal — bo ngo Xe a1 cho 11...Qxa1+, isSacrifice/
-           playerPieceHangsAfterMove (chi xet dung o toSq=b4) khong bat duoc vi
-           b4 chi la 1 nuoc doi tot-lay-tuong binh thuong). Tra ve gia tri quan
-           lon nhat dang treo kieu nay, hoac 0 neu khong co. */
-        /* [FIX SEE-vs-PieceValue — xác nhận qua 12.hxg3]: bản gốc dùng seeScore
-           CHỈ để LỌC (">20" = có rủi ro thật) nhưng lại TRẢ VỀ PVAL[typ(p)] (giá
-           trị đầy đủ của quân đang bị nhắm tới) thay vì chính seeScore (mức
-           thiệt hại THỰC nếu bị ăn qua đủ chuỗi đổi quân, có tính recapture).
-           Với 1 Mã (320) chỉ thực sự rủi ro mất 100cp (đổi Mã ngang giá rồi bị
-           ăn thêm 1 Tốt), hàm cũ trả về 320 — gấp hơn 3 lần thiệt hại thật.
-           Dùng chung cho cả classify (_classifyBestLabel, ngưỡng brilliant
-           >=250) lẫn aiMoveIsSafe() (ngưỡng an toàn AI >150) — cả 2 nơi đều
-           cần đúng 1 ý nghĩa: mức thiệt hại thực, không phải giá trị quân. */
         function findHangingPieceValueExcept(board, playerCol, exceptSq) {
             var maxVal = 0;
             for (var sq = 0; sq < 64; sq++) {
@@ -3989,7 +4145,6 @@
             return maxVal;
         }
 
-
         /* ═══════════════════════════════════════════════════════════════════
            SECTION 6 — GAME STATE & LIFECYCLE
            ═══════════════════════════════════════════════════════════════════ */
@@ -3997,29 +4152,20 @@
         var gSel = -1, gLegal = [], gAllLegal = [], gLast = null, gActive = true;
         var gPC = W, gFlip = false;
         var gHist = [], gUciHist = [], gMoveNum = 1;
-        /* [REVIEW] Trạng thái chế độ "xem lại ván đấu" — chỉ hoạt động sau khi
-           ván kết thúc (gReviewPly=-1 nghĩa là chưa/không ở chế độ này). Không
-           lưu snapshot bàn cờ riêng cho từng nước — dựng lại bằng cách replay
-           gUciHist từ đầu mỗi khi cần (rẻ, vài chục nước không đáng kể chi phí). */
         var gReviewPly = -1;
         var gReviewTimer = null;
-        var gClassifyLog = [];      // {ply, label, uci} cho mỗi nước đã được classify
-        var gReviewCatCursor = {};  // con trỏ vòng lặp riêng từng nhãn (brilliant/great/blunder/missedMate)
+        var gClassifyLog = [];
+        var gReviewCatCursor = {};
         var gPosHist = [];
         var gGameStarted = false;
         var gCapturedBlack = [], gCapturedWhite = [];
         var gGameToken = 0;
-        var gMoveGateT0 = 0, gMoveGateMs = 0;   /* [FIX] mốc + thời lượng "cổng" UI trước khi AI đi thật
-                                        (dùng chung cho dramatic banner 2600ms, blunder banner
-                                        2600ms, và buffer repaint UI_REPAINT_DELAY của clfy) */
+        var gMoveGateT0 = 0, gMoveGateMs = 0;
 
-        /* Simple hash for repetition detection (not Zobrist — just use FEN prefix) */
         var gPosHistFen = [];
-
         var CAP_SYM = [null, null, '\u265e', '\u265d', '\u265c', '\u265b', null];
         var CAP_SYM_W = [null, null, '\u2658', '\u2657', '\u2656', '\u2655', null];
 
-        /* Classify state vars */
         var gChatMsg = '';
         var gDrawOffer = false;
         var gDrawOfferDeclined = false;
@@ -4030,7 +4176,7 @@
         var gDramaticChat = '';
         var gDramaticLabel = '';
         var gPlayerDramatic = '';
-        var gAiEndgameShown = false;   /* [đổi tên từ gExchangeChatShown] */
+        var gAiEndgameShown = false;
         var gOpeningChatShown = false;
         var gSuggestResignShown = false;
         var gAiWinningShown = false;
@@ -4040,44 +4186,26 @@
         var gSwingChatShown = false;
         var gScoreHistory = [];
         var gPlayerCheckStreak = 0;
-        var gAiHungPv1 = null;         /* mvUci đối thủ khớp pv1 lượt này? snapshot trong execMove */
+        var gAiHungPv1 = null;
 
-        /* Rank */
         var RANK_KEY = 'chess_rank';
         var gRank = 7;
-        /* [FIX log-level-off-by-one v2] Thay vì vá thứ tự gọi rankUpdate/showStats
-           ở TỪNG điểm kết thúc ván (resign/playerResign/checkmate — dễ sót, và sẽ
-           còn sót nếu sau này thêm nhánh draw/stalemate có rankUpdate riêng), chốt
-           gGameStartRank NGAY LÚC BẮT ĐẦU VÁN (trong newGame()) và luôn dùng biến
-           này cho dòng 'Level...' trong summary log — không đụng gì đến gRank
-           sống (vẫn dùng cho AI_MOVE_NOISE_CFG/BLUNDER_GUARD_THRESHOLD như cũ). */
         var gGameStartRank = gRank;
 
-        /* ═══════════════════════════════════════════════════════════════════
-           Platform detection (rewrite): PPW3 (yếu) vs PC/thiết bị mạnh.
-           Mặc định FULL eval (gIsWeakDevice=false). Chỉ coi là Kindle khi CẢ 2
-           dấu hiệu sau đều đúng (AND — test kỹ trên nhiều Kindle thật, xem
-           deepseek_kindleTEST.html):
-           1. navigator.platform chứa "Linux"
-           2. Không có WebGL
-           Cả 2 test đều đồng bộ, tức thì — không cần benchmark CPU async.
-           ═══════════════════════════════════════════════════════════════════ */
         var gIsWeakDevice = (function () {
             try {
                 var isLinux = /Linux/i.test(navigator.platform || '');
                 var c = document.createElement('canvas');
                 var hasWebGL = !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
                 return isLinux && !hasWebGL;
-            } catch (e) { return false; } /* lỗi bất kỳ khi detect → mặc định an toàn cho PC, dùng full eval */
+            } catch (e) { return false; }
         })();
-        var gDeviceLabel = gIsWeakDevice ? 'Kindle' : 'PC'; /* Hiển thị trong tiêu đề Log */
+        var gDeviceLabel = gIsWeakDevice ? 'Kindle' : 'PC';
 
         function updateCaptured() {
-            var bar = document.getElementById('captured-bar');
-            if (!bar) return;
             var bEl = document.getElementById('cap-black');
             var wEl = document.getElementById('cap-white');
-            var cEl = document.getElementById('cap-center');
+            if (!bEl || !wEl) return;
             var lastPiece = null, lastIsBlack = false;
             if (gLast && gLast[2]) {
                 var lt = typ(gLast[2]);
@@ -4112,22 +4240,10 @@
             }
             bEl.innerHTML = buildSide(blackList, CAP_SYM, true, blackCnt, whiteCnt);
             wEl.innerHTML = buildSide(whiteList, CAP_SYM_W, false, whiteCnt, blackCnt);
-            if (lastPiece) { cEl.innerHTML = '<span class="cap-piece new">' + lastPiece + '</span>'; }
-            else { cEl.innerHTML = ''; }
         }
 
-        function showCapturedBar() {
-            var btn = document.getElementById('clr-toggle');
-            var bar = document.getElementById('captured-bar');
-            if (btn) btn.style.display = 'none';
-            if (bar) bar.style.display = 'block';
-        }
-        function showColorBtn() {
-            var btn = document.getElementById('clr-toggle');
-            var bar = document.getElementById('captured-bar');
-            if (btn) btn.style.display = 'block';
-            if (bar) bar.style.display = 'none';
-        }
+        function showCapturedBar() { }
+        function showColorBtn() { }
         function onRankSelect(val) { gRank = parseInt(val); rankDisplay(); }
 
         function materialNoKings() {
@@ -4186,14 +4302,16 @@
             return c + 1;
         }
 
+
         /* Rank system */
+        var BOT_ELOS = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2200, 2400];
         function rankLoad() {
             var loaded = false;
             try {
                 var raw = localStorage.getItem(RANK_KEY);
                 if (raw) { var d = JSON.parse(raw); if (typeof d.rank === 'number' && d.rank >= 0 && d.rank <= 9) { gRank = d.rank; loaded = true; } }
             } catch (e) { }
-            if (!loaded) { var sel = document.getElementById('rank-sel'); if (sel) gRank = parseInt(sel.value); }
+            rankDisplay();
         }
         function rankSave() {
             try { localStorage.setItem(RANK_KEY, JSON.stringify({ rank: gRank })); } catch (e) { }
@@ -4203,108 +4321,276 @@
             if (result < 0 && gRank > 0) gRank--;
             rankSave(); rankDisplay();
         }
-        function showRankOverlay() {
-            if (gGameStarted) return;
-            var ol = document.getElementById('rank-overlay');
-            var list = document.getElementById('rank-list');
-            if (!ol || !list) return;
-            var boardEl = document.getElementById('board');
-            var boardW = boardEl ? boardEl.offsetWidth : 0;
-            var boardH = boardEl ? boardEl.offsetHeight : 0;
-            if (!boardH) boardH = boardW;
-            if (boardW) {
-                var listW = Math.max(120, (boardW * 0.25) | 0);
-                var listH = Math.max(300, (boardH * 0.90) | 0);
-                var itemH = (listH / 10) | 0;
-                list.style.width = listW + 'px';
-                list.style.minWidth = listW + 'px';
-                list.style.height = listH + 'px';
-                list.style.fontSize = Math.max(20, (itemH * 0.42) | 0) + 'px';
-            }
-            list.innerHTML = '';
-            for (var i = 0; i < 10; i++) {
-                (function (idx) {
-                    var item = document.createElement('div');
-                    item.className = 'rank-item' + (idx === gRank ? ' selected' : '');
-                    item.textContent = 'C\u1ea5p ' + (idx + 1);
-                    if (boardW) { item.style.height = itemH + 'px'; item.style.lineHeight = itemH + 'px'; item.style.fontSize = list.style.fontSize; }
-                    item.onclick = function () {
-                        gRank = idx;
-                        var sel = document.getElementById('rank-sel');
-                        if (sel) sel.value = String(idx);
-                        hideRankOverlay(); rankDisplay();
-                    };
-                    list.appendChild(item);
-                })(i);
-            }
-            ol.className = 'rank-overlay show';
-        }
-        function hideRankOverlay() {
-            var ol = document.getElementById('rank-overlay');
-            if (ol) ol.className = 'rank-overlay';
-        }
+        function showRankOverlay() { openSetupModal(); }
+        function hideRankOverlay() { closeSetupModal(); }
         function rankDisplay() {
-            var sel = document.getElementById('rank-sel');
-            var disp = document.getElementById('rank-display');
-            if (!sel || !disp) return;
-            disp.textContent = 'C\u1ea5p ' + (gRank + 1);
-            sel.style.display = 'none';
-            sel.value = String(gRank);
-            disp.style.display = 'block';
-            if (!gGameStarted) { disp.style.cursor = 'pointer'; disp.onclick = showRankOverlay; }
-            else { disp.style.cursor = 'default'; disp.onclick = null; hideRankOverlay(); }
+            var eloBadge = document.getElementById('bot-elo-badge');
+            var lvlName = document.getElementById('bot-level-name');
+            var currentElo = BOT_ELOS[gRank] || 1800;
+            if (eloBadge) eloBadge.textContent = 'ELO: ' + currentElo;
+            if (lvlName) lvlName.textContent = '(C\u1ea5p ' + (gRank + 1) + ' - ELO ~' + currentElo + ')';
         }
 
-        function setMainButton(label) {
-            var btn = document.getElementById('main-btn');
-            if (btn) btn.textContent = label;
+        /* Setup Modal state */
+        var pendingRank = 7;
+        var pendingSide = 'w';
+        var pendingCoach = true;
+        var gCoachEnabled = true;
+
+        function openSetupModal() {
+            pendingRank = gRank;
+            pendingSide = (gPC === W) ? 'w' : 'b';
+            pendingCoach = gCoachEnabled;
+            updateSetupModalActiveItems();
+            var modal = document.getElementById('setup-modal');
+            if (modal) modal.className = 'modal-overlay active';
         }
-        function onMainButton() {
-            if (gDrawOffer) acceptDrawOffer();
-            else newGame();
+
+        function closeSetupModal() {
+            var modal = document.getElementById('setup-modal');
+            if (modal) modal.className = 'modal-overlay';
         }
-        function clearDrawOffer() {
-            if (!gDrawOffer) return;
-            gDrawOffer = false; gChatMsg = '';
-            setMainButton('V\u00e1n m\u1edbi');
+
+        function selectSetupLevel(lvl) {
+            pendingRank = lvl - 1;
+            updateSetupModalActiveItems();
         }
+
+        function selectSetupSide(side) {
+            pendingSide = side;
+            updateSetupModalActiveItems();
+        }
+
+        function selectSetupReview(val) {
+            pendingCoach = val;
+            updateSetupModalActiveItems();
+        }
+
+        function updateSetupModalActiveItems() {
+            var lvlItems = document.querySelectorAll('#setup-level-group .btn-group-item');
+            for (var i = 0; i < lvlItems.length; i++) {
+                lvlItems[i].className = (i === pendingRank) ? 'btn-group-item active' : 'btn-group-item';
+            }
+            var sideItems = document.querySelectorAll('#setup-side-group .btn-group-item');
+            if (sideItems.length >= 2) {
+                sideItems[0].className = (pendingSide === 'w') ? 'btn-group-item active' : 'btn-group-item';
+                sideItems[1].className = (pendingSide === 'b') ? 'btn-group-item active' : 'btn-group-item';
+            }
+            var reviewItems = document.querySelectorAll('#setup-review-group .btn-group-item');
+            if (reviewItems.length >= 2) {
+                reviewItems[0].className = pendingCoach ? 'btn-group-item active' : 'btn-group-item';
+                reviewItems[1].className = !pendingCoach ? 'btn-group-item active' : 'btn-group-item';
+            }
+        }
+
+        function startConfiguredGame() {
+            gRank = pendingRank;
+            rankSave();
+            rankDisplay();
+            gCoachEnabled = pendingCoach;
+            var hintsBtn = document.getElementById('btn-hints');
+            if (hintsBtn) hintsBtn.textContent = gCoachEnabled ? 'Hints: ON' : 'Hints: OFF';
+            closeSetupModal();
+            newGameWithSide(pendingSide === 'b');
+        }
+
+        function newGameWithSide(isBlack) {
+            gGameStarted = false;
+            resetStats();
+            gB = makeBoard();
+            gTurn = W;
+            gEP = -1;
+            gCasB = CAS_ALL;
+            gHalf = 0;
+            gFull = 1;
+            gSel = -1;
+            gLegal = [];
+            gAllLegal = [];
+            gLast = null;
+            gActive = true;
+            gMoveNum = 1;
+            gPC = isBlack ? B : W;
+            gFlip = isBlack;
+            gHist = [];
+            gUciHist = [];
+            gPosHist = [hashPos(gB, gTurn, gCasB, gEP)];
+            gPosHistFen = [boardToFen(gB, gTurn, gCasB, gEP, gHalf, gFull)];
+            gCapturedBlack = [];
+            gCapturedWhite = [];
+            gGameToken++;
+            gGameStartRank = gRank;
+
+            buildBoardOnce();
+            renderBoard();
+            updateHistory();
+            updateCaptured();
+
+            var statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.className = 'status-text';
+                statusEl.textContent = (gPC === W) ? 'L\u01b0\u1ee3t c\u1ee7a b\u1ea1n' : 'M\u00e1y \u0111ang t\u00ednh...';
+            }
+
+            tomiEnsure();
+            if (gPC === B && gActive) {
+                var _t = gGameToken;
+                setTimeout(function () {
+                    if (_t !== gGameToken) return;
+                    aiMove();
+                }, 600);
+            }
+        }
+
+        /* Resign Modal */
+        function openResignModal() {
+            if (!gActive) return;
+            var modal = document.getElementById('resign-modal');
+            if (modal) modal.className = 'modal-overlay active';
+        }
+
+        function closeResignModal() {
+            var modal = document.getElementById('resign-modal');
+            if (modal) modal.className = 'modal-overlay';
+        }
+
+        function confirmResign() {
+            closeResignModal();
+            playerResign();
+        }
+
+        /* Action bar handlers */
+        function handleUndo() {
+            if (!gActive || gUciHist.length < 2) return;
+            undoMove();
+        }
+
+        function undoMove() {
+            if (!gActive || gUciHist.length < 2) return;
+            gGameToken++;
+            clearThinkTimer();
+            var targetPly = gUciHist.length - 2;
+            if (targetPly < 0) targetPly = 0;
+            gUciHist = gUciHist.slice(0, targetPly);
+
+            gB = makeBoard();
+            gTurn = W;
+            gEP = -1;
+            gCasB = CAS_ALL;
+            gHalf = 0;
+            gFull = 1;
+            gSel = -1;
+            gLegal = [];
+            gAllLegal = [];
+            gLast = null;
+            gHist = [];
+            gPosHist = [hashPos(gB, gTurn, gCasB, gEP)];
+            gPosHistFen = [boardToFen(gB, gTurn, gCasB, gEP, gHalf, gFull)];
+            gCapturedBlack = [];
+            gCapturedWhite = [];
+
+            for (var i = 0; i < gUciHist.length; i++) {
+                var mv = uciToMove(gUciHist[i], gB, gTurn, gEP, gCasB);
+                if (!mv) break;
+                addHistory(mv);
+                if (mv[2]) {
+                    var ct = typ(mv[2]);
+                    if (ct >= 2 && ct <= 5) {
+                        if (col(mv[2]) === B) gCapturedBlack.push(mv[2]);
+                        else gCapturedWhite.push(mv[2]);
+                    }
+                }
+                var t = typ(gB[mv[0]]);
+                gCasB = newCasBit(gCasB, gB, mv, gTurn);
+                gB = applyMv(gB, mv);
+                gEP = mv[6];
+                gHalf = (t === 1 || mv[2]) ? 0 : gHalf + 1;
+                if (gTurn === B) gFull++;
+                gTurn = -gTurn;
+                gLast = mv;
+            }
+            gMoveNum = Math.floor(gUciHist.length / 2) + 1;
+            gGameStarted = (gUciHist.length > 0);
+
+            renderBoard();
+            updateHistory();
+            updateCaptured();
+            clearReviewArrows();
+            clearReviewBadge();
+
+            var statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.className = 'status-text';
+                statusEl.textContent = 'L\u01b0\u1ee3t c\u1ee7a b\u1ea1n';
+            }
+            tomiSearchPendingBest();
+        }
+
+        function handleFlip() {
+            gFlip = !gFlip;
+            buildBoardOnce();
+            renderBoard();
+            if (gReviewPly >= 0) {
+                updateReviewArrows();
+            }
+        }
+
+        function handleRefresh() {
+            var ol = document.createElement('div');
+            ol.style.position = 'fixed';
+            ol.style.top = '0';
+            ol.style.left = '0';
+            ol.style.width = '100%';
+            ol.style.height = '100%';
+            ol.style.background = '#fff';
+            ol.style.zIndex = '999999';
+            document.body.appendChild(ol);
+            setTimeout(function () {
+                if (ol.parentNode) ol.parentNode.removeChild(ol);
+                fixBoardSize();
+                renderBoard();
+            }, 200);
+        }
+
+        function toggleHints() {
+            gCoachEnabled = !gCoachEnabled;
+            var btn = document.getElementById('btn-hints');
+            if (btn) btn.textContent = gCoachEnabled ? 'Hints: ON' : 'Hints: OFF';
+            if (!gCoachEnabled) {
+                clearReviewArrows();
+                clearReviewBadge();
+            }
+        }
+
+        function setMainButton(label) { }
+        function onMainButton() { openSetupModal(); }
+        function clearDrawOffer() { gDrawOffer = false; gChatMsg = ''; }
         function acceptDrawOffer() {
             if (!gDrawOffer || !gActive) { newGame(); return; }
             gDrawOffer = false; gChatMsg = ''; gActive = false;
-            gGameToken++;  // [FIX] hủy mọi tomiSearch/workerEval/workerPending đang chạy dở
-            setMainButton('V\u00e1n m\u1edbi');
+            gGameToken++;
             var el = document.getElementById('status');
-            if (el) { el.className = 'status gameover'; el.textContent = '\u00bd H\u00f2a c\u1edd \u2014 ' + randChat('acceptDraw'); }
+            if (el) { el.className = 'status-text gameover'; el.textContent = '\u00bd H\u00f2a c\u1edd \u2014 ' + randChat('acceptDraw'); }
             showStats();
         }
         function aiResign() {
             if (!gActive) return;
             clearDrawOffer(); gActive = false;
-            gGameToken++;  // [FIX]
+            gGameToken++;
             var el = document.getElementById('status');
-            if (el) { el.className = 'status gameover'; el.textContent = 'M\u00e1y xin thua \u2014 ' + randChat('resign'); }
-            /* [FIX log-level-off-by-one v2] Không cần quan tâm thứ tự rankUpdate/
-               showStats nữa — log dùng gGameStartRank (chốt lúc bắt đầu ván, xem
-               newGame()), không đọc gRank sống nên thứ tự gọi ở đây không ảnh hưởng. */
+            if (el) { el.className = 'status-text gameover'; el.textContent = 'M\u00e1y xin thua \u2014 ' + randChat('resign'); }
             rankUpdate(1); showStats();
         }
         function playerResign() {
             if (!gActive) return;
-            clearDrawOffer(); hideSplitButton(); gActive = false;
-            gGameToken++;  // [FIX]
+            clearDrawOffer(); gActive = false;
+            gGameToken++;
             var el = document.getElementById('status');
-            if (el) { el.className = 'status gameover'; el.textContent = '\u2691 B\u1ea1n \u0111\u00e3 xin thua \u2014 ' + randChat('aiWin'); }
+            if (el) { el.className = 'status-text gameover'; el.textContent = '\u2691 B\u1ea1n \u0111\u00e3 xin thua \u2014 ' + randChat('aiWin'); }
             rankUpdate(-1); showStats();
         }
         function maybeOfferDraw(evalForAI) {
             if (!gActive || gDrawOffer || gTurn !== gPC) return;
             if (gMoveNum < 18) return;
-            /* [FIX] bareKings đổi thành insufficient-material tổng quát (xem
-               isInsufficientMatingMaterial) — trước đây chỉ bắt đúng "2 Vua trần"
-               (materialNoKings()===0), bỏ sót K+B vs K+B, K+N vs K, K+N vs K+N... —
-               những thế hòa lý thuyết chắc chắn không kém gì 2 Vua trần, nhưng vẫn
-               phải dựa vào eval streak (gần như không bao giờ đạt được vì eval
-               engine không biết luật "hết quân chiếu"). */
             var bareKings = isInsufficientMatingMaterial();
             if (bareKings) gDrawOfferDeclined = false;
             if (gDrawOfferDeclined) return;
@@ -4313,10 +4599,12 @@
             if (!bareKings && gEqualEvalStreak < DRAW_STREAK) return;
             gDrawOffer = true;
             gChatMsg = randChat('offerDraw');
-            setMainButton('\u0110\u1ed3ng \u00fd');
             var el = document.getElementById('status');
-            if (el) { el.className = 'status'; el.textContent = gChatMsg; }
+            if (el) { el.className = 'status-text'; el.textContent = gChatMsg; }
         }
+
+        function showSplitButton() { }
+        function hideSplitButton() { }
 
         function resetStats() {
             gMoveStats = { brilliant: 0, great: 0, best: 0, greatDef: 0, missedWin: 0, missedMate: 0, mistake: 0, blunder: 0 };
@@ -4506,31 +4794,22 @@
         var gCellH = 0;
 
         function fixBoardSize() {
-            /* Fit layout:
-               Portrait  (h>w): board width = viewport width → fit width
-               Landscape (w>h): board height = viewport height - controls - status - history
-                                so the entire game UI fits on screen without scrolling */
             var vw = window.innerWidth || document.documentElement.clientWidth || 320;
             var vh = window.innerHeight || document.documentElement.clientHeight || 480;
             var isPortrait = (vh >= vw);
 
             var wrap = document.getElementById('game-wrap');
-            var ctrl = document.getElementById('ctrl-wrap-el');
-            var statusEl = document.getElementById('status');
+            var headerEl = document.getElementById('header-el');
+            var statusEl = document.getElementById('status-bar-el');
             var histEl = document.getElementById('history');
-            /* [FIX PPW3-overflow] #board giờ nằm trong #board-wrap (thêm cho lớp phủ
-               mũi tên) — .parentNode của #board giờ trỏ vào #board-wrap, KHÔNG còn
-               phải .board-outer như trước. Đi thêm 1 cấp cha nữa mới đúng .board-outer
-               — nếu không, dòng "boardOuter.style.width=..." bên dưới áp nhầm lên
-               #board-wrap, khiến .board-outer thật không còn được đồng bộ kích thước,
-               gây tràn cột cuối cùng ra khỏi màn hình (thấy rõ trên WebKit cũ/Kindle,
-               PC thường "che" được lỗi này nhờ layout engine khoan dung hơn). */
+            var actEl = document.getElementById('action-bar-el');
             var boardOuter = document.getElementById('board').parentNode.parentNode;
 
-            var ctrlH = ctrl ? ctrl.offsetHeight : 55;
-            var statusH = statusEl ? statusEl.offsetHeight : 40;
+            var headerH = headerEl ? headerEl.offsetHeight : 44;
+            var statusH = statusEl ? statusEl.offsetHeight : 36;
             var histH = histEl ? histEl.offsetHeight : 32;
-            var nonBoardH = ctrlH + statusH + histH;
+            var actH = actEl ? actEl.offsetHeight : 48;
+            var nonBoardH = headerH + statusH + histH + actH;
 
             var boardSize;
             if (isPortrait) {
@@ -4541,7 +4820,6 @@
                 if (boardSize > vw) boardSize = vw;
             }
 
-            /* Apply width to board-outer so ctrl-wrap/status match */
             if (boardOuter) {
                 boardOuter.style.width = boardSize + 'px';
             }
