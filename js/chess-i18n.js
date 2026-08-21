@@ -163,6 +163,11 @@
             'stats.pageviews_today': 'Lượt truy cập hôm nay',
             'stats.total_pageviews_all_time': 'Tổng lượt truy cập tích lũy',
             'stats.desc_info': 'Dữ liệu được thống kê tự động thông qua SQL View từ bảng active_pings trên hệ thống Supabase của EinkChess.',
+            'settings.game_settings_title': 'CÀI ĐẶT TRÒ CHƠI',
+            'settings.allow_undo_label': 'Cho phép Đi lại (Undo)',
+            'settings.allow_undo_desc': 'Bật hoặc tắt nút Đi lại nước cờ khi chơi với Bot (v1 & v2).',
+            'settings.on': 'BẬT',
+            'settings.off': 'TẮT',
 
             'puzzle.btn_level': 'Cấp độ',
             'puzzle.btn_hint': '♙ Gợi ý',
@@ -394,6 +399,11 @@
             'stats.pageviews_today': 'Pageviews Today',
             'stats.total_pageviews_all_time': 'Total Pageviews (All time)',
             'stats.desc_info': 'Data is compiled automatically via a database view in the Supabase instance of EinkChess.',
+            'settings.game_settings_title': 'GAME SETTINGS',
+            'settings.allow_undo_label': 'Allow Move Undo',
+            'settings.allow_undo_desc': 'Enable or disable the Undo button when playing vs Bot (v1 & v2).',
+            'settings.on': 'ON',
+            'settings.off': 'OFF',
 
             'puzzle.btn_level': 'Level',
             'puzzle.btn_hint': '♙ Hint',

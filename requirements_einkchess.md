@@ -332,11 +332,15 @@
     - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
     - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất hôm nay / 7 ngày qua / 30 ngày qua / 365 ngày qua (Rolling window).
     - **Pageviews:** Số lượt tải trang hôm nay và tổng tích lũy.
-- **Trang Thống Kê (`stats.html`):**
-  - Cung cấp trang xem thống kê traffic công khai, liên kết từ chân trang (Footer) Trang chủ `index.html`.
+- **Trang Thống Kê & Tùy Chọn Cài Đặt (`stats.html`):**
+  - Cung cấp trang xem thống kê traffic công khai và tùy chọn cài đặt trò chơi (Game Settings), liên kết từ chân trang (Footer) Trang chủ `index.html`.
   - Thiết kế tối giản, độ tương phản cao, phông chữ lớn và tối ưu hóa touch targets (min 44px) cho thiết bị E-ink.
+  - **Tùy chọn Cài đặt Cho phép Đi lại (Allow Undo Setting):**
+    - Cho phép người chơi Bật (ON) / Tắt (OFF) tính năng Đi lại (Undo) khi chơi cờ với Bot.
+    - Trạng thái được lưu trong `localStorage` (`einkchess_allow_undo`), mặc định là Tắt (`false`).
+    - Áp dụng đồng bộ cho toàn bộ Bot v1 (`play-bot.html`) và Bot v2 (`play-bot-v2.html`): khi Tắt, nút Undo sẽ tự động ẩn và thao tác đi lại bị vô hiệu hóa; khi Bật, nút Undo hiển thị và hoạt động bình thường.
   - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng.
-  - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key.
+  - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key trong khi mục Cài đặt vẫn hoạt động bình thường offline.
 
 ### 5.4. Cơ chế Quota Freemium & Lộ trình Tính phí
 1. **Chế độ Miễn phí Hoàn toàn (Free & Unlimited):**

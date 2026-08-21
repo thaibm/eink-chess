@@ -27,6 +27,7 @@
         DEFAULT_BOT_LEVEL_V2: 'einkchess_default_bot_lvl_v2',
         DEFAULT_SIDE: 'einkchess_default_side',
         DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
+        ALLOW_UNDO: 'einkchess_allow_undo',
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2'
     };
 
@@ -333,6 +334,15 @@
 
         setDefaultBotReview: function(enabled) {
             return this.set(STORAGE_KEYS.DEFAULT_BOT_REVIEW, !!enabled);
+        },
+
+        // --- Allow Undo Setting (for Bot v1 & v2) ---
+        getAllowUndo: function() {
+            return this.get(STORAGE_KEYS.ALLOW_UNDO, false);
+        },
+
+        setAllowUndo: function(allow) {
+            return this.set(STORAGE_KEYS.ALLOW_UNDO, !!allow);
         },
 
         // --- Local Quota Management ---

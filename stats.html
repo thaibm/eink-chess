@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="EinkChess - Traffic Statistics and Usage Reports.">
     <title>EinkChess - Traffic Statistics</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=53">
+    <link rel="stylesheet" href="css/einkchess.css?v=54">
     <style>
         .stats-table {
             width: 100%;
@@ -91,6 +91,25 @@
             </div>
         </div>
 
+        <!-- GAME SETTINGS CARD -->
+        <div class="stats-card">
+            <div class="stats-title" data-i18n="settings.game_settings_title">GAME SETTINGS</div>
+            <div style="margin-top: 6px; margin-bottom: 2px;">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
+                        <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.allow_undo_label">Allow Undo (Play Bot)</div>
+                        <div class="stats-desc" data-i18n="settings.allow_undo_desc">Enable or disable the Undo button when playing vs Bot (v1 & v2).</div>
+                    </div>
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 110px;">
+                        <div class="btn-group" id="setting-undo-group" style="margin: 0; width: 110px;">
+                            <div class="btn-group-item" id="btn-undo-on" onclick="setAllowUndoSetting(true)" data-i18n="settings.on">ON</div>
+                            <div class="btn-group-item active" id="btn-undo-off" onclick="setAllowUndoSetting(false)" data-i18n="settings.off">OFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="stats-status" style="margin: 20px 0; font-size: 15px; font-weight: bold; text-align: center;">
             Loading data...
         </div>
@@ -141,8 +160,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=19"></script>
-    <script src="js/chess-i18n.js?v=39"></script>
+    <script src="js/chess-storage.js?v=21"></script>
+    <script src="js/chess-i18n.js?v=40"></script>
     <script src="js/chess-backend.js?v=12"></script>
     <script>
         function displayStats(row) {
@@ -223,6 +242,28 @@
             }
         }
 
+        function renderSettingsUI() {
+            var allowUndo = typeof ChessStorage !== 'undefined' ? ChessStorage.getAllowUndo() : false;
+            var btnOn = document.getElementById('btn-undo-on');
+            var btnOff = document.getElementById('btn-undo-off');
+            if (btnOn && btnOff) {
+                if (allowUndo) {
+                    btnOn.className = 'btn-group-item active';
+                    btnOff.className = 'btn-group-item';
+                } else {
+                    btnOn.className = 'btn-group-item';
+                    btnOff.className = 'btn-group-item active';
+                }
+            }
+        }
+
+        function setAllowUndoSetting(allow) {
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setAllowUndo(allow);
+            }
+            renderSettingsUI();
+        }
+
         var isStatsInitialized = false;
         function initStatsPage() {
             if (isStatsInitialized) return;
@@ -237,9 +278,11 @@
                     ChessI18n.init();
                     ChessI18n.onChange(function () {
                         loadStats();
+                        renderSettingsUI();
                     });
                 }
 
+                renderSettingsUI();
                 loadStats();
 
                 if (typeof ChessBackend !== 'undefined') {

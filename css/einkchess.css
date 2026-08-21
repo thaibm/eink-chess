@@ -502,8 +502,11 @@ button,
     -webkit-box-sizing: border-box !important;
 }
 
-/* Ensure display:none inline style or .hidden is not overridden by display:block !important above */
+/* Ensure display:none inline style or .hidden is not overridden by display:block !important or table-cell !important above */
 .hidden,
+.action-bar-cell.hidden,
+.action-bar-cell[style*="display: none"],
+.action-bar-cell[style*="display:none"],
 .action-bar-cell .btn.hidden,
 .action-bar-cell .btn[style*="display: none"],
 .action-bar-cell .btn[style*="display:none"] {
