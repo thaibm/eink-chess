@@ -38,7 +38,7 @@
 
         function onFastInput(e) {
             var now = Date.now ? Date.now() : new Date().getTime();
-            if (lastFastInputTime && now - lastFastInputTime < 120) {
+            if (lastFastInputTime && now - lastFastInputTime < 80) {
                 if (e && e.preventDefault) e.preventDefault();
                 return false;
             }
@@ -50,11 +50,14 @@
 
         function onContainerClick(e, fromTouch) {
             var now = Date.now ? Date.now() : new Date().getTime();
-            if (!fromTouch && lastFastInputTime && (now - lastFastInputTime < 700)) {
+            if (!fromTouch && lastFastInputTime && (now - lastFastInputTime < 300)) {
                 return false;
             }
 
             var tgt = (e && (e.target || e.srcElement)) || null;
+            if (tgt === table && e && e.touches && e.touches[0] && document.elementFromPoint) {
+                tgt = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY) || tgt;
+            }
             while (tgt && tgt.getAttribute && (tgt.getAttribute('data-r') === null || tgt.getAttribute('data-c') === null)) {
                 tgt = tgt.parentNode;
             }

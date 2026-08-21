@@ -121,6 +121,7 @@
 
 ***Giải thích về thuật toán tạo độ khó tự nhiên & Đánh giá nước đi cho Offline Bot V2 (Tomitank):***
 - **Sử dụng Engine Tomitank 100% Offline qua Web Worker:** Tất cả 10 cấp độ đều hoạt động offline bằng engine Tomitank (đã tối ưu Hash 16MB cho Kindle).
+- **Tương thích hoàn toàn với Kindle Paperwhite 3 (Old WebKit):** Tự động polyfill `window.webkitURL` và `WebKitBlobBuilder` khi tạo Web Worker từ Blob URL, bọc `try...catch` an toàn tránh crash luồng giao diện khi trình duyệt không hỗ trợ Worker, tinh chỉnh ngưỡng touch handling và loại bỏ hoàn toàn các lớp SVG overlay gây nghẽn sự kiện click.
 - **Thuật toán MultiPV & Noise Injection:** Khác với AI Minimax cũ (ngây ngô và dễ bị bắt bài), Bot V2 mô phỏng tư duy con người bằng cách dùng MultiPV để tìm top 4 nước đi tốt nhất (`best4rootmoves`). Ở các cấp độ thấp (1-8), Bot có tỷ lệ (chance) cố ý chọn nước đi sai lầm trong ngưỡng điểm hao hụt (noiseCp) để "giả lập" con người đánh hỏng.
 - **Phân tích nước đi (Move Evaluation & Badges):** Ứng dụng theo dõi chênh lệch điểm số (Centipawn Loss: $\Delta cp$) sau khi Bot tính toán nước phản hồi để phân loại chất lượng nước đi của người chơi:
   - $\le 10\text{ cp}$: **`★` Nước đi tốt nhất (Best Move)**

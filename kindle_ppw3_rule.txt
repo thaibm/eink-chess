@@ -1,0 +1,92 @@
+KINDLE PPW3 WEB GAME - RELEASE CHECKLIST
+(Single HTML File Mini Game)
+
+1. JavaScript & Compatibility
++ Toàn bộ code đã transpile về ES5.
++ Không còn:
+  + let / const
+  + arrow function
+  + class
+  + template string
+  + async/await
++ Không dùng trực tiếp:
+  + fetch
+  + Promise
+  + Map / Set
+  + IntersectionObserver
++ Nếu cần API hiện đại -> đã có polyfill ES5-compatible.
++ Ưu tiên Vanilla JS.
++ Không dùng React / Vue / Angular.
++ Không dùng Flash, media plugins hoặc thư viện nặng.
++ File HTML tổng dung lượng <= 800KB.
++ Ưu tiên mini game <= 100KB nếu có thể.
+
+2. Performance & Memory
++ Kiểm tra lại bug logic
++ Không dùng while(true) hoặc loop nặng.
++ Không dùng setInterval tốc độ cao.
++ Ưu tiên setTimeout().
++ Hạn chế tạo/xóa DOM liên tục.
++ Reuse DOM node thay vì innerHTML nhiều lần.
++ Không redraw toàn màn hình liên tục.
++ Không có memory leak khi chơi lâu.
++ Runtime RAM càng thấp càng tốt (<32MB an toàn).
+
+3. E-Ink Optimization
++ Không dùng animation liên tục.
++ Không dùng:
+  + fade
+  + parallax
+  + smooth scrolling
+  + blinking
++ Gameplay theo kiểu:
+  + turn-based
+  + puzzle
+  + chess/card game
+  + redraw theo sự kiện
++ UI hoạt động tốt ở grayscale.
++ Độ tương phản cao.
++ Font lớn, rõ, dễ đọc, ưu tiên font Sans-serif hoặc Monospace: Arial, Bookerly, Courier
++ Được dùng màu sắc nhưng lưu ý nó sẽ được convert thành dạng 16 cấp độ xám (Grayscale) trên Kindle
++ Nếu dùng canvas:
+  + chỉ dùng canvas 2D đơn giản
+  + không dùng WebGL
+  + chỉ redraw vùng thay đổi
+
+4. Layout & UI
++ Gameplay vừa trong 1 màn hình.
++ Không để xuất hiện thanh cuộn.
++ Thiết kế theo viewport Kindle thực tế (~1072x1231 usable area).
++ Không đặt nút sát mép màn hình.
++ Không dùng hover hoặc mouseover.
++ Có phản hồi rõ khi chạm:
+  + đổi trạng thái
+  + highlight
+  + loading indicator
+
+5. CSS Compatibility
++ Không dùng CSS Grid.
++ Hạn chế Flexbox phức tạp.
++ Không dùng:
+  + filter
+  + backdrop-filter
+  + mask
+  + CSS effect hiện đại nặng
++ Ưu tiên layout đơn giản:
+  + block
+  + inline-block
+  + absolute positioning
+
+6. Offline & Stability
++ Game chạy hoàn toàn offline.
++ Không phụ thuộc CDN online.
++ Asset load fail không làm game crash.
+
+7. Design Philosophy
++ Ưu tiên giao diện tĩnh hơn giao diện động.
++ Ưu tiên chậm, rõ, chắc thay vì nhanh, mượt, phức tạp.
++ Ưu tiên ít DOM, ít JS, ít redraw.
++ Ưu tiên game theo lượt hơn game phản xạ nhanh.
++ Ưu tiên trải nghiệm dễ đọc, dễ bấm, dễ hiểu trên E-ink.
++ Mọi hiệu ứng đều phải phục vụ khả năng đọc và độ ổn định, không dùng để “trang trí”.
++ Luôn nhớ: Kindle PPW3 không phải màn hình điện thoại, nên thiết kế phải theo giới hạn của E-ink, không theo tư duy web game hiện đại.

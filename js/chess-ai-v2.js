@@ -17,18 +17,45 @@
             return;
         }
 
-        // [PPW3-FIX] Kindle Paperwhite 3 (WebKit) workaround for Web Worker setTimeout bugs
-        var fixScript = "function _tomiDeferredSetTimeout(fn, delay) { return setTimeout(fn, delay); }\n";
-        var workerSrc = window.TOMITANK_SOURCE.replace(/setTimeout\(/g, "_tomiDeferredSetTimeout(");
-        workerSrc = fixScript + workerSrc;
+        var urlApi = window.URL || window.webkitURL;
+        if (typeof Worker === 'undefined' || !urlApi) {
+            console.error("ChessAIV2: Web Worker is not supported on this browser.");
+            return;
+        }
 
-        console.log("ChessAIV2: Initializing worker, level =", this.level);
-        
-        var blob = new Blob([workerSrc], { type: 'application/javascript' });
-        var workerUrl = window.URL.createObjectURL(blob);
-        
-        console.log("ChessAIV2: Blob URL created:", workerUrl);
-        this.worker = new Worker(workerUrl);
+        try {
+            // [PPW3-FIX] Kindle Paperwhite 3 (WebKit) workaround for Web Worker setTimeout bugs
+            var fixScript = "function _tomiDeferredSetTimeout(fn, delay) { return setTimeout(fn, delay); }\n";
+            var workerSrc = window.TOMITANK_SOURCE.replace(/\bsetTimeout\s*\(/g, "_tomiDeferredSetTimeout(");
+            workerSrc = fixScript + workerSrc;
+
+            console.log("ChessAIV2: Initializing worker, level =", this.level);
+
+            function makeBlobUrl(text) {
+                var blob;
+                try {
+                    blob = new Blob([text], { type: 'application/javascript' });
+                } catch (be) {
+                    var BB = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+                    if (BB) {
+                        var bb = new BB();
+                        bb.append(text);
+                        blob = bb.getBlob('application/javascript');
+                    } else {
+                        throw be;
+                    }
+                }
+                return urlApi.createObjectURL(blob);
+            }
+
+            var workerUrl = makeBlobUrl(workerSrc);
+            console.log("ChessAIV2: Blob URL created:", workerUrl);
+            this.worker = new Worker(workerUrl);
+        } catch (err) {
+            console.error("ChessAIV2: Failed to create Worker:", err);
+            this.worker = null;
+            return;
+        }
         
         var self = this;
         var _pendingUci = null;
