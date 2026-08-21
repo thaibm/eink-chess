@@ -91,6 +91,23 @@
                 sq.setAttribute('data-r', r);
                 sq.setAttribute('data-c', c);
 
+                (function(rowIdx, colIdx, sqElem) {
+                    function onCellInput(e) {
+                        var now = Date.now ? Date.now() : new Date().getTime();
+                        if (lastFastInputTime && now - lastFastInputTime < 80) {
+                            if (e && e.preventDefault) e.preventDefault();
+                            return false;
+                        }
+                        lastFastInputTime = now;
+                        if (e && e.preventDefault) e.preventDefault();
+                        self.handleSquareClick(rowIdx, colIdx);
+                        return false;
+                    }
+                    sqElem.onclick = onCellInput;
+                    sqElem.ontouchstart = onCellInput;
+                    sqElem.onmousedown = onCellInput;
+                })(r, c, sq);
+
                 var pieceHolder = document.createElement('div');
                 pieceHolder.className = 'piece';
                 var pieceInner = document.createElement('div');
