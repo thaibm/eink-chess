@@ -13,12 +13,14 @@
         this.options = options || {};
         this.orientation = this.options.orientation || 'w'; // 'w' or 'b'
         this.showHints = this.options.showHints !== false;
+        this.showCoords = this.options.showCoords !== false;
 
         this.selectedSquare = null; // { r, c }
         this.validMoves = [];       // array of legal moves for selectedSquare
         this.lastMove = null;       // { from: {r,c}, to: {r,c} }
         this.reviewBadge = null;    // { r: 0..7, c: 0..7, symbol: '★', isDark: true }
         this.squaresDOM = [];       // 8x8 matrix of DOM elements
+        this.interactive = this.options.interactive !== false && !this.options.readOnly;
 
         this.engine = this.options.engine || null;
         this.onMove = this.options.onMove || function() {};
@@ -31,7 +33,7 @@
         this.container.innerHTML = '';
 
         var table = document.createElement('div');
-        table.className = 'chess-board';
+        table.className = 'chess-board' + (!this.interactive ? ' read-only' : '');
 
         var self = this;
         var lastFastInputTime = 0;
@@ -87,6 +89,14 @@
                 sq.className = 'sq ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
                 sq.setAttribute('data-r', r);
                 sq.setAttribute('data-c', c);
+
+                var rankCoord = document.createElement('span');
+                rankCoord.className = 'sq-coord rank';
+                sq.appendChild(rankCoord);
+
+                var fileCoord = document.createElement('span');
+                fileCoord.className = 'sq-coord file';
+                sq.appendChild(fileCoord);
 
                 var pieceHolder = document.createElement('div');
                 pieceHolder.className = 'piece';
@@ -144,8 +154,27 @@
         this.render();
     };
 
+    ChessBoard.prototype.setInteractive = function(interactive) {
+        this.interactive = !!interactive;
+        if (this.container) {
+            var table = this.container.getElementsByClassName('chess-board')[0] || (this.container.querySelector ? this.container.querySelector('.chess-board') : null);
+            if (table) {
+                if (this.interactive) {
+                    table.className = table.className.replace(/\bread-only\b/g, '').replace(/\s+/g, ' ').trim();
+                } else if (table.className.indexOf('read-only') === -1) {
+                    table.className = (table.className + ' read-only').trim();
+                }
+            }
+        }
+        if (!this.interactive) {
+            this.selectedSquare = null;
+            this.validMoves = [];
+            this.render();
+        }
+    };
+
     ChessBoard.prototype.handleSquareClick = function(r, c) {
-        if (!this.engine) return;
+        if (!this.interactive || !this.engine) return;
 
         // If flipped, map visual click back to logical coordinates
         var logR = this.orientation === 'w' ? r : 7 - r;
@@ -329,8 +358,31 @@
 
                 sqDOM.className = cls;
 
+                // Update rank/file coordinate labels
+                var rankSpan = sqDOM.getElementsByClassName('sq-coord rank')[0] || (sqDOM.querySelector ? sqDOM.querySelector('.sq-coord.rank') : null);
+                var fileSpan = sqDOM.getElementsByClassName('sq-coord file')[0] || (sqDOM.querySelector ? sqDOM.querySelector('.sq-coord.file') : null);
+
+                if (this.showCoords) {
+                    if (visualC === 0 && rankSpan) {
+                        rankSpan.innerHTML = (8 - logR).toString();
+                        rankSpan.style.display = 'block';
+                    } else if (rankSpan) {
+                        rankSpan.style.display = 'none';
+                    }
+
+                    if (visualR === 7 && fileSpan) {
+                        fileSpan.innerHTML = String.fromCharCode(97 + logC);
+                        fileSpan.style.display = 'block';
+                    } else if (fileSpan) {
+                        fileSpan.style.display = 'none';
+                    }
+                } else {
+                    if (rankSpan) rankSpan.style.display = 'none';
+                    if (fileSpan) fileSpan.style.display = 'none';
+                }
+
                 // Update piece glyph inside
-                var pieceInner = sqDOM.getElementsByTagName('div')[0].getElementsByTagName('div')[0];
+                var pieceInner = sqDOM.getElementsByClassName('piece-inner')[0] || (sqDOM.querySelector ? sqDOM.querySelector('.piece-inner') : null);
                 if (piece) {
                     var isWhitePiece = this.engine.isWhite(piece);
                     pieceInner.className = 'piece-inner ' + (isWhitePiece ? 'piece-w' : 'piece-b');

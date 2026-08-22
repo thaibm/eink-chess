@@ -7,7 +7,7 @@
     <meta name="description"
         content="EinkChess - Chess web app specially optimized for Kindle, Kobo, Boox E-ink screens.">
     <title>Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=54">
+    <link rel="stylesheet" href="css/einkchess.css?v=58">
 </head>
 
 <body>
@@ -115,6 +115,25 @@
                         <div class="btn-group-item" onclick="selectHomeSide('b')" data-i18n="home.side_black">Black
                             (Second)</div>
                     </div>
+
+                    <div id="home-review-group-container" style="display: none;">
+                        <div style="font-weight: bold; margin-top: 14px; margin-bottom: 6px; font-size: 15px;"
+                            data-i18n="home.setup_review_label">3. Move Review:</div>
+                        <div class="btn-group" id="home-review-group">
+                            <div class="btn-group-item" onclick="selectHomeReview(true)" data-i18n="home.review_on">
+                                ON</div>
+                            <div class="btn-group-item active" onclick="selectHomeReview(false)" data-i18n="home.review_off">
+                                OFF</div>
+                        </div>
+                    </div>
+
+                    <div id="home-setup-analysis-container" style="display: none; margin-top: 14px; border-top: 1px dashed #888; padding-top: 10px;">
+                        <button class="btn btn-block" onclick="location.href='analysis.html'"
+                            style="margin: 0; padding: 10px 8px; font-size: 14px; font-weight: bold; border: 2px solid #000; background: #fff;"
+                            id="home-setup-analysis-btn" data-i18n="home.btn_analyze_previous">
+                            ♟ Xem lại &amp; Phân tích ván trước
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-footer" style="display: table; width: 100%;">
                     <div style="display: table-cell; width: 45%; padding-right: 4px;">
@@ -126,16 +145,24 @@
                         <button class="btn btn-primary btn-block" onclick="launchGame()"
                             style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="home.btn_launch">Start
                             Game</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
         <!-- 3.5. RESUME OR NEW GAME MODAL -->
         <div id="home-resume-modal" class="modal-overlay" onclick="if(event.target===this) closeHomeResumeModal()">
             <div class="modal-box">
                 <div class="modal-title" data-i18n="home.resume_modal_title">RESUME OR NEW GAME?</div>
                 <div class="modal-body" id="home-resume-modal-body-container">
                     <!-- Dynamic body via JS -->
+                </div>
+                <div id="home-resume-analysis-container" style="display: none; padding: 0 10px 10px 10px;">
+                    <button class="btn btn-block" onclick="location.href='analysis.html'"
+                        style="margin: 0; padding: 10px 8px; font-size: 13px; font-weight: bold; border: 2px solid #000; background: #fff;"
+                        id="home-resume-analysis-btn" data-i18n="home.btn_analyze_previous">
+                        ♟ Xem lại &amp; Phân tích ván trước
+                    </button>
                 </div>
                 <div class="modal-footer" style="display: table; width: 100%;">
                     <div style="display: table-cell; width: 50%; padding-right: 4px;">
@@ -199,8 +226,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=21"></script>
-    <script src="js/chess-i18n.js?v=40"></script>
+    <script src="js/chess-storage.js?v=22"></script>
+    <script src="js/chess-i18n.js?v=46"></script>
     <script src="js/chess-backend.js?v=12"></script>
     <script>
         var selectedLvl = 1;
@@ -299,6 +326,23 @@
                 var botLabel = version === 1 ? 'Bot v1 (Local Minimax)' : 'Bot v2 (Tomitank 7.0)';
                 bodyEl.innerHTML = ChessI18n.t('home.resume_modal_body', { botName: botLabel });
             }
+
+            var resumeAnalysisContainer = document.getElementById('home-resume-analysis-container');
+            var resumeAnalysisBtn = document.getElementById('home-resume-analysis-btn');
+            var savedAnalysis = (typeof ChessStorage !== 'undefined') ? ChessStorage.getAnalysisGame() : null;
+            var hasAnalysis = savedAnalysis && savedAnalysis.history && savedAnalysis.history.length > 0;
+
+            if (resumeAnalysisContainer) {
+                if (version === 2 && hasAnalysis) {
+                    resumeAnalysisContainer.style.display = 'block';
+                    if (resumeAnalysisBtn && typeof ChessI18n !== 'undefined') {
+                        resumeAnalysisBtn.innerHTML = ChessI18n.t('home.btn_analyze_previous');
+                    }
+                } else {
+                    resumeAnalysisContainer.style.display = 'none';
+                }
+            }
+
             if (modal) {
                 modal.className = 'modal-overlay active';
                 modal.style.display = 'block';
@@ -360,6 +404,7 @@
                     selectedLvl = ChessStorage.getDefaultBotLevelV2();
                 }
                 selectedSide = ChessStorage.getDefaultSide();
+                selectedReview = ChessStorage.getDefaultBotReview();
             }
 
             var levelGroupEl = document.getElementById('home-level-group-container');
@@ -392,8 +437,30 @@
                 levelGroupEl.innerHTML = html;
             }
 
+            var reviewContainer = document.getElementById('home-review-group-container');
+            if (reviewContainer) {
+                reviewContainer.style.display = (activeBotVersion === 2) ? 'block' : 'none';
+            }
+
+            var analysisContainer = document.getElementById('home-setup-analysis-container');
+            var analysisBtn = document.getElementById('home-setup-analysis-btn');
+            var savedAnalysis = (typeof ChessStorage !== 'undefined') ? ChessStorage.getAnalysisGame() : null;
+            var hasAnalysis = savedAnalysis && savedAnalysis.history && savedAnalysis.history.length > 0;
+
+            if (analysisContainer) {
+                if (activeBotVersion === 2 && hasAnalysis) {
+                    analysisContainer.style.display = 'block';
+                    if (analysisBtn && typeof ChessI18n !== 'undefined') {
+                        analysisBtn.innerHTML = ChessI18n.t('home.btn_analyze_previous');
+                    }
+                } else {
+                    analysisContainer.style.display = 'none';
+                }
+            }
+
             selectHomeLevel(selectedLvl);
             selectHomeSide(selectedSide);
+            selectHomeReview(selectedReview);
 
             var modal = document.getElementById('home-setup-modal');
             if (modal) {
@@ -464,11 +531,27 @@
             items[1].className = 'btn-group-item' + (side === 'b' ? ' active' : '');
         }
 
+        var selectedReview = false;
+        function selectHomeReview(enable) {
+            selectedReview = !!enable;
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setDefaultBotReview(selectedReview);
+            }
+            var reviewGroup = document.getElementById('home-review-group');
+            if (reviewGroup) {
+                var items = reviewGroup.getElementsByTagName('div');
+                if (items.length >= 2) {
+                    items[0].className = 'btn-group-item' + (selectedReview ? ' active' : '');
+                    items[1].className = 'btn-group-item' + (!selectedReview ? ' active' : '');
+                }
+            }
+        }
+
         function launchGame() {
             if (activeBotVersion === 1) {
                 location.href = 'play-bot.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide;
             } else {
-                location.href = 'play-bot-v2.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide;
+                location.href = 'play-bot-v2.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide + '&review=' + (selectedReview ? '1' : '0');
             }
         }
 

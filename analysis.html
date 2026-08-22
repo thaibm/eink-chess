@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Post-Game Chess Analysis on Kindle - EinkChess">
+    <title>Post-Game Analysis - Kindle Chess</title>
+    <link rel="stylesheet" href="css/einkchess.css?v=58">
+    <style>
+        /* Analysis Specific Layout & Zero-Scroll E-ink Styles */
+        body {
+            overflow-y: hidden;
+            /* Prevent page scrollbar on Kindle */
+        }
+
+        .analysis-container {
+            width: 100%;
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 2px 4px;
+            box-sizing: border-box;
+        }
+
+        /* Middle Section: Board on Left + Vertical History Table on Right */
+        .analysis-middle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            width: 100%;
+        }
+
+        .analysis-board-col {
+            flex: 0 0 auto;
+            margin-right: 4px;
+        }
+
+        .analysis-board-col .board-container {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .analysis-history-col {
+            flex: 1 1 auto;
+            min-width: 95px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .analysis-history-box {
+            border: 2px solid #000;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .history-table-header {
+            display: flex;
+            background: #000;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 1px;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            flex: 0 0 auto;
+        }
+
+        .hist-hdr-num {
+            width: 22px;
+            flex: 0 0 22px;
+            text-align: center;
+        }
+
+        .hist-hdr-col {
+            flex: 1 1 0;
+            text-align: center;
+        }
+
+        .history-table-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #fff;
+        }
+
+        .history-row {
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid #ccc;
+            font-size: 12px;
+            line-height: 22px;
+            min-height: 22px;
+        }
+
+        .history-row.initial-row {
+            background: #f0f0f0;
+        }
+
+        .history-col-num {
+            width: 22px;
+            flex: 0 0 22px;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            background: #e8e8e8;
+            border-right: 1px solid #ccc;
+            font-size: 11px;
+            line-height: 22px;
+        }
+
+        .history-col-cell {
+            flex: 1 1 0;
+            text-align: center;
+            cursor: pointer;
+            border-right: 1px solid #eee;
+            padding: 0 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-tap-highlight-color: transparent;
+            font-size: 12px;
+        }
+
+        .history-col-cell:last-child {
+            border-right: none;
+        }
+
+        .history-col-cell.active {
+            background: #000 !important;
+            color: #fff !important;
+            font-weight: bold !important;
+            outline: 1px solid #000;
+        }
+
+        .history-badge-sym {
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 2px;
+        }
+
+        /* Footer Section: 2 Columns (Navigation Buttons Left + Analysis Card Right) */
+        .analysis-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-top: 2px;
+            width: 100%;
+        }
+
+        .analysis-nav-col {
+            flex: 0 0 auto;
+            width: 150px;
+            margin-left: 4px;
+        }
+
+        .analysis-nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 3px;
+            height: 100%;
+        }
+
+        .analysis-nav-btn {
+            width: 100%;
+            height: 100%;
+            min-height: 38px;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #000 !important;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .analysis-nav-btn:active {
+            background: #ddd;
+        }
+
+        .analysis-nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .analysis-card-col {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .analysis-card {
+            margin: 0;
+            padding: 4px 6px;
+            border: 2px solid #000;
+            background: #fdfdfd;
+            font-size: 12px;
+            line-height: 1.25;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .analysis-eval-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #888;
+            padding-bottom: 2px;
+            margin-bottom: 2px;
+        }
+
+        .analysis-badge {
+            display: inline-block;
+            padding: 1px 4px;
+            border: 1px solid #000;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .analysis-badge.dark {
+            background: #000;
+            color: #fff;
+        }
+
+        .analysis-badge.light {
+            background: #eee;
+            color: #000;
+        }
+
+        .analysis-score {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .analysis-best-alt {
+            font-size: 11px;
+            margin-bottom: 2px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .analysis-reason {
+            font-size: 11px;
+            color: #111;
+            line-height: 1.2;
+            max-height: 28px;
+            overflow: hidden;
+        }
+
+        /* 4. Evaluation Advantage Chart (Monochrome E-ink) */
+        .analysis-chart-section {
+            margin-top: 3px;
+            width: 100%;
+            border: 2px solid #000;
+            background: #fff;
+            padding: 2px 4px;
+            box-sizing: border-box;
+        }
+
+        .analysis-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 13px;
+            margin-bottom: 1px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1px;
+        }
+
+        .chart-title {
+            color: #000;
+        }
+
+        .chart-axis-labels {
+            font-size: 10px;
+            color: #444;
+            font-family: monospace, sans-serif;
+        }
+
+        .axis-lbl-w {
+            font-weight: bold;
+            margin-right: 6px;
+        }
+
+        .axis-lbl-eq {
+            color: #777;
+            margin-right: 6px;
+        }
+
+        .axis-lbl-b {
+            font-weight: bold;
+        }
+
+        .analysis-chart-canvas-wrap {
+            width: 100%;
+            height: 46px;
+            position: relative;
+        }
+
+        .eval-chart-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Summary Stats Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: center;
+        }
+
+        .summary-table th {
+            background: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .summary-table td.col-metric {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .analysis-empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            border: 2px solid #000;
+            margin-top: 20px;
+            background: #f9f9f9;
+        }
+
+        /* Setup Modal Option Cards */
+        .analysis-opt-card {
+            border: 2px solid #000;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            background: #fff;
+            color: #000;
+            -webkit-tap-highlight-color: transparent;
+            text-align: left;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .analysis-opt-card:active {
+            background: #e0e0e0;
+        }
+
+        .analysis-opt-card.active {
+            background: #000 !important;
+            color: #fff !important;
+        }
+
+        .analysis-opt-title {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .analysis-opt-desc {
+            font-size: 11px;
+            color: #444;
+        }
+
+        .analysis-opt-card.active .analysis-opt-desc {
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container analysis-container">
+        <!-- 1. COMPACT 1-LINE HEADER -->
+        <div class="header">
+            <div class="header-top">
+                <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
+                <div class="header-center">
+                    <span style="font-weight: bold; font-size: 13px;" id="analysis-match-meta"
+                        data-i18n="analysis.header_title">Game Analysis</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-primary" onclick="openGameSummaryModal()"
+                        data-i18n="analysis.btn_summary" style="font-weight: bold;">Summary</button>
+                    <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
+                        data-i18n="header.donate">Donate</button>
+                    <button class="btn btn-sm btn-lang-toggle" onclick="ChessI18n.toggleLang()">EN</button>
+                    <button class="btn btn-sm" onclick="goBack()" data-i18n="analysis.btn_back">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT (DYNAMICALLY FILLED) -->
+        <div id="analysis-main">
+            <!-- 2. MIDDLE ROW: CHESS BOARD + MOVE HISTORY TABLE (SIDE-BY-SIDE) -->
+            <div class="analysis-middle-row">
+                <div class="analysis-board-col">
+                    <div class="board-container" id="board-container"></div>
+                </div>
+                <div class="analysis-history-col">
+                    <div class="analysis-history-box" id="analysis-history-box">
+                        <div class="history-table-header">
+                            <span class="hist-hdr-num">#</span>
+                            <span class="hist-hdr-col" data-i18n="analysis.history_white">White</span>
+                            <span class="hist-hdr-col" data-i18n="analysis.history_black">Black</span>
+                        </div>
+                        <div class="history-table-body" id="history-table-body">
+                            <!-- Populated dynamically via renderMoveHistory() -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. FOOTER ROW: 2 COLUMNS (NAV BUTTONS + ANALYSIS CARD) -->
+            <div class="analysis-footer-row">
+
+                <!-- Left column: Analysis Card -->
+                <div class="analysis-card-col">
+                    <div class="analysis-card" id="analysis-card">
+                        <div class="analysis-eval-row">
+                            <div id="analysis-badge-container">
+                                <span class="analysis-badge light" id="analysis-badge" style="display: none;"></span>
+                            </div>
+                            <div class="analysis-score" id="analysis-score"></div>
+                        </div>
+                        <div class="analysis-best-alt" id="analysis-best-alt" style="display: none;"></div>
+                        <div class="analysis-reason" id="analysis-reason"></div>
+                        <div class="analysis-engine-meta" id="analysis-engine-meta"
+                            style="display: none; margin-top: 2px; padding-top: 2px; border-top: 1px dashed #888; font-size: 10px; color: #333; justify-content: space-between; font-family: monospace, sans-serif;">
+                            <span id="analysis-meta-depth">Depth: -</span>
+                            <span id="analysis-meta-time">Time: -</span>
+                            <span id="analysis-meta-nodes">Nodes: -</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column: 4-button Navigation (2x2 grid) -->
+                <div class="analysis-nav-col">
+                    <div class="analysis-nav-grid">
+                        <button class="btn analysis-nav-btn" onclick="stepPrev()" id="btn-nav-prev"
+                            title="Prev">&lt;</button>
+                        <button class="btn analysis-nav-btn" onclick="stepNext()" id="btn-nav-next"
+                            title="Next">&gt;</button>
+                        <button class="btn analysis-nav-btn" onclick="stepStart()" id="btn-nav-start"
+                            title="Start">|&lt;</button>
+                        <button class="btn analysis-nav-btn" onclick="stepEnd()" id="btn-nav-end"
+                            title="End">&gt;|</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 4. EVALUATION ADVANTAGE CHART (MONOCHROME E-INK) -->
+            <div class="analysis-chart-section" id="analysis-chart-section">
+                <div class="analysis-chart-header">
+                    <span class="chart-title" data-i18n="analysis.chart_title">Evaluation Advantage</span>
+                    <span class="chart-axis-labels">
+                        <span class="axis-lbl-w">+W</span>
+                        <span class="axis-lbl-eq">0</span>
+                        <span class="axis-lbl-b">-B</span>
+                    </span>
+                </div>
+                <div class="analysis-chart-canvas-wrap">
+                    <canvas id="eval-chart-canvas" class="eval-chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ANALYSIS CONFIGURATION / SETUP MODAL -->
+        <div id="analysis-setup-modal" class="modal-overlay active" style="display: block;">
+            <div class="modal-box" style="max-width: 380px;">
+                <div class="modal-title" data-i18n="analysis.setup_modal_title">ANALYSIS CONFIGURATION</div>
+                <div class="modal-body" style="padding: 8px 4px;">
+                    <div style="font-size: 12px; color: #333; margin-bottom: 8px; line-height: 1.3;"
+                        data-i18n="analysis.setup_modal_desc">
+                        Higher thinking time yields more accurate evaluations and deeper tactical insights.
+                    </div>
+                    <div id="setup-total-moves-label" style="font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                        Total moves: <strong>0 moves</strong>
+                    </div>
+
+                    <div id="analysis-options-list">
+                        <!-- Option 1: 600ms (Default selected) -->
+                        <div class="analysis-opt-card active" id="opt-time-600" onclick="selectAnalysisTime(600)">
+                            <div class="analysis-opt-title" id="opt-title-600">Standard (600ms / move)</div>
+                            <div class="analysis-opt-desc" id="opt-desc-600">Depth ~5-6 ply · Est. total: ~20s</div>
+                        </div>
+                        <!-- Option 2: 1200ms -->
+                        <div class="analysis-opt-card" id="opt-time-1200" onclick="selectAnalysisTime(1200)">
+                            <div class="analysis-opt-title" id="opt-title-1200">Thorough (1200ms / move)</div>
+                            <div class="analysis-opt-desc" id="opt-desc-1200">Depth ~7-8 ply · Est. total: ~45s</div>
+                        </div>
+                        <!-- Option 3: 2000ms -->
+                        <div class="analysis-opt-card" id="opt-time-2000" onclick="selectAnalysisTime(2000)">
+                            <div class="analysis-opt-title" id="opt-title-2000">Deep Analysis (2000ms / move)</div>
+                            <div class="analysis-opt-desc" id="opt-desc-2000">Depth ~8-9+ ply · Est. total: ~80s</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="text-align: center; padding-top: 6px;">
+                    <button class="btn btn-primary btn-block" onclick="startSelectedAnalysis()"
+                        style="margin: 0; padding: 10px; font-weight: bold; font-size: 14px;" data-i18n="analysis.btn_start_analysis">
+                        Start Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. BATCH PROGRESS MODAL -->
+        <div id="batch-progress-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-box" style="text-align: center; max-width: 360px;">
+                <div class="modal-title" data-i18n="analysis.batch_title">ANALYZING GAME</div>
+                <div class="modal-body" style="padding: 12px 8px;">
+                    <div id="batch-progress-status" style="font-weight: bold; font-size: 14px; margin-bottom: 12px;">
+                        Analyzing move 0 / 0 (0%)
+                    </div>
+                    <div
+                        style="border: 2px solid #000; padding: 2px; background: #fff; height: 22px; width: 100%; box-sizing: border-box;">
+                        <div id="batch-progress-bar" style="background: #000; height: 100%; width: 0%;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #444; margin-top: 10px;" data-i18n="analysis.batch_calculating">
+                        Calculating move analysis...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. GAME OVERVIEW / SUMMARY MODAL -->
+        <div id="game-summary-modal" class="modal-overlay" onclick="if(event.target===this) closeGameSummaryModal()">
+            <div class="modal-box" style="max-width: 380px;">
+                <div class="modal-title" data-i18n="analysis.summary_title">GAME SUMMARY</div>
+                <div class="modal-body" id="game-summary-body" style="padding: 6px 0;">
+                    <!-- Summary Table populated via JS -->
+                </div>
+                <div class="modal-footer" style="text-align: center;">
+                    <button class="btn btn-primary" onclick="closeGameSummaryModal()"
+                        data-i18n="analysis.btn_view_moves">
+                        Review Moves
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. EMPTY STATE (IF NO GAME FOUND) -->
+        <div id="analysis-empty" class="analysis-empty-state" style="display: none;">
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px;" data-i18n="analysis.no_game_found">
+                No game data found for analysis.
+            </div>
+            <button class="btn btn-primary" onclick="location.href='play-bot-v2.html'"
+                data-i18n="home.bot_card_btn">Play vs Bot AI</button>
+            <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Home</button>
+        </div>
+
+        <!-- 8. DONATE KO-FI MODAL -->
+        <div id="donate-modal" class="modal-overlay" onclick="if(event.target===this) ChessBackend.closeDonateModal()">
+            <div class="modal-box">
+                <div class="modal-title" data-i18n="donate.title">Support EinkChess Author</div>
+                <div class="modal-body">
+                    <span data-i18n="donate.body">You can scan the QR code below with your phone to buy the author a
+                        coffee via <strong>Ko-fi</strong> or <strong>Momo</strong>:</span>
+                    <div class="qr-wrapper">
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.kofi_label">Ko-fi (International)</div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://ko-fi.com/sendwebtokindle"
+                                alt="Ko-fi QR Code" class="qr-image">
+                            <div class="qr-link-text">ko-fi.com/sendwebtokindle</div>
+                        </div>
+                        <div class="qr-item">
+                            <div class="qr-item-title" data-i18n="donate.momo_label">Momo (Vietnam)</div>
+                            <img src="images/momo.jpg" alt="Momo QR Code" class="qr-image">
+                            <div class="qr-link-text">Momo QR</div>
+                        </div>
+                    </div>
+                    <span data-i18n="donate.note">Your support helps maintain server costs and develop new
+                        features!</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="ChessBackend.closeDonateModal()"
+                        data-i18n="donate.btn_close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/chess-engine.js?v=8"></script>
+    <script src="js/tomitank-source.js?v=1"></script>
+    <script src="js/chess-ai-v2.js?v=12"></script>
+    <script src="js/chess-storage.js?v=22"></script>
+    <script src="js/chess-i18n.js?v=46"></script>
+    <script src="js/chess-board.js?v=19"></script>
+    <script src="js/chess-backend.js?v=12"></script>
+
+    <script>
+        var gameData = null;
+        var engine = null;
+        var board = null;
+        var ai = null;
+
+        var moveHistory = []; // Array of { move, fenBefore, fenAfter, san, side, moveNumber, index, isPlayer }
+        var currentMoveIdx = -1; // -1 represents initial position
+        var evalCache = {}; // Index -> { score, bestMove, cpLoss, badge, bestAlt, reason, ... }
+        var isBatchFinished = false;
+        var playerSide = 'w';
+        var botLevel = 1;
+        var selectedThinkTime = 600; // default 600ms
+
+        var PIECE_VALUES = { 'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9, 'k': 0 };
+
+        function selectAnalysisTime(ms) {
+            selectedThinkTime = ms;
+            var opts = [600, 1200, 2000];
+            for (var i = 0; i < opts.length; i++) {
+                var el = document.getElementById('opt-time-' + opts[i]);
+                if (el) {
+                    if (opts[i] === ms) {
+                        if (el.className.indexOf('active') === -1) el.className += ' active';
+                    } else {
+                        el.className = el.className.replace(/\bactive\b/g, '').trim();
+                    }
+                }
+            }
+        }
+
+        function formatEstTime(seconds) {
+            if (seconds < 60) {
+                var tpl = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('analysis.est_seconds') : '{sec}s';
+                return tpl.replace('{sec}', seconds);
+            }
+            var mins = Math.floor(seconds / 60);
+            var secs = seconds % 60;
+            var tpl2 = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('analysis.est_minutes_seconds') : '{min}m {sec}s';
+            return tpl2.replace('{min}', mins).replace('{sec}', secs);
+        }
+
+        function renderSetupModal() {
+            var totalMoves = moveHistory.length;
+            var totalMovesEl = document.getElementById('setup-total-moves-label');
+            if (totalMovesEl && typeof ChessI18n !== 'undefined') {
+                var tpl = ChessI18n.t('analysis.setup_total_moves');
+                totalMovesEl.innerHTML = tpl.replace('{count}', totalMoves);
+            }
+
+            var est600 = formatEstTime(Math.max(1, Math.round(totalMoves * 0.65)));
+            var est1200 = formatEstTime(Math.max(1, Math.round(totalMoves * 1.25)));
+            var est2000 = formatEstTime(Math.max(1, Math.round(totalMoves * 2.05)));
+
+            if (typeof ChessI18n !== 'undefined') {
+                var t600 = document.getElementById('opt-title-600');
+                var d600 = document.getElementById('opt-desc-600');
+                if (t600) t600.innerHTML = ChessI18n.t('analysis.opt_fast_title');
+                if (d600) d600.innerHTML = ChessI18n.t('analysis.opt_fast_desc').replace('{est}', est600);
+
+                var t1200 = document.getElementById('opt-title-1200');
+                var d1200 = document.getElementById('opt-desc-1200');
+                if (t1200) t1200.innerHTML = ChessI18n.t('analysis.opt_deep_title');
+                if (d1200) d1200.innerHTML = ChessI18n.t('analysis.opt_deep_desc').replace('{est}', est1200);
+
+                var t2000 = document.getElementById('opt-title-2000');
+                var d2000 = document.getElementById('opt-desc-2000');
+                if (t2000) t2000.innerHTML = ChessI18n.t('analysis.opt_master_title');
+                if (d2000) d2000.innerHTML = ChessI18n.t('analysis.opt_master_desc').replace('{est}', est2000);
+            }
+        }
+
+        function startSelectedAnalysis() {
+            var setupModal = document.getElementById('analysis-setup-modal');
+            if (setupModal) {
+                setupModal.className = 'modal-overlay';
+                setupModal.style.display = 'none';
+            }
+
+            var batchModal = document.getElementById('batch-progress-modal');
+            if (batchModal) {
+                batchModal.className = 'modal-overlay active';
+                batchModal.style.display = 'block';
+            }
+
+            waitForWorkerAndStartBatch();
+        }
+
+        function applyAnalysisLayout() {
+            if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+            var winW = window.innerWidth || document.documentElement.clientWidth || 600;
+            var winH = window.innerHeight || document.documentElement.clientHeight || 800;
+
+            var container = document.querySelector('.analysis-container');
+            if (container) {
+                container.style.maxWidth = '100%';
+                container.style.width = '100%';
+            }
+
+            var header = document.querySelector('.header');
+            var headerH = header ? header.offsetHeight : 34;
+
+            // Budget for footer row: ~82px, chart section: ~58px
+            var footerH = 82;
+            var chartH = 58;
+            var margins = 16; // vertical spacing/padding
+
+            var availableH = winH - headerH - footerH - chartH - margins;
+            var availableW = winW - 12; // 6px padding on both sides
+
+            // Board size: square, capped by available height and also width budget (leaving room for history col, min ~95px)
+            var maxBoardW = Math.max(190, availableW - 110);
+            var boardSize = Math.floor(Math.min(availableH, maxBoardW));
+            if (boardSize < 190) boardSize = 190;
+
+            var boardContainer = document.getElementById('board-container');
+            if (boardContainer) {
+                boardContainer.style.width = boardSize + 'px';
+                boardContainer.style.height = boardSize + 'px';
+                boardContainer.style.maxWidth = boardSize + 'px';
+            }
+
+            var historyBox = document.getElementById('analysis-history-box');
+            if (historyBox) {
+                historyBox.style.height = boardSize + 'px';
+                historyBox.style.maxHeight = boardSize + 'px';
+            }
+
+            // Dynamic piece sizing
+            var pieceSize = Math.floor((boardSize / 8) * 0.76);
+            var styleId = 'dynamic-piece-style';
+            var styleEl = document.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
+            styleEl.innerHTML = '.sq { font-size: ' + pieceSize + 'px !important; }';
+
+            renderEvalChart();
+        }
+
+        function initAnalysis() {
+            applyAnalysisLayout();
+
+            try {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.init();
+                    ChessI18n.onChange(function () {
+                        renderMoveHistory();
+                        renderAnalysisCard();
+                        renderEvalChart();
+                        updateMatchMeta();
+                        renderSetupModal();
+                        if (document.getElementById('game-summary-modal').style.display === 'block') {
+                            buildSummaryTable();
+                        }
+                    });
+                }
+            } catch (e) { }
+
+            gameData = (typeof ChessStorage !== 'undefined') ? ChessStorage.getAnalysisGame() : null;
+
+            if (!gameData || !gameData.history || gameData.history.length === 0) {
+                document.getElementById('analysis-main').style.display = 'none';
+                var sModal = document.getElementById('analysis-setup-modal');
+                if (sModal) sModal.style.display = 'none';
+                document.getElementById('batch-progress-modal').style.display = 'none';
+                document.getElementById('analysis-empty').style.display = 'block';
+                return;
+            }
+
+            playerSide = gameData.playerSide || 'w';
+            botLevel = gameData.botLevel || 1;
+
+            buildMoveTimeline();
+
+            engine = new ChessEngine();
+            board = new ChessBoard('board-container', {
+                engine: engine,
+                orientation: playerSide,
+                interactive: false,
+                readOnly: true,
+                onMove: function () { } // Read-only in analysis
+            });
+
+            ai = new ChessAIV2(10); // Level 10 for pure engine analysis
+
+            updateMatchMeta();
+            renderMoveHistory();
+            renderSetupModal();
+
+            // Set initial board display
+            goToMove(-1);
+
+            // Re-apply layout after board is built
+            applyAnalysisLayout();
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft') { stepPrev(); }
+                else if (e.key === 'ArrowRight') { stepNext(); }
+                else if (e.key === 'Home') { stepStart(); }
+                else if (e.key === 'End') { stepEnd(); }
+            });
+        }
+
+        function updateMatchMeta() {
+            var metaEl = document.getElementById('analysis-match-meta');
+            if (!metaEl || !gameData) return;
+
+            var resText = gameData.result || '';
+            if (gameData.winner) {
+                resText = (gameData.winner === playerSide ? 'WIN' : 'LOSS');
+            }
+            metaEl.innerHTML = 'Bot Lvl ' + botLevel + (resText ? ' · ' + resText.toUpperCase() : '');
+        }
+
+        function buildMoveTimeline() {
+            var tempEngine = new ChessEngine();
+            moveHistory = [];
+
+            for (var i = 0; i < gameData.history.length; i++) {
+                var m = gameData.history[i];
+                var fenBefore = tempEngine.toFEN();
+                var turn = tempEngine.turn;
+
+                // Find legal move matching coordinates
+                var legalMoves = tempEngine.getAllLegalMoves(turn);
+                var fullMove = null;
+                for (var j = 0; j < legalMoves.length; j++) {
+                    var lm = legalMoves[j];
+                    if (lm.from.r === m.from.r && lm.from.c === m.from.c &&
+                        lm.to.r === m.to.r && lm.to.c === m.to.c) {
+                        if (m.promotion) {
+                            if (lm.promotion && lm.promotion.toLowerCase() === m.promotion.toLowerCase()) {
+                                fullMove = lm;
+                                break;
+                            }
+                        } else {
+                            fullMove = lm;
+                            break;
+                        }
+                    }
+                }
+
+                if (!fullMove) {
+                    fullMove = m;
+                }
+
+                var san = tempEngine.moveToSAN(fullMove);
+                tempEngine.makeMove(fullMove);
+                var fenAfter = tempEngine.toFEN();
+
+                moveHistory.push({
+                    index: i,
+                    moveNumber: Math.floor(i / 2) + 1,
+                    move: fullMove,
+                    san: san,
+                    side: turn,
+                    fenBefore: fenBefore,
+                    fenAfter: fenAfter,
+                    isPlayer: turn === playerSide
+                });
+            }
+        }
+
+        function waitForWorkerAndStartBatch() {
+            if (!ai || !ai.isWorkerReady) {
+                setTimeout(waitForWorkerAndStartBatch, 200);
+                return;
+            }
+            runBatchAnalysis(0);
+        }
+
+        function runBatchAnalysis(stepIdx) {
+            var total = moveHistory.length;
+            var pct = total > 0 ? Math.floor((stepIdx / total) * 100) : 100;
+
+            // Update Progress UI
+            var statusEl = document.getElementById('batch-progress-status');
+            var barEl = document.getElementById('batch-progress-bar');
+
+            if (statusEl) {
+                var statusTpl = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('analysis.batch_progress') : 'Analyzing move {cur} / {total} ({pct}%)';
+                statusEl.innerHTML = statusTpl.replace('{cur}', stepIdx).replace('{total}', total).replace('{pct}', pct);
+            }
+            if (barEl) {
+                barEl.style.width = pct + '%';
+            }
+
+            if (stepIdx >= total) {
+                // Batch Analysis Complete!
+                isBatchFinished = true;
+                var batchModal = document.getElementById('batch-progress-modal');
+                if (batchModal) {
+                    batchModal.className = 'modal-overlay';
+                    batchModal.style.display = 'none';
+                }
+
+                renderMoveHistory();
+                renderEvalChart();
+                if (moveHistory.length > 0) {
+                    goToMove(0);
+                } else {
+                    goToMove(-1);
+                }
+
+                openGameSummaryModal();
+                return;
+            }
+
+            var item = moveHistory[stepIdx];
+            var tempEngine = new ChessEngine();
+            tempEngine.loadFEN(item.fenBefore);
+
+            // Use configured think time per move for tactical analysis on Kindle
+            setTimeout(function () {
+                ai.analyze(tempEngine, selectedThinkTime, function (bestMove, score, meta) {
+                    evalCache[stepIdx] = computeMoveEvaluation(item, bestMove, score, meta);
+                    if (stepIdx % 4 === 0) {
+                        renderEvalChart();
+                    }
+                    setTimeout(function () {
+                        runBatchAnalysis(stepIdx + 1);
+                    }, 20);
+                });
+            }, 25);
+        }
+
+        function openGameSummaryModal() {
+            buildSummaryTable();
+            var modal = document.getElementById('game-summary-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeGameSummaryModal() {
+            var modal = document.getElementById('game-summary-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
+        }
+
+        function buildSummaryTable() {
+            var bodyEl = document.getElementById('game-summary-body');
+            if (!bodyEl) return;
+
+            var t = function (k) { return (typeof ChessI18n !== 'undefined') ? ChessI18n.t(k) : k; };
+
+            var playerStats = { best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
+            var botStats = { best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
+
+            for (var i = 0; i < moveHistory.length; i++) {
+                var res = evalCache[i];
+                if (!res) continue;
+
+                var stats = moveHistory[i].isPlayer ? playerStats : botStats;
+                stats.count++;
+                stats.totalCpLoss += (res.cpLoss || 0);
+                stats.totalDepth += (res.depth || 0);
+                stats.totalTime += (res.time || 600);
+
+                var sym = res.badge ? res.badge.symbol : '';
+                if (sym === '★') stats.best++;
+                else if (sym === '✔') stats.good++;
+                else if (sym === '?!') stats.inaccuracy++;
+                else if (sym === '?') stats.mistake++;
+                else if (sym === '??') stats.blunder++;
+            }
+
+            var playerSideLabel = playerSide === 'w' ? t('game.turn_white') : t('game.turn_black');
+            var botSideLabel = playerSide === 'w' ? t('game.turn_black') : t('game.turn_white');
+
+            var playerColTitle = t('analysis.player_col').replace('{side}', playerSideLabel);
+            var botColTitle = t('analysis.bot_col').replace('{side}', botSideLabel);
+
+            var playerAcpl = playerStats.count > 0 ? Math.round(playerStats.totalCpLoss / playerStats.count) : 0;
+            var botAcpl = botStats.count > 0 ? Math.round(botStats.totalCpLoss / botStats.count) : 0;
+
+            var playerAvgDepth = playerStats.count > 0 ? (playerStats.totalDepth / playerStats.count).toFixed(1) : '-';
+            var botAvgDepth = botStats.count > 0 ? (botStats.totalDepth / botStats.count).toFixed(1) : '-';
+            var playerAvgTime = playerStats.count > 0 ? Math.round(playerStats.totalTime / playerStats.count) + 'ms' : '-';
+            var botAvgTime = botStats.count > 0 ? Math.round(botStats.totalTime / botStats.count) + 'ms' : '-';
+
+            var html = '<table class="summary-table">';
+            html += '<thead><tr>';
+            html += '<th class="col-metric">' + t('analysis.metric_header') + '</th>';
+            html += '<th>' + playerColTitle + '</th>';
+            html += '<th>' + botColTitle + '</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            html += '<tr><td class="col-metric">' + t('analysis.total_moves') + '</td><td>' + playerStats.count + '</td><td>' + botStats.count + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.acpl') + '</td><td>' + playerAcpl + '</td><td>' + botAcpl + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.avg_depth') + '</td><td><strong>' + playerAvgDepth + '</strong></td><td><strong>' + botAvgDepth + '</strong></td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.time_per_move') + '</td><td>' + playerAvgTime + '</td><td>' + botAvgTime + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.eval_best') + '</td><td><strong>' + playerStats.best + '</strong></td><td><strong>' + botStats.best + '</strong></td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.eval_good') + '</td><td>' + playerStats.good + '</td><td>' + botStats.good + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.eval_inaccuracy') + '</td><td>' + playerStats.inaccuracy + '</td><td>' + botStats.inaccuracy + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.eval_mistake') + '</td><td>' + playerStats.mistake + '</td><td>' + botStats.mistake + '</td></tr>';
+            html += '<tr><td class="col-metric">' + t('analysis.eval_blunder') + '</td><td><strong style="text-decoration: underline;">' + playerStats.blunder + '</strong></td><td><strong style="text-decoration: underline;">' + botStats.blunder + '</strong></td></tr>';
+
+            html += '</tbody></table>';
+            bodyEl.innerHTML = html;
+        }
+
+        function renderMoveHistory() {
+            var bodyEl = document.getElementById('history-table-body');
+            if (!bodyEl) return;
+
+            var html = '';
+
+            // Row 0: Start Position
+            var initLabel = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('analysis.initial_pos') : 'Start';
+            html += '<div class="history-row initial-row' + (currentMoveIdx === -1 ? ' active-row' : '') + '">';
+            html += '<div class="history-col-num">0</div>';
+            html += '<div class="history-col-cell' + (currentMoveIdx === -1 ? ' active' : '') + '" style="flex: 2 1 0;" onclick="goToMove(-1)">' + initLabel + '</div>';
+            html += '</div>';
+
+            for (var i = 0; i < moveHistory.length; i += 2) {
+                var wMove = moveHistory[i];
+                var bMove = (i + 1 < moveHistory.length) ? moveHistory[i + 1] : null;
+                var moveNum = wMove.moveNumber;
+
+                var wBadgeSym = (evalCache[i] && evalCache[i].badge) ? evalCache[i].badge.symbol : '';
+                var bBadgeSym = (bMove && evalCache[i + 1] && evalCache[i + 1].badge) ? evalCache[i + 1].badge.symbol : '';
+
+                var isRowActive = (currentMoveIdx === i || currentMoveIdx === i + 1);
+
+                html += '<div class="history-row' + (isRowActive ? ' active-row' : '') + '" id="hist-row-' + Math.floor(i / 2) + '">';
+                html += '<div class="history-col-num">' + moveNum + '</div>';
+
+                // White move cell
+                html += '<div class="history-col-cell' + (currentMoveIdx === i ? ' active' : '') + '" onclick="goToMove(' + i + ')">';
+                html += '<span class="hist-san">' + wMove.san + '</span>';
+                if (wBadgeSym) {
+                    html += '<span class="history-badge-sym">' + wBadgeSym + '</span>';
+                }
+                html += '</div>';
+
+                // Black move cell
+                if (bMove) {
+                    html += '<div class="history-col-cell' + (currentMoveIdx === (i + 1) ? ' active' : '') + '" onclick="goToMove(' + (i + 1) + ')">';
+                    html += '<span class="hist-san">' + bMove.san + '</span>';
+                    if (bBadgeSym) {
+                        html += '<span class="history-badge-sym">' + bBadgeSym + '</span>';
+                    }
+                    html += '</div>';
+                } else {
+                    html += '<div class="history-col-cell" style="cursor: default;"></div>';
+                }
+
+                html += '</div>';
+            }
+
+            bodyEl.innerHTML = html;
+
+            // Auto-scroll table to active cell
+            var activeCell = bodyEl.querySelector('.history-col-cell.active');
+            if (activeCell) {
+                if (activeCell.scrollIntoView) {
+                    activeCell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                } else if (activeCell.parentNode) {
+                    bodyEl.scrollTop = activeCell.parentNode.offsetTop - 30;
+                }
+            }
+        }
+
+        function renderEvalChart() {
+            var canvas = document.getElementById('eval-chart-canvas');
+            if (!canvas) return;
+
+            var container = canvas.parentElement;
+            if (!container) return;
+
+            var width = container.clientWidth || 300;
+            var height = container.clientHeight || 46;
+
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Clear canvas background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            var midY = Math.floor(height / 2);
+
+            // Draw baseline (0.0 advantage)
+            ctx.strokeStyle = '#888888';
+            ctx.lineWidth = 1;
+            if (ctx.setLineDash) {
+                ctx.setLineDash([3, 3]);
+            }
+            ctx.beginPath();
+            ctx.moveTo(0, midY);
+            ctx.lineTo(width, midY);
+            ctx.stroke();
+            if (ctx.setLineDash) {
+                ctx.setLineDash([]);
+            }
+
+            var total = moveHistory.length;
+            if (total === 0) return;
+
+            var maxCp = 700; // ±7.00 pawns max scale
+            var padX = 6;
+            var plotW = width - padX * 2;
+            var topPad = 3;
+            var bottomPad = 3;
+            var halfPlotH = (height - topPad - bottomPad) / 2;
+
+            function getCoords(idx, score) {
+                var x = padX + (idx / Math.max(1, total - 1)) * plotW;
+                var clamped = Math.max(-maxCp, Math.min(maxCp, score));
+                var y = midY - (clamped / maxCp) * halfPlotH;
+                return { x: x, y: y };
+            }
+
+            // Build points array
+            var points = [];
+            for (var i = 0; i < total; i++) {
+                var sc = 0;
+                if (evalCache[i] && typeof evalCache[i].score !== 'undefined') {
+                    sc = evalCache[i].score;
+                }
+                points.push(getCoords(i, sc));
+            }
+
+            // 1. Draw light fill polygon under/above curve
+            ctx.fillStyle = '#e8e8e8';
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, midY);
+            for (var p = 0; p < points.length; p++) {
+                ctx.lineTo(points[p].x, points[p].y);
+            }
+            ctx.lineTo(points[points.length - 1].x, midY);
+            ctx.closePath();
+            ctx.fill();
+
+            // 2. Draw solid black advantage line
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (var j = 1; j < points.length; j++) {
+                ctx.lineTo(points[j].x, points[j].y);
+            }
+            ctx.stroke();
+
+            // 3. Draw active move marker
+            if (currentMoveIdx >= 0 && currentMoveIdx < points.length) {
+                var curPt = points[currentMoveIdx];
+
+                // Vertical cursor line
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                if (ctx.setLineDash) {
+                    ctx.setLineDash([2, 2]);
+                }
+                ctx.beginPath();
+                ctx.moveTo(curPt.x, 0);
+                ctx.lineTo(curPt.x, height);
+                ctx.stroke();
+                if (ctx.setLineDash) {
+                    ctx.setLineDash([]);
+                }
+
+                // Dot on current score
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(curPt.x, curPt.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(curPt.x, curPt.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (currentMoveIdx === -1 && points.length > 0) {
+                // Initial position marker
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                if (ctx.setLineDash) {
+                    ctx.setLineDash([2, 2]);
+                }
+                ctx.beginPath();
+                ctx.moveTo(padX, 0);
+                ctx.lineTo(padX, height);
+                ctx.stroke();
+                if (ctx.setLineDash) {
+                    ctx.setLineDash([]);
+                }
+
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(padX, midY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(padX, midY, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function goToMove(idx) {
+            if (idx < -1) idx = -1;
+            if (idx >= moveHistory.length) idx = moveHistory.length - 1;
+
+            currentMoveIdx = idx;
+
+            if (idx === -1) {
+                engine.initBoard();
+                board.setLastMove(null, null);
+                board.clearReviewBadge();
+            } else {
+                var item = moveHistory[idx];
+                engine.loadFEN(item.fenAfter);
+                board.setLastMove(item.move.from, item.move.to);
+            }
+
+            board.render();
+            renderMoveHistory();
+            updateNavButtonStates();
+            renderAnalysisCard();
+            renderEvalChart();
+        }
+
+        function stepStart() { goToMove(-1); }
+        function stepPrev() { goToMove(currentMoveIdx - 1); }
+        function stepNext() { goToMove(currentMoveIdx + 1); }
+        function stepEnd() { goToMove(moveHistory.length - 1); }
+
+        function updateNavButtonStates() {
+            var btnStart = document.getElementById('btn-nav-start');
+            var btnPrev = document.getElementById('btn-nav-prev');
+            var btnNext = document.getElementById('btn-nav-next');
+            var btnEnd = document.getElementById('btn-nav-end');
+
+            if (btnStart) btnStart.disabled = (currentMoveIdx === -1);
+            if (btnPrev) btnPrev.disabled = (currentMoveIdx === -1);
+            if (btnNext) btnNext.disabled = (currentMoveIdx >= moveHistory.length - 1);
+            if (btnEnd) btnEnd.disabled = (currentMoveIdx >= moveHistory.length - 1);
+        }
+
+        function computeMoveEvaluation(item, bestMove, engineScore, meta) {
+            var playedMove = item.move;
+
+            // Score normalized from White perspective
+            var whiteScore = (item.side === 'w') ? engineScore : -engineScore;
+            var isMate = Math.abs(engineScore) >= 90000;
+            var mateIn = isMate ? (engineScore > 0 ? Math.ceil((100000 - Math.abs(engineScore)) / 2) : -Math.ceil((100000 - Math.abs(engineScore)) / 2)) : 0;
+
+            // Compare played move with bestMove
+            var isSameMove = false;
+            if (bestMove && playedMove) {
+                isSameMove = (bestMove.from.r === playedMove.from.r && bestMove.from.c === playedMove.from.c &&
+                    bestMove.to.r === playedMove.to.r && bestMove.to.c === playedMove.to.c);
+            }
+
+            var cpLoss = 0;
+            if (isSameMove) {
+                cpLoss = 0;
+            } else {
+                cpLoss = 80;
+                if (playedMove.captured) {
+                    var capVal = PIECE_VALUES[playedMove.captured.toLowerCase()] || 1;
+                    var moveVal = PIECE_VALUES[playedMove.piece.toLowerCase()] || 1;
+                    if (capVal >= moveVal) cpLoss = 10;
+                }
+            }
+
+            // Determine badge
+            var evalBadge = null;
+            if (isSameMove || cpLoss <= 15) {
+                evalBadge = { symbol: '★', labelKey: 'analysis.eval_best', isDark: true };
+            } else if (cpLoss <= 50) {
+                evalBadge = { symbol: '✔', labelKey: 'analysis.eval_good', isDark: false };
+            } else if (cpLoss <= 150) {
+                evalBadge = { symbol: '?!', labelKey: 'analysis.eval_inaccuracy', isDark: false };
+            } else if (cpLoss <= 300) {
+                evalBadge = { symbol: '?', labelKey: 'analysis.eval_mistake', isDark: false };
+            } else {
+                evalBadge = { symbol: '??', labelKey: 'analysis.eval_blunder', isDark: true };
+            }
+
+            // Determine Best Alternative SAN
+            var bestMoveSan = null;
+            if (!isSameMove && bestMove) {
+                var tempEng = new ChessEngine();
+                tempEng.loadFEN(item.fenBefore);
+                bestMoveSan = tempEng.moveToSAN(bestMove);
+            }
+
+            var reasonObj = determineTacticalReason(item, bestMove, cpLoss, isMate);
+
+            var metaDepth = (typeof meta !== 'undefined' && meta && meta.depth) ? meta.depth : 0;
+            var metaTime = (typeof meta !== 'undefined' && meta && meta.time) ? meta.time : 600;
+            var metaNodes = (typeof meta !== 'undefined' && meta && meta.nodes) ? meta.nodes : 0;
+
+            return {
+                score: whiteScore,
+                rawScore: engineScore,
+                isMate: isMate,
+                mateIn: mateIn,
+                badge: evalBadge,
+                bestMoveSan: bestMoveSan,
+                playedSan: item.san,
+                isSameMove: isSameMove,
+                reasonObj: reasonObj,
+                playedMove: playedMove,
+                cpLoss: cpLoss,
+                side: item.side,
+                depth: metaDepth,
+                time: metaTime,
+                nodes: metaNodes
+            };
+        }
+
+        function determineTacticalReason(item, bestMove, cpLoss, isMate) {
+            var move = item.move;
+            var san = item.san;
+
+            // 1. Delivered checkmate
+            if (san.indexOf('#') !== -1) {
+                return { key: 'analysis.reason_delivered_mate' };
+            }
+
+            // 2. Missed mate
+            if (isMate && cpLoss > 150) {
+                return { key: 'analysis.reason_missed_mate' };
+            }
+
+            // 3. Castling & King Safety
+            if (san === 'O-O' || san === 'O-O-O') {
+                return { key: 'analysis.reason_castling' };
+            }
+
+            // 4. Pawn promotion
+            if (move.promotion) {
+                return { key: 'analysis.reason_promotion' };
+            }
+
+            // 5. Blundered hanging piece / Bad trade
+            if (cpLoss > 200) {
+                if (move.captured) {
+                    return {
+                        key: 'analysis.reason_bad_trade',
+                        pieceKey1: 'analysis.piece_' + move.piece.toLowerCase(),
+                        pieceKey2: 'analysis.piece_' + move.captured.toLowerCase()
+                    };
+                }
+                return {
+                    key: 'analysis.reason_hanging_blunder',
+                    pieceKey: 'analysis.piece_' + move.piece.toLowerCase()
+                };
+            }
+
+            // 6. Free piece captured / Favorable trade
+            if (move.captured) {
+                var capPts = PIECE_VALUES[move.captured.toLowerCase()] || 1;
+                var movePts = PIECE_VALUES[move.piece.toLowerCase()] || 1;
+
+                if (capPts > movePts) {
+                    return { key: 'analysis.reason_good_trade' };
+                } else if (cpLoss <= 20) {
+                    return { key: 'analysis.reason_free_piece', params: { pts: capPts } };
+                }
+            }
+
+            // 7. Check with Fork / Royal Fork
+            if (san.indexOf('+') !== -1) {
+                if (move.piece.toUpperCase() === 'N') {
+                    return {
+                        key: 'analysis.reason_royal_fork',
+                        pieceKey: 'analysis.piece_' + move.piece.toLowerCase()
+                    };
+                }
+            }
+
+            // 8. Passed pawn push in endgame
+            if (move.piece.toUpperCase() === 'P' && (move.to.r <= 2 || move.to.r >= 5)) {
+                return { key: 'analysis.reason_passed_pawn' };
+            }
+
+            // 9. Opening Center Control (e4, d4, e5, d5, c4, c5)
+            if (item.moveNumber <= 8) {
+                var centralSquares = [[3, 3], [3, 4], [4, 3], [4, 4], [3, 2], [4, 2]];
+                for (var i = 0; i < centralSquares.length; i++) {
+                    if (move.to.r === centralSquares[i][0] && move.to.c === centralSquares[i][1]) {
+                        return { key: 'analysis.reason_center' };
+                    }
+                }
+                if (move.piece.toUpperCase() === 'N' || move.piece.toUpperCase() === 'B') {
+                    return { key: 'analysis.reason_development' };
+                }
+            }
+
+            // 10. Open file domination by Rook
+            if (move.piece.toUpperCase() === 'R') {
+                var fileLetter = String.fromCharCode(97 + move.to.c);
+                return { key: 'analysis.reason_open_file', params: { file: fileLetter.toUpperCase() } };
+            }
+
+            // 11. Strong outpost for Knight
+            if (move.piece.toUpperCase() === 'N' && (move.to.r === 3 || move.to.r === 4)) {
+                return {
+                    key: 'analysis.reason_outpost',
+                    pieceKey: 'analysis.piece_' + move.piece.toLowerCase()
+                };
+            }
+
+            // 12. Simplification
+            if (move.captured && item.moveNumber > 25) {
+                return { key: 'analysis.reason_simplification' };
+            }
+
+            // 13. Solid move default
+            return { key: 'analysis.reason_solid' };
+        }
+
+        function renderAnalysisDetails(evalObj) {
+            var badgeEl = document.getElementById('analysis-badge');
+            var scoreEl = document.getElementById('analysis-score');
+            var altEl = document.getElementById('analysis-best-alt');
+            var reasonEl = document.getElementById('analysis-reason');
+
+            if (!badgeEl || !scoreEl || !altEl || !reasonEl) return;
+
+            // 1. Badge
+            if (evalObj.badge) {
+                var label = (typeof ChessI18n !== 'undefined' && evalObj.badge.labelKey) ? ChessI18n.t(evalObj.badge.labelKey) : evalObj.badge.symbol;
+                badgeEl.innerHTML = evalObj.badge.symbol + ' ' + label;
+                badgeEl.className = 'analysis-badge ' + (evalObj.badge.isDark ? 'dark' : 'light');
+                badgeEl.style.display = 'inline-block';
+
+                if (board && evalObj.playedMove) {
+                    board.setReviewBadge(evalObj.playedMove.to.r, evalObj.playedMove.to.c, evalObj.badge.symbol, evalObj.badge.isDark);
+                }
+            } else {
+                badgeEl.style.display = 'none';
+                if (board) board.clearReviewBadge();
+            }
+
+            // 2. Score format
+            if (evalObj.isMate) {
+                var mateKey = evalObj.mateIn > 0 ? 'analysis.score_mate_white' : 'analysis.score_mate_black';
+                scoreEl.innerHTML = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(mateKey, { n: Math.abs(evalObj.mateIn) }) : ('Mate in ' + Math.abs(evalObj.mateIn));
+            } else {
+                var scoreNum = (evalObj.score / 100).toFixed(1);
+                var formatted = evalObj.score > 0 ? '+' + scoreNum : '' + scoreNum;
+                scoreEl.innerHTML = formatted;
+            }
+
+            // 3. Best Alt
+            if (evalObj.bestMoveSan && !evalObj.isSameMove) {
+                var altText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('analysis.best_alternative', { move: evalObj.bestMoveSan, played: evalObj.playedSan }) : ('Best: ' + evalObj.bestMoveSan);
+                altEl.innerHTML = altText;
+                altEl.style.display = 'block';
+            } else {
+                altEl.style.display = 'none';
+            }
+
+            // 4. Reason
+            if (evalObj.reasonObj) {
+                var rObj = evalObj.reasonObj;
+                var params = {};
+                if (rObj.params) {
+                    for (var k in rObj.params) {
+                        params[k] = rObj.params[k];
+                    }
+                }
+                if (rObj.pieceKey && typeof ChessI18n !== 'undefined') {
+                    params.piece = ChessI18n.t(rObj.pieceKey);
+                }
+                if (rObj.pieceKey1 && typeof ChessI18n !== 'undefined') {
+                    params.piece1 = ChessI18n.t(rObj.pieceKey1);
+                }
+                if (rObj.pieceKey2 && typeof ChessI18n !== 'undefined') {
+                    params.piece2 = ChessI18n.t(rObj.pieceKey2);
+                }
+                reasonEl.innerHTML = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(rObj.key, params) : (rObj.key || '');
+            } else {
+                reasonEl.innerHTML = evalObj.reason || '';
+            }
+
+            // 5. Engine Diagnostic Metadata (moveTime, depth, nodes)
+            var metaContainer = document.getElementById('analysis-engine-meta');
+            var depthEl = document.getElementById('analysis-meta-depth');
+            var timeEl = document.getElementById('analysis-meta-time');
+            var nodesEl = document.getElementById('analysis-meta-nodes');
+
+            if (metaContainer && depthEl && timeEl && nodesEl) {
+                if (evalObj.depth) {
+                    depthEl.innerHTML = 'Depth: <strong>' + evalObj.depth + '</strong>';
+                    timeEl.innerHTML = 'Time: <strong>' + (evalObj.time || 350) + 'ms</strong>';
+                    var nodesStr = evalObj.nodes ? (evalObj.nodes >= 1000 ? Math.round(evalObj.nodes / 1000) + 'k' : evalObj.nodes) : '-';
+                    nodesEl.innerHTML = 'Nodes: <strong>' + nodesStr + '</strong>';
+                    metaContainer.style.display = 'flex';
+                } else {
+                    metaContainer.style.display = 'none';
+                }
+            }
+        }
+
+        function renderAnalysisCard() {
+            if (currentMoveIdx === -1) {
+                renderAnalysisDetails({
+                    score: 0,
+                    isMate: false,
+                    badge: { symbol: '★', labelKey: 'analysis.eval_best', isDark: true },
+                    bestMoveSan: null,
+                    playedSan: '',
+                    isSameMove: true,
+                    reasonObj: { key: 'analysis.initial_pos' },
+                    depth: 0,
+                    time: 0,
+                    nodes: 0
+                });
+            } else if (evalCache[currentMoveIdx]) {
+                renderAnalysisDetails(evalCache[currentMoveIdx]);
+            }
+        }
+
+        function goBack() {
+            if (window.history && window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'play-bot-v2.html';
+            }
+        }
+
+        window.onload = initAnalysis;
+        window.onresize = applyAnalysisLayout;
+    </script>
+</body>
+
+</html>

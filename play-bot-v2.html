@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=54">
+    <link rel="stylesheet" href="css/einkchess.css?v=58">
 </head>
 
 <body>
@@ -31,15 +31,15 @@
             </div>
         </div>
 
-        <!-- 2. COMPACT STATUS BAR -->
+        <!-- 2. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
+        <div class="board-container" id="board-container"></div>
+
+        <!-- 3. COMPACT STATUS BAR -->
         <div id="status-bar" class="status-bar">
             <div class="status-captured" id="captured-white"></div>
             <div class="status-text" id="status-text">White's Turn (You)</div>
             <div class="status-captured" id="captured-black"></div>
         </div>
-
-        <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
-        <div class="board-container" id="board-container"></div>
 
         <!-- 4. ACTION BUTTONS (1 ROW, 6 COLUMNS EVENLY DISTRIBUTED BY CONTENT) -->
         <div class="action-bar action-bar-grid">
@@ -103,9 +103,9 @@
                     <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;"
                         data-i18n="home.setup_review_label">3. Move Review:</div>
                     <div class="btn-group" id="setup-review-group">
-                        <div class="btn-group-item active" onclick="selectSetupReview(true)" data-i18n="home.review_on">
+                        <div class="btn-group-item" onclick="selectSetupReview(true)" data-i18n="home.review_on">
                             ON</div>
-                        <div class="btn-group-item" onclick="selectSetupReview(false)" data-i18n="home.review_off">
+                        <div class="btn-group-item active" onclick="selectSetupReview(false)" data-i18n="home.review_off">
                             OFF</div>
                     </div>
                 </div>
@@ -141,6 +141,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn" onclick="location.href='index.html'" data-i18n="game.btn_home">Home</button>
+                    <button class="btn" onclick="goToAnalysis()" data-i18n="game.btn_analyze">Analyze</button>
                     <button class="btn btn-primary" onclick="openSetupModal(); closeGameOverModal();"
                         data-i18n="game.btn_new_game">New Game</button>
                 </div>
@@ -182,10 +183,10 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=8"></script>
     <script src="js/tomitank-source.js?v=1"></script>
-    <script src="js/chess-ai-v2.js?v=7"></script>
-    <script src="js/chess-storage.js?v=21"></script>
-    <script src="js/chess-i18n.js?v=40"></script>
-    <script src="js/chess-board.js?v=17"></script>
+    <script src="js/chess-ai-v2.js?v=12"></script>
+    <script src="js/chess-storage.js?v=22"></script>
+    <script src="js/chess-i18n.js?v=46"></script>
+    <script src="js/chess-board.js?v=19"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
     <script>
@@ -200,8 +201,8 @@
 
         var pendingLevel = 1;
         var pendingSide = 'w';
-        var pendingReview = true;
-        var showMoveReview = true;
+        var pendingReview = false;
+        var showMoveReview = false;
         var lastMoveReview = null;
         var lastPlayerMove = null;
         var prevBotEval = 0;
@@ -276,10 +277,16 @@
             if (urlParams['new'] === '1') {
                 pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevelV2();
                 pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
+                if (urlParams['review'] !== undefined) {
+                    pendingReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
+                } else if (typeof ChessStorage !== 'undefined') {
+                    pendingReview = ChessStorage.getDefaultBotReview();
+                }
 
                 if (typeof ChessStorage !== 'undefined') {
                     ChessStorage.setDefaultBotLevelV2(pendingLevel);
                     ChessStorage.setDefaultSide(pendingSide);
+                    ChessStorage.setDefaultBotReview(pendingReview);
                 }
 
                 engine = new ChessEngine();
@@ -297,6 +304,7 @@
                 playerSide = savedGame.playerSide || 'w';
                 pendingLevel = botLevel;
                 pendingSide = playerSide;
+                pendingReview = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotReview() : false;
 
                 ai.level = botLevel;
                 engine = new ChessEngine();
@@ -332,6 +340,7 @@
             } else {
                 pendingLevel = ChessStorage.getDefaultBotLevelV2();
                 pendingSide = ChessStorage.getDefaultSide();
+                pendingReview = ChessStorage.getDefaultBotReview();
 
                 engine = new ChessEngine();
                 board = new ChessBoard('board-container', {
@@ -345,6 +354,7 @@
                 if (urlParams['lvl']) {
                     pendingLevel = parseInt(urlParams['lvl'], 10) || 1;
                     if (urlParams['side']) pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
+                    if (urlParams['review'] !== undefined) pendingReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
                     startConfiguredGame();
                 } else {
                     openSetupModal();
@@ -681,9 +691,41 @@
                     msg = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.draw_material_msg') : 'Insufficient material to checkmate -> Draw.<br>';
                 }
 
+                saveGameForAnalysis(status.result, status.winner);
                 updateEloBadge();
                 showGameOverModal(title, msg, eloResult);
             }
+        }
+
+        function saveGameForAnalysis(result, winner) {
+            if (typeof ChessStorage === 'undefined' || !engine) return;
+            var moves = [];
+            if (engine.history && engine.history.length > 0) {
+                for (var i = 0; i < engine.history.length; i++) {
+                    var m = engine.history[i];
+                    moves.push({
+                        from: { r: m.from.r, c: m.from.c },
+                        to: { r: m.to.r, c: m.to.c },
+                        piece: m.piece,
+                        captured: m.captured || null,
+                        promotion: m.promotion || null,
+                        castling: m.castling || null,
+                        san: m.san || null
+                    });
+                }
+            }
+            ChessStorage.saveAnalysisGame({
+                history: moves,
+                playerSide: playerSide,
+                botLevel: botLevel,
+                result: result || 'unknown',
+                winner: winner || null,
+                date: new Date().toISOString()
+            });
+        }
+
+        function goToAnalysis() {
+            window.location.href = 'analysis.html';
         }
 
         function showGameOverModal(title, msg, eloResult) {
@@ -777,6 +819,7 @@
 
             var oppElo = botElos[botLevel] || 800;
             var eloResult = ChessStorage.updateBotElo(oppElo, 0.0);
+            saveGameForAnalysis('resigned', playerSide === 'w' ? 'b' : 'w');
             updateEloBadge();
 
             var resTitle = typeof ChessI18n !== 'undefined' ? ChessI18n.t('game.resigned_title') : 'YOU RESIGNED';

@@ -5,6 +5,7 @@
         this.level = level || 1;
         this.worker = null;
         this.isWorkerReady = false;
+        this.isAnalyzing = false;
         this.onMoveFound = null; // Callback for when worker finishes
         this.currentEngine = null; // Stored engine reference
         
@@ -33,6 +34,9 @@
         var self = this;
         var _pendingUci = null;
         var _lastInfoScore = 0;
+        var _lastInfoDepth = 0;
+        var _lastInfoTime = 0;
+        var _lastInfoNodes = 0;
         
         this.worker.onerror = function(err) {
             console.error("ChessAIV2: Worker error captured:", err.message, "at", err.filename, ":", err.lineno);
@@ -50,11 +54,23 @@
                 self.worker.postMessage('setoption name Hash value 16');
                 self.worker.postMessage('ucinewgame');
                 self.worker.postMessage('isready');
-            } else if (msg.indexOf('info ') === 0 && msg.indexOf('score cp ') > 0 && msg.indexOf('nodes ') > 0) {
-                // Parse score to use for cpLoss calculation later
-                var match = msg.match(/score (cp|mate) (-?\d+)/);
-                if (match) {
-                    _lastInfoScore = match[1] === 'mate' ? (parseInt(match[2], 10) > 0 ? 99999 : -99999) : parseInt(match[2], 10);
+            } else if (msg.indexOf('info ') === 0) {
+                // Parse score to use for cpLoss calculation
+                var scoreMatch = msg.match(/score (cp|mate) (-?\d+)/);
+                if (scoreMatch) {
+                    _lastInfoScore = scoreMatch[1] === 'mate' ? (parseInt(scoreMatch[2], 10) > 0 ? 99999 : -99999) : parseInt(scoreMatch[2], 10);
+                }
+                var depthMatch = msg.match(/depth (\d+)/);
+                if (depthMatch) {
+                    _lastInfoDepth = parseInt(depthMatch[1], 10);
+                }
+                var timeMatch = msg.match(/time (\d+)/);
+                if (timeMatch) {
+                    _lastInfoTime = parseInt(timeMatch[1], 10);
+                }
+                var nodesMatch = msg.match(/nodes (\d+)/);
+                if (nodesMatch) {
+                    _lastInfoNodes = parseInt(nodesMatch[1], 10);
                 }
             } else if (msg.indexOf('bestmove') === 0) {
                 var parts = msg.split(' ');
@@ -77,13 +93,23 @@
                     var cb = self.onMoveFound;
                     self.onMoveFound = null;
                     
-                    // Apply Noise if applicable
-                    bestUci = self.applyNoise(bestUci, best4, _lastInfoScore);
+                    // Apply Noise if applicable (skip when analyzing)
+                    if (!self.isAnalyzing) {
+                        bestUci = self.applyNoise(bestUci, best4, _lastInfoScore);
+                    }
+                    self.isAnalyzing = false;
                     
                     var moveObj = self.uciToMoveObj(bestUci, self.currentEngine);
                     self.currentEngine = null; // Clear reference
-                    console.log("ChessAIV2: Calling callback with moveObj:", moveObj);
-                    cb(moveObj, _lastInfoScore);
+                    
+                    var searchMeta = {
+                        depth: _lastInfoDepth,
+                        time: _lastInfoTime,
+                        nodes: _lastInfoNodes
+                    };
+                    
+                    console.log("ChessAIV2: Calling callback with moveObj:", moveObj, "score:", _lastInfoScore, "meta:", searchMeta);
+                    cb(moveObj, _lastInfoScore, searchMeta);
                 } else {
                     console.warn("ChessAIV2: best4rootmoves received but self.onMoveFound is null!");
                 }
@@ -206,6 +232,28 @@
     // Update level during runtime
     ChessAIV2.prototype.setLevel = function(level) {
         this.level = level;
+    };
+
+    // Deep Analysis for Post-Game Review (no noise, pure evaluation)
+    ChessAIV2.prototype.analyze = function(engine, thinkTime, callback) {
+        if (!this.worker || !this.isWorkerReady) {
+            if (callback) callback(null, 0);
+            return;
+        }
+        this.isAnalyzing = true;
+        this.currentEngine = engine;
+        this.onMoveFound = callback;
+        var time = thinkTime || 600;
+        var fen = engine.toFEN();
+        console.log("ChessAIV2: Analyzing position fen:", fen, "go movetime:", time);
+        this.worker.postMessage('position fen ' + fen);
+        this.worker.postMessage('go movetime ' + time);
+    };
+
+    ChessAIV2.prototype.stop = function() {
+        if (this.worker && this.isWorkerReady) {
+            this.worker.postMessage('stop');
+        }
     };
 
     root.ChessAIV2 = ChessAIV2;

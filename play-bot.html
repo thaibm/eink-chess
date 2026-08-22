@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=54">
+    <link rel="stylesheet" href="css/einkchess.css?v=58">
 </head>
 
 <body>
@@ -31,15 +31,15 @@
             </div>
         </div>
 
-        <!-- 2. COMPACT STATUS BAR -->
+        <!-- 2. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
+        <div class="board-container" id="board-container"></div>
+
+        <!-- 3. COMPACT STATUS BAR -->
         <div id="status-bar" class="status-bar">
             <div class="status-captured" id="captured-white"></div>
             <div class="status-text" id="status-text">White's Turn (You)</div>
             <div class="status-captured" id="captured-black"></div>
         </div>
-
-        <!-- 3. CHESS BOARD CONTAINER (ZERO-SCROLL) -->
-        <div class="board-container" id="board-container"></div>
 
         <!-- 4. ACTION BUTTONS (1 ROW, 6 COLUMNS EVENLY DISTRIBUTED BY CONTENT) -->
         <div class="action-bar action-bar-grid">
@@ -169,9 +169,9 @@
     <!-- SCRIPTS -->
     <script src="js/chess-engine.js?v=8"></script>
     <script src="js/chess-ai.js?v=8"></script>
-    <script src="js/chess-storage.js?v=21"></script>
-    <script src="js/chess-i18n.js?v=40"></script>
-    <script src="js/chess-board.js?v=17"></script>
+    <script src="js/chess-storage.js?v=22"></script>
+    <script src="js/chess-i18n.js?v=46"></script>
+    <script src="js/chess-board.js?v=19"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
     <script>

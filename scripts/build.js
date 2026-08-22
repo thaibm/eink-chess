@@ -43,7 +43,7 @@ deleteDirSync(distDir);
 fs.mkdirSync(distDir, { recursive: true });
 
 // Copy root HTML files
-const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'puzzles.html', 'settings.html', 'stats.html'];
+const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'analysis.html', 'puzzles.html', 'settings.html', 'stats.html'];
 filesToCopy.forEach((file) => {
   const src = path.join(__dirname, '..', file);
   if (fs.existsSync(src)) {

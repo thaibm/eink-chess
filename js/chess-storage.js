@@ -28,7 +28,8 @@
         DEFAULT_SIDE: 'einkchess_default_side',
         DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
         ALLOW_UNDO: 'einkchess_allow_undo',
-        SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2'
+        SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
+        ANALYSIS_GAME: 'einkchess_analysis_game'
     };
 
     function generateUUID() {
@@ -300,6 +301,19 @@
             return this.remove(STORAGE_KEYS.SAVED_BOT_GAME_V2);
         },
 
+        // --- Post-Game Analysis State ---
+        saveAnalysisGame: function(analysisData) {
+            return this.set(STORAGE_KEYS.ANALYSIS_GAME, analysisData);
+        },
+
+        getAnalysisGame: function() {
+            return this.get(STORAGE_KEYS.ANALYSIS_GAME, null);
+        },
+
+        clearAnalysisGame: function() {
+            return this.remove(STORAGE_KEYS.ANALYSIS_GAME);
+        },
+
         // --- Auto-Save Puzzle State ---
         savePuzzle: function(puzzleState) {
             return this.set(STORAGE_KEYS.SAVED_PUZZLE, puzzleState);
@@ -329,7 +343,7 @@
         },
 
         getDefaultBotReview: function() {
-            return this.get(STORAGE_KEYS.DEFAULT_BOT_REVIEW, true);
+            return this.get(STORAGE_KEYS.DEFAULT_BOT_REVIEW, false);
         },
 
         setDefaultBotReview: function(enabled) {

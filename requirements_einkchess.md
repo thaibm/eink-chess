@@ -27,6 +27,7 @@
   - **Nước đi hợp lệ (Hints on):** Vòng tròn viền xám hoặc inset ring nét đơn giản.
   - **Nước đi vừa thực hiện (Last move indicator):** Đánh dấu rõ ràng **cả 2 ô cờ** liên quan đến nước đi vừa thực hiện (gồm **ô xuất phát `from`** và **ô đích đến `to`**, áp dụng cho cả nước đi của người dùng, của Bot hoặc đối thủ) bằng **đường viền nét đứt đen/xám đậm rõ nét (`outline: 2px dashed #000; outline-offset: -2px;`)**. Điều này giúp người chơi trên màn hình E-ink ngay lập tức nhận diện được quân cờ vừa di chuyển từ đâu đến đâu mà không cần animation.
   - **Ký hiệu trạng thái:** Icon Tick lớn `✔` (chính xác/thành công) và Icon Cross lớn `✖` (sai/lỗi).
+  - **Tọa độ hàng & cột (Board Coordinates):** Hiển thị rõ ràng tên cột (`a` - `h`) ở góc dưới cùng bên phải của các ô hàng cuối và số thứ tự hàng (`1` - `8`) ở góc trên cùng bên trái của các ô cột ngoài cùng bên trái. Tọa độ tự động đổi chiều khi xoay bàn cờ (`flip` / đổi bên cầm quân) và tối ưu độ tương phản (chữ sẫm màu trên ô sáng, chữ trắng trên ô tối).
 
 ### 2.2. Header chung (Persistent Header)
 - Xuất hiện trên tất cả các trang / chế độ:
@@ -428,7 +429,7 @@
   - [x] Hỗ trợ các chế độ: `node scripts/build-puzzles.js` (đọc .zst local), `--fetch-lichess` (download từ Lichess), `--count=N` (tùy biến số lượng), `--clean-only` (xóa sạch thư mục).
   - [x] GitHub Actions weekly cron & manual trigger (`.github/workflows/refresh-puzzles.yml`): tự động xoay vòng bộ puzzle mỗi thứ Hai hoặc bấm nút Run workflow thủ công với các tham số tùy chọn.
 - **Giao diện `puzzles.html`:**
-  - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, status bar hiển thị lượt đi, board container, action bar 5 cột: Level, Refresh, Puzzle Meta, Hint, Skip/Next).
+  - [x] Kế thừa layout chuẩn E-ink từ `play-bot.html` (header ELO + streak, board container, status bar hiển thị lượt đi & quân bị bắt nằm dưới bàn cờ và trên action bar, action bar 5 cột: Level, Refresh, Puzzle Meta, Hint, Skip/Next).
   - [x] Nút hành động: Cấp độ (Level), Làm mới (Refresh), Gợi ý (♙ Hint), Bỏ qua (Skip), Tiếp theo (Next). Không dùng emoji tránh lỗi font Kindle.
   - [x] Modal hoàn thành gọn nhẹ (`max-width: 320px`, căn giữa) hiển thị kết quả ELO thay đổi.
   - [x] Scripts load order: `chess-engine.js` → `chess-storage.js` → `chess-i18n.js` → `chess-backend.js` → `chess-board.js` → `manifest.js` → `chess-puzzles.js`.
@@ -453,12 +454,22 @@
   - [x] Nút "Bắt đầu Giải đố" trỏ trực tiếp `window.location.href='puzzles.html'` (thay vì mở modal "coming soon").
 - [x] Chưa Áp dụng Quota 3 câu đố/ngày.
 
-### Phase 4 — PvP Online (Chơi với bạn + Đồng bộ nước đi)
+### Phase 5 — Phân Tích Sau Ván Đấu (Post-Game Analysis) & Dashboard
+- **Màn hình Phân Tích `analysis.html`:**
+  - [x] Thiết kế giao diện 1 màn hình chuẩn E-ink không cuộn (Zero-Scroll Kindle Layout): Bàn cờ vuông bên trái + Bảng danh sách lịch sử nước đi 2 cột (Trắng/Đen) cuộn dọc bên phải (tự động cuộn theo nước đang chọn và gắn huy hiệu đánh giá `★`, `✔`, `?!`, `?`, `??`) + Footer chia 2 cột (Cột trái: 4 phím điều hướng `|<`, `<`, `>`, `>|` dạng lưới 2x2 chuẩn cảm ứng E-ink ≥38-44px; Cột phải: Thẻ phân tích nước đi chứa Điểm số, Huy hiệu, Nước đi thay thế tốt nhất và Lời giải thích chiến thuật) + Đồ thị diễn biến lợi thế (Evaluation Advantage Trend Chart đơn sắc với đường cơ sở `0.0` và con trỏ chỉ vị trí nước đi đồng bộ) + Nút "Summary" (Tổng quan ván đấu) tích hợp gọn gàng trên thanh Header.
+  - [x] **Cơ chế Phân tích toàn bộ ván đấu (Option B - Batch Analysis):** Khi mở trang phân tích, hiển thị Modal chọn mức độ thời gian tính toán mỗi nước đi (600ms Nhanh ~5-6 ply, 1200ms Kỹ lưỡng ~7-8 ply, 2000ms Chuyên sâu ~8-9+ ply) kèm tổng thời gian tính toán ước tính động theo số lượng nước của ván cờ. Sau khi bấm Bắt đầu, hiển thị thanh tiến trình đơn sắc (Progress Bar `border: 2px solid #000; background: #000; width: X%`) chạy phân tích toàn bộ ván đấu.
+  - [x] **Hiển thị thông số Engine thực tế (Engine Diagnostics Benchmark):** Hiển thị trực tiếp `Depth` (độ sâu tối đa đạt được), `Time` (thời gian tính toán thực tế ms) và `Nodes` (tổng số vị trí duyệt) trên từng thẻ nước đi và tính toán `Độ sâu TB (Avg Depth)` & `Thời gian tính / nước` trong Bảng tổng quan ván đấu. Giúp người dùng trên Kindle kiểm nghiệm năng lực tính toán phần cứng thực tế.
+  - [x] **Duyệt nước đi tức thì với Huy hiệu:** Toàn bộ nước đi trên bảng lịch sử đã được gắn sẵn huy hiệu đánh giá (`1. e4★ e5✔`...), người chơi có thể bấm tới/lui hoặc chạm vào bất kỳ nước nào để xem phân tích và giải thích ngay lập tức.
+  - [x] Bộ nhận diện đòn chiến thuật & đánh giá nước đi (>20 trường hợp): Đòn bắt đôi (Fork/Royal Fork), ghim/xiên quân (Pin/Skewer), đòn tấn công mở (Discovered attack), ăn quân miễn phí (Free piece), sai lầm mất quân (Hanging piece blunder), đổi quân có lợi/thua thiệt (Trades), phong cấp (Promotion), tốt thông (Passed pawn), kiểm soát trung tâm (Center control), phát triển quân (Piece development), chiếm cột mở (Open file), chiếm tiền đồn (Outpost), giải vây (Defense), đơn giản hóa thế cờ (Simplification), v.v.
+  - [x] Hỗ trợ song ngữ Tiếng Việt & Tiếng Anh (`ChessI18n`) chuyển đổi trực tiếp trên Header.
+  - [x] Tích hợp nút "Phân tích ván đấu" vào Modal Game Over của `play-bot-v2.html` và lưu dữ liệu ván đấu tự động qua `ChessStorage.saveAnalysisGame()`.
+  - [x] Tích hợp nút "Xem lại & Phân tích ván trước" trên màn hình chính `index.html` khi chọn Bot v2 (hiển thị trong cả Modal Cấu hình ván mới và Modal Tiếp tục ván đấu nếu có dữ liệu ván đấu đã chơi trước đó).
+  - [x] Mặc định tắt (OFF) đánh giá nước đi tức thời trong lúc chơi ván đấu `play-bot-v2.html`.
+  - [x] Bàn cờ tại màn hình phân tích `analysis.html` được thiết lập ở chế độ chỉ xem (`readOnly: true`, `interactive: false`), vô hiệu hóa việc chọn quân và highlight nước đi khi chạm vào các ô bàn cờ.
+
+### Phase 6 — PvP Online & Polish Toàn Diện
 - Cập nhật `sql/schema.sql` cho bảng `chess_games` và `user_quotas`.
 - Hoàn thiện module PvP trong `js/chess-backend.js`.
 - Xây dựng `play-friend.html` và `js/chess-pvp.js`: Tạo phòng mã 6 ký tự, kết nối đồng bộ nước đi bằng polling 8s, nút Đầu hàng / Xin hòa (Chưa Quota 3 trận/ngày).
-
-### Phase 5 — Dashboard Thống Kê Nâng Cao & Polish Toàn Diện
-- Màn hình thống kê chi tiết trên `index.html`: Lịch sử đấu, tỷ lệ thắng, biểu đồ ELO, kỷ lục streak.
 - Kiểm tra toàn diện tương thích ES5, tối ưu tốc độ phản hồi trên thiết bị Kindle thực tế.
 

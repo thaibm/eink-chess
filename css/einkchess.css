@@ -319,6 +319,10 @@ button,
     touch-action: manipulation;
 }
 
+.chess-board.read-only .sq {
+    cursor: default;
+}
+
 /* Square Colors (E-ink High Contrast) */
 .sq.light {
     background-color: #ffffff;
@@ -377,6 +381,37 @@ button,
     background-color: #555555 !important;
     outline: 2px double #ffffff;
     outline-offset: -2px;
+}
+
+/* Board Rank & File Coordinates */
+.sq-coord {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+    z-index: 2;
+}
+
+.sq.light .sq-coord {
+    color: #444444;
+}
+
+.sq.dark .sq-coord {
+    color: #ffffff;
+}
+
+.sq-coord.rank {
+    top: 2px;
+    left: 2px;
+}
+
+.sq-coord.file {
+    bottom: 2px;
+    right: 2px;
 }
 
 /* Chess Piece Glyph Inside Square */
