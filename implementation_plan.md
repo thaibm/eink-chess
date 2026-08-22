@@ -63,17 +63,24 @@ CREATE TABLE IF NOT EXISTS active_pings (
 CREATE INDEX idx_active_pings_created_at ON active_pings(created_at);
 CREATE INDEX idx_active_pings_device ON active_pings(device_id, created_at);
 
--- View thống kê nhanh Realtime, DAU, WAU, MAU, YAU
+-- View thống kê nhanh Realtime, DAU, WAU, MAU, YAU (Deduplicate per device_id, lấy bản ghi mới nhất)
 CREATE OR REPLACE VIEW v_traffic_stats AS
+WITH latest_device_pings AS (
+    SELECT
+        device_id,
+        MAX(created_at) AS last_active_at
+    FROM active_pings
+    GROUP BY device_id
+)
 SELECT
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN device_id END) AS realtime_active_10m,
-    COUNT(DISTINCT CASE WHEN created_at >= CURRENT_DATE THEN device_id END) AS dau_today,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('week', CURRENT_DATE) THEN device_id END) AS wau_this_week,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('month', CURRENT_DATE) THEN device_id END) AS mau_this_month,
-    COUNT(DISTINCT CASE WHEN created_at >= DATE_TRUNC('year', CURRENT_DATE) THEN device_id END) AS yau_this_year,
-    COUNT(CASE WHEN created_at >= CURRENT_DATE THEN 1 END) AS pageviews_today,
-    COUNT(*) AS total_pageviews_all_time
-FROM active_pings;
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '10 minutes' THEN 1 END) AS realtime_active_10m,
+    COUNT(CASE WHEN last_active_at >= CURRENT_DATE THEN 1 END) AS dau_today,
+    COUNT(CASE WHEN last_active_at >= DATE_TRUNC('week', CURRENT_DATE) THEN 1 END) AS wau_this_week,
+    COUNT(CASE WHEN last_active_at >= DATE_TRUNC('month', CURRENT_DATE) THEN 1 END) AS mau_this_month,
+    COUNT(CASE WHEN last_active_at >= DATE_TRUNC('year', CURRENT_DATE) THEN 1 END) AS yau_this_year,
+    COUNT(CASE WHEN last_active_at >= CURRENT_DATE THEN 1 END) AS device_views_today,
+    COUNT(*) AS total_device_views_all_time
+FROM latest_device_pings;
 
 -- 2. Bảng Quản lý Quota Ngày & Trạng thái VIP / Donate
 CREATE TABLE IF NOT EXISTS user_quotas (

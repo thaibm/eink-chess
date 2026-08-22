@@ -329,10 +329,10 @@
 - **Cơ chế hoạt động:**
   - Client gửi **Beacon Ping** siêu nhẹ (~500 bytes XHR) khi khởi động app và khi bắt đầu ván cờ mới.
   - Gửi kèm: `device_id` (UUID), `device_type` (Kindle Basic, Paperwhite, Oasis, Scribe, Desktop), `lang`, `action_type` (`pageview`, `play_bot`, `play_bot_resume`, `play_puzzle`, `play_pvp`).
-  - Backend lưu vào bảng `active_pings` / tổng hợp số liệu qua SQL View `v_traffic_stats`:
+  - Backend lưu vào bảng `active_pings` / tổng hợp số liệu qua SQL View `v_traffic_stats` (khử trùng lặp theo từng `device_id`, tính toán dựa trên bản ghi mới nhất của mỗi thiết bị):
     - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
     - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất hôm nay / 7 ngày qua / 30 ngày qua / 365 ngày qua (Rolling window).
-    - **Pageviews:** Số lượt tải trang hôm nay và tổng tích lũy.
+    - **Device Views:** Số lượt thiết bị xem hôm nay (`device_views_today`) và tổng lượt thiết bị xem tích lũy toàn thời gian (`total_device_views_all_time`).
 - **Trang Thống Kê & Tùy Chọn Cài Đặt (`stats.html`):**
   - Cung cấp trang xem thống kê traffic công khai và tùy chọn cài đặt trò chơi (Game Settings), liên kết từ chân trang (Footer) Trang chủ `index.html`.
   - Thiết kế tối giản, độ tương phản cao, phông chữ lớn và tối ưu hóa touch targets (min 44px) cho thiết bị E-ink.

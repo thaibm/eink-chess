@@ -19,19 +19,26 @@ CREATE INDEX IF NOT EXISTS idx_active_pings_created_at ON active_pings(created_a
 CREATE INDEX IF NOT EXISTS idx_active_pings_device_time ON active_pings(device_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_active_pings_action ON active_pings(action_type);
 
--- 2. TRAFFIC STATS VIEW (REALTIME, DAU, WAU, MAU, YAU)
+-- 2. TRAFFIC STATS VIEW (REALTIME, DAU, WAU, MAU, YAU, TOTAL DEVICE VIEWS)
 CREATE OR REPLACE VIEW v_traffic_stats AS
+WITH latest_device_pings AS (
+    SELECT
+        device_id,
+        MAX(created_at) AS last_active_at
+    FROM active_pings
+    GROUP BY device_id
+)
 SELECT
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN device_id END) AS realtime_active_10m,
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '30 minutes' THEN device_id END) AS realtime_active_30m,
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '60 minutes' THEN device_id END) AS realtime_active_60m,
-    COUNT(DISTINCT CASE WHEN created_at >= CURRENT_DATE THEN device_id END) AS dau_today,
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '7 days' THEN device_id END) AS wau_this_week,
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN device_id END) AS mau_this_month,
-    COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '365 days' THEN device_id END) AS yau_this_year,
-    COUNT(CASE WHEN created_at >= CURRENT_DATE THEN 1 END) AS pageviews_today,
-    COUNT(*) AS total_pageviews_all_time
-FROM active_pings;
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '10 minutes' THEN 1 END) AS realtime_active_10m,
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '30 minutes' THEN 1 END) AS realtime_active_30m,
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '60 minutes' THEN 1 END) AS realtime_active_60m,
+    COUNT(CASE WHEN last_active_at >= CURRENT_DATE THEN 1 END) AS dau_today,
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '7 days' THEN 1 END) AS wau_this_week,
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '30 days' THEN 1 END) AS mau_this_month,
+    COUNT(CASE WHEN last_active_at >= NOW() - INTERVAL '365 days' THEN 1 END) AS yau_this_year,
+    COUNT(CASE WHEN last_active_at >= CURRENT_DATE THEN 1 END) AS device_views_today,
+    COUNT(*) AS total_device_views_all_time
+FROM latest_device_pings;
 
 -- 3. DAILY QUOTA AND VIP STATUS TABLE
 CREATE TABLE IF NOT EXISTS user_quotas (

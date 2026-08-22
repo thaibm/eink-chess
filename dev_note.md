@@ -207,8 +207,8 @@ Hệ thống ghi nhận lưu lượng qua bảng `active_pings` và tổng hợp
    * `wau_this_week`: Weekly Active Users (7 ngày gần nhất).
    * `mau_this_month`: Monthly Active Users (30 ngày gần nhất).
    * `yau_this_year`: Yearly Active Users (365 ngày gần nhất).
-   * `pageviews_today`: Số lượt tải trang hôm nay.
-   * `total_pageviews_all_time`: Tổng lượt truy cập tích lũy.
+   * `device_views_today`: Số lượt thiết bị xem hôm nay.
+   * `total_device_views_all_time`: Tổng lượt thiết bị xem tích lũy toàn thời gian.
 
 2. **Xem 50 tương tác / ping mới nhất:**
    ```sql
