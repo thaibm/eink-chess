@@ -96,18 +96,18 @@
     };
 
     ChessAIV2.prototype.applyNoise = function(bestUci, best4, bestScore) {
-        if (this.level > 7 || !best4 || best4.length < 2) return bestUci;
+        if (this.level > 8 || !best4 || best4.length < 2) return bestUci;
         
         var AI_MOVE_NOISE_CFG = [
             { noiseCp: 0, chance: 0 },       // Level 0 (unused)
-            { noiseCp: 180, chance: 0.50 },  // Level 1
-            { noiseCp: 130, chance: 0.40 },  // Level 2
-            { noiseCp: 90, chance: 0.30 },   // Level 3
-            { noiseCp: 60, chance: 0.25 },   // Level 4
-            { noiseCp: 40, chance: 0.20 },   // Level 5
-            { noiseCp: 25, chance: 0.15 },   // Level 6
-            { noiseCp: 15, chance: 0.10 },   // Level 7
-            { noiseCp: 0, chance: 0.00 }     // Level 8
+            { noiseCp: 200, chance: 0.80 },  // Level 1
+            { noiseCp: 150, chance: 0.65 },  // Level 2
+            { noiseCp: 110, chance: 0.50 },  // Level 3
+            { noiseCp: 75, chance: 0.35 },   // Level 4
+            { noiseCp: 50, chance: 0.25 },   // Level 5
+            { noiseCp: 35, chance: 0.18 },   // Level 6
+            { noiseCp: 20, chance: 0.10 },   // Level 7
+            { noiseCp: 15, chance: 0.05 }    // Level 8
         ];
         
         var cfg = AI_MOVE_NOISE_CFG[this.level];

@@ -106,14 +106,14 @@
 
 | Cấp độ | Tên gọi | ELO Ước tính | Cơ chế xử lý (Tomitank Web Worker) | Yêu cầu mạng |
 | :--- | :--- | :--- | :--- | :--- |
-| **Level 1** | Người mới (Beginner) | ~400 | Giới hạn 200ms + Noise (180cp, 50% chance) | Offline |
-| **Level 2** | Tập sự (Novice) | ~600 | Giới hạn 400ms + Noise (130cp, 40% chance) | Offline |
-| **Level 3** | Dễ (Casual) | ~800 | Giới hạn 700ms + Noise (90cp, 30% chance) | Offline |
-| **Level 4** | Trung bình (Intermediate) | ~1000 | Giới hạn 1000ms + Noise (60cp, 25% chance) | Offline |
-| **Level 5** | Câu lạc bộ (Club) | ~1200 | Giới hạn 1500ms + Noise (40cp, 20% chance) | Offline |
-| **Level 6** | Bán chuyên (Semi-Pro) | ~1400 | Giới hạn 2000ms + Noise (25cp, 15% chance) | Offline |
-| **Level 7** | Chuyên gia (Expert) | ~1600 | Giới hạn 4000ms + Noise (15cp, 10% chance) | Offline |
-| **Level 8** | Kiện tướng (Master) | ~1800 | Giới hạn 6000ms (Max sức mạnh, không Noise) | Offline |
+| **Level 1** | Người mới (Beginner) | ~400 | Giới hạn 200ms + Noise (200cp, 80% chance) | Offline |
+| **Level 2** | Tập sự (Novice) | ~600 | Giới hạn 400ms + Noise (150cp, 65% chance) | Offline |
+| **Level 3** | Dễ (Casual) | ~800 | Giới hạn 700ms + Noise (110cp, 50% chance) | Offline |
+| **Level 4** | Trung bình (Intermediate) | ~1000 | Giới hạn 1000ms + Noise (75cp, 35% chance) | Offline |
+| **Level 5** | Câu lạc bộ (Club) | ~1200 | Giới hạn 1500ms + Noise (50cp, 25% chance) | Offline |
+| **Level 6** | Bán chuyên (Semi-Pro) | ~1400 | Giới hạn 2000ms + Noise (35cp, 18% chance) | Offline |
+| **Level 7** | Chuyên gia (Expert) | ~1600 | Giới hạn 4000ms + Noise (20cp, 10% chance) | Offline |
+| **Level 8** | Kiện tướng (Master) | ~1800 | Giới hạn 6000ms + Noise (15cp, 5% chance) | Offline |
 | **Level 9** | Đại kiện tướng (Grandmaster) | ~2200 | Giới hạn 8000ms (Max sức mạnh, không Noise) | Offline |
 | **Level 10** | Siêu cấp (Super GM) | ~2400 | Giới hạn 12000ms (Max sức mạnh, không Noise) | Offline |
 
