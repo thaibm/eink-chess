@@ -44,13 +44,13 @@
 - Các nút bấm, menu, và ô cờ phải có kích thước đủ lớn (tối thiểu 44x44px) để dễ dàng thao tác bằng ngón tay trên màn hình E-ink.
 - Cần có khoảng cách (margin/padding) hợp lý giữa các nút bấm để tránh chạm nhầm, do màn hình E-ink có độ trễ cảm ứng và phản hồi hiển thị chậm.
 
-### 2.5. Bố cục Trang chủ (Home Screen 3-Mode Balanced Layout)
-- Trang chủ hiển thị trực quan 3 thẻ chế độ chơi chính:
-  1. **Chơi với Máy (Bot AI)**: Tomitank offline 10 cấp độ, tính điểm ELO Bot.
-  2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng ELO Puzzle từ API trực tuyến.
-  3. **Chơi với Bạn Bè (PvP Online)**: Phòng đấu qua Game Code 6 ký tự kết nối realtime.
-- **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 27-30vh`), tăng kích thước chữ (Title 17-18px, Desc 14px, Button 15-16px) và touch target (nút bấm chính min 44-48px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
-- **Chân trang (Footer):** Hiển thị liên kết xem "Traffic Stats" (`stats.html`) và thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
+### 2.5. Bố cục Trang chủ (Home Screen 3-Section Balanced Layout)
+- Trang chủ hiển thị trực quan 3 thẻ chức năng chính:
+  1. **Chơi với Máy (Bot AI)**: Tomitank / Minimax offline, hiển thị ELO Bot tương ứng.
+  2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng, hiển thị ELO Puzzle tương ứng.
+  3. **Cài Đặt & Thống Kê (Settings & Traffic)**: Tùy chỉnh giao diện quân cờ, chế độ Undo, và xem báo cáo lưu lượng truy cập thực tế (`stats.html`).
+- **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 25-28vh`), tăng kích thước chữ (Title 16-17px, Desc 14px, Button 15px) và touch target (nút bấm chính min 44px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
+- **Chân trang (Footer):** Hiển thị thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
 
 ---
 
@@ -167,7 +167,7 @@
   - Tự động lưu toàn bộ trạng thái ván cờ vào `localStorage` (`einkchess_saved_bot_game`) sau mỗi nước đi của người chơi, nước đi của Bot, hoặc khi Đi lại (Undo), cũng như sự kiện thoát trang (`beforeunload`/`pagehide`).
   - Dữ liệu lưu gồm: Cấp độ Bot (`botLevel`), bên cầm quân (`playerSide`), engine state (`fen`, `history`, `positionCounts`, `turn`, `castling`, `epSquare`, `halfmoveClock`), và nước đi gần nhất (`lastMove`).
   - **Tải lại trang (Reload / F5):** Trực tiếp khôi phục bàn cờ, thế cờ và lượt đi đang chơi dở mà không khởi động lại ván mới hay mở popup cài đặt. Nếu đến lượt Bot đi dở, Bot sẽ tự động suy nghĩ và đi tiếp.
-  - **Trang chủ (`index.html`):** Thẻ Play vs Bot hiển thị tag thông báo ván dở (cho V1, V2 hoặc cả hai) kèm 2 nút chọn song song: `[Bot v1 (Local Minimax)]` và `[Bot v2 (Tomitank 7.0)]`. Khi click vào nút tương ứng, nếu đang chơi dở, popup hiển thị hỏi người chơi muốn `[Tiếp tục chơi (Continue Game)]` hay `[Chơi ván mới (New Game)]` để cấu hình lại.
+  - **Trang chủ (`index.html`):** Thẻ Play vs Bot tự động nhận diện trạng thái ván cờ. Nếu đang có ván đấu dở, thẻ trực tiếp hiển thị 2 nút bấm song song: `[Tiếp tục ván đấu (Continue Match)]` (chuyển ngay vào bàn cờ chơi tiếp mà không cần qua popup trung gian) và `[Ván mới (New Game)]` (mở modal cấu hình 10 cấp độ mới). Nếu không có ván dở, hiển thị nút `[Chơi với Bot AI (Play vs AI Bot)]`.
   - **Xóa trạng thái đã lưu:** Khi ván đấu kết thúc tự nhiên (Chiếu hết, Hòa) hoặc người chơi chủ động Đầu hàng (Resign), hệ thống tự động xóa dữ liệu ván đấu đã lưu trong `localStorage` để sẵn sàng cho ván mới tiếp theo.
 
 ---
@@ -467,11 +467,18 @@
   - [x] Bộ nhận diện đòn chiến thuật & đánh giá nước đi (>20 trường hợp): Đòn bắt đôi (Fork/Royal Fork), ghim/xiên quân (Pin/Skewer), đòn tấn công mở (Discovered attack), ăn quân miễn phí (Free piece), sai lầm mất quân (Hanging piece blunder), đổi quân có lợi/thua thiệt (Trades), phong cấp (Promotion), tốt thông (Passed pawn), kiểm soát trung tâm (Center control), phát triển quân (Piece development), chiếm cột mở (Open file), chiếm tiền đồn (Outpost), giải vây (Defense), đơn giản hóa thế cờ (Simplification), v.v.
   - [x] Hỗ trợ song ngữ Tiếng Việt & Tiếng Anh (`ChessI18n`) chuyển đổi trực tiếp trên Header.
   - [x] Tích hợp nút "Phân tích ván đấu" vào Modal Game Over của `play-bot-v2.html` và lưu dữ liệu ván đấu tự động qua `ChessStorage.saveAnalysisGame()`.
-  - [x] Tích hợp nút "Xem lại & Phân tích ván trước" trên màn hình chính `index.html` khi chọn Bot v2 (hiển thị trong cả Modal Cấu hình ván mới và Modal Tiếp tục ván đấu nếu có dữ liệu ván đấu đã chơi trước đó).
-  - [x] Mặc định tắt (OFF) đánh giá nước đi tức thời trong lúc chơi ván đấu `play-bot-v2.html`.
+  - [x] Tích hợp nút "Xem lại & Phân tích ván trước" trên màn hình chính `index.html` trong Modal Cấu hình ván mới nếu có dữ liệu ván đấu đã chơi trước đó.
+  - [x] Chuyển đổi hiển thị điểm ELO trên `index.html`: Bỏ huy hiệu ELO ở thanh Header chung, đưa điểm ELO tương ứng vào từng thẻ chế độ (`#bot-elo-badge` tại thẻ Play vs Bot, `#puzzle-elo-badge` tại thẻ Chess Puzzles).
+  - [x] Chuyển mục Traffic thành thẻ chức năng thứ 3 trên Trang chủ: "Cài đặt & Thống kê (Settings & Traffic)" dẫn trực tiếp vào `stats.html` để tùy chỉnh cài đặt và xem báo cáo lưu lượng.
+  - [x] Chuyển đổi hiển thị ELO và thông tin cấp độ Bot trên `play-bot-v2.html`: Loại bỏ huy hiệu ELO/Bot info trên thanh Header, tích hợp thành 1 item dạng nút bấm (`#bot-meta`, `.puzzle-meta-box`) nằm ở vị trí chính giữa trên cùng một hàng của thanh nút điều khiển Footer (Action Bar). Rút gọn nội dung sang định dạng siêu gọn `Lvl {lvl} · {elo}` (EN) / `Cấp {lvl} · {elo}` (VI) (VD: `Lvl 1 · 400` / `Cấp 1 · 400`) để không chiếm nhiều chiều ngang và giữ các nút bấm khác rộng rãi, đồng thời không làm phát sinh thêm dòng mới cho màn hình Kindle Zero-Scroll.
+  - [x] Chuyển cài đặt "Gợi ý nước đi (Show Hints)" và "Đánh giá nước đi (Move Review)" vào mục Cài đặt Trò chơi trên trang `stats.html`:
+    - Loại bỏ nút "Hints: ON/OFF" trên thanh Action Bar của `play-bot-v2.html` và `play-bot.html`, giúp thanh điều khiển gọn gàng còn 6 nút chuẩn cân đối.
+    - Loại bỏ tùy chọn "3. Move Review" khỏi modal thiết lập ván đấu trên Trang chủ `index.html` và `play-bot-v2.html`, giúp popup mở ván tinh gọn và thao tác nhanh chóng hơn.
+    - Bổ sung 2 cài đặt `[BẬT / TẮT]` tương ứng trong thẻ GAME SETTINGS của `stats.html` và đồng bộ qua `ChessStorage.getShowHints()` / `ChessStorage.getDefaultBotReview()`.
   - [x] Bàn cờ tại màn hình phân tích `analysis.html` được thiết lập ở chế độ chỉ xem (`readOnly: true`, `interactive: false`), vô hiệu hóa việc chọn quân và highlight nước đi khi chạm vào các ô bàn cờ.
 
-### Phase 6 — PvP Online & Polish Toàn Diện
+### Phase 6 — PvP Online & Polish Toàn Diện (Tạm hoãn / Ẩn trên Trang chủ)
+- [ ] Thẻ "Chơi với Bạn bè (PvP)" đang tạm thời được comment ẩn trên `index.html`.
 - Cập nhật `sql/schema.sql` cho bảng `chess_games` và `user_quotas`.
 - Hoàn thiện module PvP trong `js/chess-backend.js`.
 - Xây dựng `play-friend.html` và `js/chess-pvp.js`: Tạo phòng mã 6 ký tự, kết nối đồng bộ nước đi bằng polling 8s, nút Đầu hàng / Xin hòa (Chưa Quota 3 trận/ngày).

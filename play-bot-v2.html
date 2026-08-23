@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <title>Play vs Bot - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=63">
+    <link rel="stylesheet" href="css/einkchess.css?v=65">
 </head>
 
 <body>
@@ -15,13 +15,7 @@
         <div class="header">
             <div class="header-top">
                 <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
-                <div class="header-center">
-                    <button type="button" class="header-status-btn" onclick="openSetupModal()" title="Bot Match Setup">
-                        <span class="header-elo-text" id="bot-elo-badge">ELO: 1600</span>
-                        <span class="header-divider">·</span>
-                        <span class="header-sub-text" id="bot-level-name">(Bot Lvl 1 - ELO ~800)</span>
-                    </button>
-                </div>
+                <div class="header-center"></div>
                 <div class="header-actions">
                     <button class="btn btn-sm btn-donate" onclick="ChessBackend.showDonateModal()"
                         data-i18n="header.donate">Donate</button>
@@ -41,7 +35,7 @@
             <div class="status-captured" id="captured-black"></div>
         </div>
 
-        <!-- 4. ACTION BUTTONS (1 ROW, 6 COLUMNS EVENLY DISTRIBUTED BY CONTENT) -->
+        <!-- 4. ACTION BUTTONS (1 ROW WITH BOT INFO IN CENTER) -->
         <div class="action-bar action-bar-grid">
             <div class="action-bar-row">
                 <div class="action-bar-cell" id="action-cell-undo">
@@ -54,11 +48,12 @@
                     <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Flip</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Refresh</button>
+                    <button type="button" id="bot-meta" class="btn puzzle-meta-box" onclick="openSetupModal()" title="Bot Match Setup">
+                        <span id="bot-level-name">Lvl 1 · 400</span>
+                    </button>
                 </div>
                 <div class="action-bar-cell">
-                    <button class="btn" id="hint-toggle-btn" onclick="toggleHints()"
-                        data-i18n="game.btn_hints_on">Hints: ON</button>
+                    <button class="btn" onclick="handleRefresh()" data-i18n="game.btn_refresh">Refresh</button>
                 </div>
                 <div class="action-bar-cell">
                     <button class="btn btn-primary" onclick="openSetupModal()" data-i18n="game.btn_new_game">New
@@ -98,15 +93,6 @@
                             White (First)</div>
                         <div class="btn-group-item" onclick="selectSetupSide('b')" data-i18n="home.side_black">Black
                             (Second)</div>
-                    </div>
-
-                    <div style="font-weight: bold; margin-top: 10px; margin-bottom: 4px; font-size: 14px;"
-                        data-i18n="home.setup_review_label">3. Move Review:</div>
-                    <div class="btn-group" id="setup-review-group">
-                        <div class="btn-group-item" onclick="selectSetupReview(true)" data-i18n="home.review_on">
-                            ON</div>
-                        <div class="btn-group-item active" onclick="selectSetupReview(false)" data-i18n="home.review_off">
-                            OFF</div>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: center;">
@@ -184,8 +170,8 @@
     <script src="js/chess-engine.js?v=13"></script>
     <script src="js/tomitank-source.js?v=1"></script>
     <script src="js/chess-ai-v2.js?v=12"></script>
-    <script src="js/chess-storage.js?v=29"></script>
-    <script src="js/chess-i18n.js?v=50"></script>
+    <script src="js/chess-storage.js?v=31"></script>
+    <script src="js/chess-i18n.js?v=54"></script>
     <script src="js/chess-board.js?v=20"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
@@ -250,7 +236,6 @@
                     ChessI18n.onChange(function () {
                         updateEloBadge();
                         updateBotLevelLabel();
-                        updateHintButtonText();
                         updateStatus();
                         applyUndoSetting();
                     });
@@ -273,26 +258,26 @@
             }
 
             var savedGame = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGameV2() : null;
+            var hintsSetting = (typeof ChessStorage !== 'undefined') ? ChessStorage.getShowHints() : true;
+            showMoveReview = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotReview() : false;
 
             if (urlParams['new'] === '1') {
                 pendingLevel = parseInt(urlParams['lvl'], 10) || ChessStorage.getDefaultBotLevelV2();
                 pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
                 if (urlParams['review'] !== undefined) {
-                    pendingReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
-                } else if (typeof ChessStorage !== 'undefined') {
-                    pendingReview = ChessStorage.getDefaultBotReview();
+                    showMoveReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
                 }
 
                 if (typeof ChessStorage !== 'undefined') {
                     ChessStorage.setDefaultBotLevelV2(pendingLevel);
                     ChessStorage.setDefaultSide(pendingSide);
-                    ChessStorage.setDefaultBotReview(pendingReview);
                 }
 
                 engine = new ChessEngine();
                 board = new ChessBoard('board-container', {
                     engine: engine,
                     orientation: pendingSide,
+                    showHints: hintsSetting,
                     onMove: function (move) {
                         handlePlayerMove(move);
                     }
@@ -304,7 +289,6 @@
                 playerSide = savedGame.playerSide || 'w';
                 pendingLevel = botLevel;
                 pendingSide = playerSide;
-                pendingReview = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotReview() : false;
 
                 ai.level = botLevel;
                 engine = new ChessEngine();
@@ -319,6 +303,7 @@
                 board = new ChessBoard('board-container', {
                     engine: engine,
                     orientation: playerSide,
+                    showHints: hintsSetting,
                     onMove: function (move) {
                         handlePlayerMove(move);
                     }
@@ -329,7 +314,6 @@
                 }
 
                 updateBotLevelLabel();
-                updateHintButtonText();
                 updateStatus();
 
                 if (engine.turn !== playerSide) {
@@ -340,12 +324,12 @@
             } else {
                 pendingLevel = ChessStorage.getDefaultBotLevelV2();
                 pendingSide = ChessStorage.getDefaultSide();
-                pendingReview = ChessStorage.getDefaultBotReview();
 
                 engine = new ChessEngine();
                 board = new ChessBoard('board-container', {
                     engine: engine,
                     orientation: pendingSide,
+                    showHints: hintsSetting,
                     onMove: function (move) {
                         handlePlayerMove(move);
                     }
@@ -354,7 +338,7 @@
                 if (urlParams['lvl']) {
                     pendingLevel = parseInt(urlParams['lvl'], 10) || 1;
                     if (urlParams['side']) pendingSide = urlParams['side'] === 'b' ? 'b' : 'w';
-                    if (urlParams['review'] !== undefined) pendingReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
+                    if (urlParams['review'] !== undefined) showMoveReview = (urlParams['review'] === '1' || urlParams['review'] === 'true');
                     startConfiguredGame();
                 } else {
                     openSetupModal();
@@ -379,18 +363,9 @@
             var labelEl = document.getElementById('bot-level-name');
             if (!labelEl) return;
             if (typeof ChessI18n !== 'undefined') {
-                labelEl.innerHTML = ChessI18n.t('game.bot_level_v2_' + botLevel);
-            }
-        }
-
-        function updateHintButtonText() {
-            var hintBtn = document.getElementById('hint-toggle-btn');
-            if (!hintBtn) return;
-            var isHintsOn = board ? board.showHints : true;
-            if (typeof ChessI18n !== 'undefined') {
-                hintBtn.innerHTML = ChessI18n.t(isHintsOn ? 'game.btn_hints_on' : 'game.btn_hints_off');
+                labelEl.innerHTML = ChessI18n.t('game.bot_meta_v2_' + botLevel);
             } else {
-                hintBtn.innerHTML = isHintsOn ? 'Hints: ON' : 'Hints: OFF';
+                labelEl.innerHTML = 'Lvl ' + botLevel + ' · ' + (botElos[botLevel] || '');
             }
         }
 
@@ -459,11 +434,9 @@
             if (typeof ChessStorage !== 'undefined') {
                 pendingLevel = ChessStorage.getDefaultBotLevelV2();
                 pendingSide = ChessStorage.getDefaultSide();
-                pendingReview = ChessStorage.getDefaultBotReview();
             }
             selectSetupLevel(pendingLevel);
             selectSetupSide(pendingSide);
-            selectSetupReview(pendingReview);
             var modal = document.getElementById('setup-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
@@ -500,25 +473,10 @@
             items[1].className = 'btn-group-item' + (side === 'b' ? ' active' : '');
         }
 
-        function selectSetupReview(enable) {
-            pendingReview = !!enable;
-            if (typeof ChessStorage !== 'undefined') {
-                ChessStorage.setDefaultBotReview(pendingReview);
-            }
-            var reviewGroup = document.getElementById('setup-review-group');
-            if (reviewGroup) {
-                var items = reviewGroup.getElementsByTagName('div');
-                if (items.length >= 2) {
-                    items[0].className = 'btn-group-item' + (pendingReview ? ' active' : '');
-                    items[1].className = 'btn-group-item' + (!pendingReview ? ' active' : '');
-                }
-            }
-        }
-
         function startConfiguredGame() {
             botLevel = pendingLevel;
             playerSide = pendingSide;
-            showMoveReview = pendingReview;
+            showMoveReview = (typeof ChessStorage !== 'undefined') ? ChessStorage.getDefaultBotReview() : false;
             lastMoveReview = null;
             lastPlayerMove = null;
             prevBotEval = 0;
@@ -829,12 +787,6 @@
 
         function handleFlip() {
             board.flip();
-        }
-
-        function toggleHints() {
-            board.showHints = !board.showHints;
-            updateHintButtonText();
-            board.render();
         }
 
         function handleRefresh() {

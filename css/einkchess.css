@@ -148,6 +148,14 @@ body {
     display: inline-block;
 }
 
+/* Game Page Footer */
+.game-footer {
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    clear: both;
+}
+
 /* --- 4. Buttons & Controls (Kindle Optimized) --- */
 button,
 .btn {
@@ -681,15 +689,21 @@ button,
 }
 
 .home-card .card-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: bold;
     display: table-cell;
     vertical-align: middle;
 }
 
-.home-card .card-tag {
+.home-card .card-header-right {
     display: table-cell;
     text-align: right;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.home-card .card-tag {
+    display: inline-block;
     vertical-align: middle;
     font-size: 12px;
     font-weight: bold;
@@ -697,6 +711,17 @@ button,
     background-color: #f0f0f0;
     border: 1px solid #000000;
     white-space: nowrap;
+}
+
+.home-card .elo-badge {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    margin-right: 4px;
+    background-color: #f0f0f0;
+    border: 2px solid #000000;
 }
 
 .home-card .card-desc {

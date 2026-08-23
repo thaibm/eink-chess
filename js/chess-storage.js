@@ -29,6 +29,7 @@
         DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
         ALLOW_UNDO: 'einkchess_allow_undo',
         PIECE_THEME: 'einkchess_piece_theme',
+        SHOW_HINTS: 'einkchess_show_hints',
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
         ANALYSIS_GAME: 'einkchess_analysis_game'
     };
@@ -113,15 +114,17 @@
             var header = document.querySelector('.header');
             var statusBar = document.querySelector('.status-bar');
             var actionBar = document.querySelector('.action-bar');
+            var footer = document.querySelector('.game-footer') || document.querySelector('.footer-links');
 
             var headerH = header ? header.offsetHeight : 0;
             var statusH = statusBar ? statusBar.offsetHeight : 0;
             var actionH = actionBar ? actionBar.offsetHeight : 0;
+            var footerH = footer ? footer.offsetHeight : 0;
 
             // Calculate safe padding/margin offset to avoid scrollbars (~20px)
             var totalOffsets = 20;
 
-            var availableH = winH - headerH - statusH - actionH - totalOffsets;
+            var availableH = winH - headerH - statusH - actionH - footerH - totalOffsets;
             var availableW = winW - 12; // 6px padding on both sides of container
 
             var maxBoardSize = Math.min(availableW, availableH);
@@ -376,6 +379,15 @@
         setPieceTheme: function(theme) {
             var validTheme = theme === 'unicode' ? 'unicode' : 'ejgfv';
             return this.set(STORAGE_KEYS.PIECE_THEME, validTheme);
+        },
+
+        // --- Legal Move Hints Setting (Show Hints) ---
+        getShowHints: function() {
+            return this.get(STORAGE_KEYS.SHOW_HINTS, true);
+        },
+
+        setShowHints: function(enabled) {
+            return this.set(STORAGE_KEYS.SHOW_HINTS, !!enabled);
         },
 
         // --- Local Quota Management ---
