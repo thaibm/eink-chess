@@ -48,7 +48,7 @@
                     <button class="btn" onclick="handleFlip()" data-i18n="game.btn_flip">Flip</button>
                 </div>
                 <div class="action-bar-cell">
-                    <button type="button" id="bot-meta" class="btn puzzle-meta-box" onclick="openSetupModal()" title="Bot Match Setup">
+                    <button type="button" id="bot-meta" class="btn puzzle-meta-box" onclick="openBotInfoModal()" title="Match Information">
                         <span id="bot-level-name">Lvl 1 · 400</span>
                     </button>
                 </div>
@@ -98,6 +98,65 @@
                 <div class="modal-footer" style="text-align: center;">
                     <button class="btn btn-primary btn-block" onclick="startConfiguredGame()"
                         style="margin: 0; padding: 10px;" data-i18n="game.btn_start_game">Start Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5B. MATCH INFO POPUP MODAL (CLICK ON BOT META BUTTON) -->
+        <div id="bot-info-modal" class="modal-overlay" onclick="if(event.target===this) closeBotInfoModal()">
+            <div class="modal-box">
+                <div class="modal-title" data-i18n="game.match_info_title">MATCH INFORMATION</div>
+                <div class="modal-body">
+                    <!-- Matchup Box -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 2px solid #000000;">
+                        <thead>
+                            <tr style="background-color: #f0f0f0; border-bottom: 2px solid #000000;">
+                                <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px; border-right: 1px solid #000000;" data-i18n="game.player_label">Player (You)</th>
+                                <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px;" data-i18n="game.bot_label">Bot Opponent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 8px; vertical-align: top; border-right: 1px solid #000000; font-size: 13px;">
+                                    <div style="font-size: 16px; font-weight: bold;" id="info-player-elo">1200 ELO</div>
+                                    <div style="margin-top: 4px; font-size: 12px;" id="info-player-side">White Side (♙)</div>
+                                </td>
+                                <td style="padding: 8px; vertical-align: top; font-size: 13px;">
+                                    <div style="font-size: 16px; font-weight: bold;" id="info-bot-name">Lvl 1 · 400</div>
+                                    <div style="margin-top: 4px; font-size: 12px;">Tomitank AI v7.0</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ELO Stakes Card -->
+                    <div style="border: 2px solid #000000; padding: 8px 10px; margin-bottom: 10px; background-color: #f8f8f8;">
+                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; border-bottom: 1px solid #888888; padding-bottom: 4px;" data-i18n="game.elo_stakes_title">ELO Stakes (Projected):</div>
+                        <div style="display: table; width: 100%; text-align: center;">
+                            <div style="display: table-cell; width: 33%;">
+                                <div style="font-size: 11px; font-weight: bold;" data-i18n="game.win_stake">Win</div>
+                                <div style="font-weight: bold; font-size: 15px;" id="info-stake-win">+16</div>
+                            </div>
+                            <div style="display: table-cell; width: 33%; border-left: 1px solid #888888; border-right: 1px solid #888888;">
+                                <div style="font-size: 11px; font-weight: bold;" data-i18n="game.draw_stake">Draw</div>
+                                <div style="font-weight: bold; font-size: 15px;" id="info-stake-draw">+0</div>
+                            </div>
+                            <div style="display: table-cell; width: 33%;">
+                                <div style="font-size: 11px; font-weight: bold;" data-i18n="game.loss_stake">Loss</div>
+                                <div style="font-weight: bold; font-size: 15px;" id="info-stake-loss">-16</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bot Characteristics -->
+                    <div style="border: 1px solid #000000; padding: 8px 10px; font-size: 12px; line-height: 1.4; background-color: #ffffff;">
+                        <div style="font-weight: bold; margin-bottom: 3px;" data-i18n="game.bot_profile_title">Bot Characteristics:</div>
+                        <div id="info-bot-desc">Beginner level with high blunder rate (~45%), ideal for casual learning.</div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="text-align: center;">
+                    <button class="btn btn-primary btn-block" onclick="closeBotInfoModal()"
+                        style="margin: 0; padding: 10px;" data-i18n="game.btn_close">Close</button>
                 </div>
             </div>
         </div>
@@ -171,7 +230,7 @@
     <script src="js/tomitank-source.js?v=1"></script>
     <script src="js/chess-ai-v2.js?v=12"></script>
     <script src="js/chess-storage.js?v=31"></script>
-    <script src="js/chess-i18n.js?v=54"></script>
+    <script src="js/chess-i18n.js?v=55"></script>
     <script src="js/chess-board.js?v=20"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
@@ -427,6 +486,67 @@
             }
 
             statusTextEl.innerHTML = currentStatus;
+        }
+
+        // --- Match Info Modal Functions ---
+        function openBotInfoModal() {
+            var playerElo = (typeof ChessStorage !== 'undefined') ? ChessStorage.getBotElo() : 1200;
+            var oppElo = botElos[botLevel] || 800;
+
+            // Player Elo & Side
+            var pEloEl = document.getElementById('info-player-elo');
+            if (pEloEl) pEloEl.innerHTML = playerElo + ' ELO';
+
+            var pSideEl = document.getElementById('info-player-side');
+            if (pSideEl) {
+                var sideKey = playerSide === 'w' ? 'game.side_white_label' : 'game.side_black_label';
+                var defaultSideText = playerSide === 'w' ? 'White Side (♙)' : 'Black Side (♟)';
+                pSideEl.innerHTML = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(sideKey) : defaultSideText;
+            }
+
+            // Bot Name & Elo
+            var bNameEl = document.getElementById('info-bot-name');
+            if (bNameEl) {
+                var botMetaKey = 'game.bot_meta_v2_' + botLevel;
+                var botMetaText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(botMetaKey) : ('Lvl ' + botLevel + ' · ' + oppElo);
+                bNameEl.innerHTML = botMetaText;
+            }
+
+            // ELO Stakes Calculation
+            var deltaWin = (typeof ChessStorage !== 'undefined') ? ChessStorage.calculateEloDelta(playerElo, oppElo, 1.0, 32) : 16;
+            var deltaDraw = (typeof ChessStorage !== 'undefined') ? ChessStorage.calculateEloDelta(playerElo, oppElo, 0.5, 32) : 0;
+            var deltaLoss = (typeof ChessStorage !== 'undefined') ? ChessStorage.calculateEloDelta(playerElo, oppElo, 0.0, 32) : -16;
+
+            var stWinEl = document.getElementById('info-stake-win');
+            if (stWinEl) stWinEl.innerHTML = (deltaWin >= 0 ? '+' : '') + deltaWin;
+
+            var stDrawEl = document.getElementById('info-stake-draw');
+            if (stDrawEl) stDrawEl.innerHTML = (deltaDraw >= 0 ? '+' : '') + deltaDraw;
+
+            var stLossEl = document.getElementById('info-stake-loss');
+            if (stLossEl) stLossEl.innerHTML = (deltaLoss >= 0 ? '+' : '') + deltaLoss;
+
+            // Bot Characteristics description
+            var bDescEl = document.getElementById('info-bot-desc');
+            if (bDescEl) {
+                var descKey = 'game.bot_desc_' + botLevel;
+                var defaultDesc = 'Tomitank AI engine with calibrated think time & blunder probability.';
+                bDescEl.innerHTML = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(descKey) : defaultDesc;
+            }
+
+            var modal = document.getElementById('bot-info-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeBotInfoModal() {
+            var modal = document.getElementById('bot-info-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
         }
 
         // --- Setup Modal Functions ---
