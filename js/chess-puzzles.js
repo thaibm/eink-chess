@@ -458,13 +458,13 @@
                 var caps = this.engine.getCapturedPieces();
                 var wHtml = '';
                 for (var i = 0; i < caps.white.length; i++) {
-                    wHtml += this.engine.getGlyph(caps.white[i]);
+                    wHtml += this.engine.getGlyphHtml ? this.engine.getGlyphHtml(caps.white[i]) : this.engine.getGlyph(caps.white[i]);
                 }
                 capWhiteEl.innerHTML = wHtml;
 
                 var bHtml = '';
                 for (var j = 0; j < caps.black.length; j++) {
-                    bHtml += this.engine.getGlyph(caps.black[j]);
+                    bHtml += this.engine.getGlyphHtml ? this.engine.getGlyphHtml(caps.black[j]) : this.engine.getGlyph(caps.black[j]);
                 }
                 capBlackEl.innerHTML = bHtml;
             }

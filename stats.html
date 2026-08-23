@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="EinkChess - Traffic Statistics and Usage Reports.">
     <title>EinkChess - Traffic Statistics</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=58">
+    <link rel="stylesheet" href="css/einkchess.css?v=63">
     <style>
         .stats-table {
             width: 100%;
@@ -94,7 +94,7 @@
         <!-- GAME SETTINGS CARD -->
         <div class="stats-card">
             <div class="stats-title" data-i18n="settings.game_settings_title">GAME SETTINGS</div>
-            <div style="margin-top: 6px; margin-bottom: 2px;">
+            <div style="margin-top: 6px; margin-bottom: 8px;">
                 <div style="display: table; width: 100%;">
                     <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
                         <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.allow_undo_label">Allow Undo (Play Bot)</div>
@@ -104,6 +104,20 @@
                         <div class="btn-group" id="setting-undo-group" style="margin: 0; width: 110px;">
                             <div class="btn-group-item" id="btn-undo-on" onclick="setAllowUndoSetting(true)" data-i18n="settings.on">ON</div>
                             <div class="btn-group-item active" id="btn-undo-off" onclick="setAllowUndoSetting(false)" data-i18n="settings.off">OFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 2px;">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
+                        <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.piece_theme_label">Piece Theme</div>
+                        <div class="stats-desc" data-i18n="settings.piece_theme_desc">Select chess piece style: Chess.com (Neo Vectors) or Classic Unicode glyphs.</div>
+                    </div>
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 160px;">
+                        <div class="btn-group" id="setting-theme-group" style="margin: 0; width: 160px;">
+                            <div class="btn-group-item active" id="btn-theme-chesscom" onclick="setPieceThemeSetting('ejgfv')" data-i18n="settings.theme_chesscom">Chess.com</div>
+                            <div class="btn-group-item" id="btn-theme-unicode" onclick="setPieceThemeSetting('unicode')" data-i18n="settings.theme_unicode">Unicode</div>
                         </div>
                     </div>
                 </div>
@@ -160,8 +174,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=22"></script>
-    <script src="js/chess-i18n.js?v=47"></script>
+    <script src="js/chess-storage.js?v=29"></script>
+    <script src="js/chess-i18n.js?v=50"></script>
     <script src="js/chess-backend.js?v=12"></script>
     <script>
         function displayStats(row) {
@@ -263,11 +277,31 @@
                     btnOff.className = 'btn-group-item active';
                 }
             }
+
+            var pieceTheme = typeof ChessStorage !== 'undefined' ? ChessStorage.getPieceTheme() : 'ejgfv';
+            var btnChessCom = document.getElementById('btn-theme-chesscom');
+            var btnUnicode = document.getElementById('btn-theme-unicode');
+            if (btnChessCom && btnUnicode) {
+                if (pieceTheme === 'unicode') {
+                    btnUnicode.className = 'btn-group-item active';
+                    btnChessCom.className = 'btn-group-item';
+                } else {
+                    btnChessCom.className = 'btn-group-item active';
+                    btnUnicode.className = 'btn-group-item';
+                }
+            }
         }
 
         function setAllowUndoSetting(allow) {
             if (typeof ChessStorage !== 'undefined') {
                 ChessStorage.setAllowUndo(allow);
+            }
+            renderSettingsUI();
+        }
+
+        function setPieceThemeSetting(theme) {
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setPieceTheme(theme);
             }
             renderSettingsUI();
         }

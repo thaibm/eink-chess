@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Post-Game Chess Analysis on Kindle - EinkChess">
     <title>Post-Game Analysis - Kindle Chess</title>
-    <link rel="stylesheet" href="css/einkchess.css?v=58">
+    <link rel="stylesheet" href="css/einkchess.css?v=63">
     <style>
         /* Analysis Specific Layout & Zero-Scroll E-ink Styles */
         body {
@@ -605,12 +605,12 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=8"></script>
+    <script src="js/chess-engine.js?v=13"></script>
     <script src="js/tomitank-source.js?v=1"></script>
     <script src="js/chess-ai-v2.js?v=12"></script>
-    <script src="js/chess-storage.js?v=22"></script>
-    <script src="js/chess-i18n.js?v=47"></script>
-    <script src="js/chess-board.js?v=19"></script>
+    <script src="js/chess-storage.js?v=29"></script>
+    <script src="js/chess-i18n.js?v=50"></script>
+    <script src="js/chess-board.js?v=20"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
     <script>
@@ -742,8 +742,10 @@
                 historyBox.style.maxHeight = boardSize + 'px';
             }
 
-            // Dynamic piece sizing
-            var pieceSize = Math.floor((boardSize / 8) * 0.76);
+            // Dynamic piece sizing & row height
+            var sqSize = Math.floor(boardSize / 8);
+            var imgSize = Math.floor(sqSize * 0.84);
+            var pieceSize = Math.floor(sqSize * 0.76);
             var styleId = 'dynamic-piece-style';
             var styleEl = document.getElementById(styleId);
             if (!styleEl) {
@@ -751,7 +753,11 @@
                 styleEl.id = styleId;
                 document.head.appendChild(styleEl);
             }
-            styleEl.innerHTML = '.sq { font-size: ' + pieceSize + 'px !important; }';
+            styleEl.innerHTML = 
+                '.board-row { height: ' + sqSize + 'px !important; max-height: ' + sqSize + 'px !important; } ' +
+                '.sq { width: ' + sqSize + 'px !important; height: ' + sqSize + 'px !important; max-width: ' + sqSize + 'px !important; max-height: ' + sqSize + 'px !important; } ' +
+                '.piece { font-size: ' + pieceSize + 'px !important; line-height: ' + sqSize + 'px !important; } ' +
+                '.sq .piece-inner img, .sq .piece-img { width: ' + imgSize + 'px !important; height: ' + imgSize + 'px !important; max-width: ' + imgSize + 'px !important; max-height: ' + imgSize + 'px !important; display: inline-block !important; vertical-align: middle !important; }';
 
             renderEvalChart();
         }

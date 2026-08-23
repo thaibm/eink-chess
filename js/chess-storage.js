@@ -28,6 +28,7 @@
         DEFAULT_SIDE: 'einkchess_default_side',
         DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
         ALLOW_UNDO: 'einkchess_allow_undo',
+        PIECE_THEME: 'einkchess_piece_theme',
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
         ANALYSIS_GAME: 'einkchess_analysis_game'
     };
@@ -124,21 +125,24 @@
             var availableW = winW - 12; // 6px padding on both sides of container
 
             var maxBoardSize = Math.min(availableW, availableH);
+            var sqSize = Math.floor(maxBoardSize / 8);
+            var exactBoardSize = sqSize * 8;
 
             if (container) {
-                container.style.maxWidth = (maxBoardSize + 12) + 'px';
+                container.style.maxWidth = (exactBoardSize + 12) + 'px';
                 container.style.width = '100%';
             }
             
             var boardContainer = document.querySelector('.board-container');
             if (boardContainer) {
-                boardContainer.style.width = maxBoardSize + 'px';
-                boardContainer.style.height = maxBoardSize + 'px';
-                boardContainer.style.maxWidth = maxBoardSize + 'px';
+                boardContainer.style.width = exactBoardSize + 'px';
+                boardContainer.style.height = exactBoardSize + 'px';
+                boardContainer.style.maxWidth = exactBoardSize + 'px';
             }
             
-            // Update piece font-size (proportional 75% of square size)
-            var pieceSize = Math.floor((maxBoardSize / 8) * 0.75);
+            // Update piece font-size, explicit image dimensions, and enforce square height on all rows
+            var imgSize = Math.floor(sqSize * 0.84);
+            var pieceFontSize = Math.floor(sqSize * 0.75);
             var styleId = 'dynamic-piece-style';
             var styleEl = document.getElementById(styleId);
             if (!styleEl) {
@@ -146,7 +150,11 @@
                 styleEl.id = styleId;
                 document.head.appendChild(styleEl);
             }
-            styleEl.innerHTML = '.piece { font-size: ' + pieceSize + 'px !important; line-height: 1 !important; }';
+            styleEl.innerHTML = 
+                '.board-row { height: ' + sqSize + 'px !important; max-height: ' + sqSize + 'px !important; } ' +
+                '.sq { width: ' + sqSize + 'px !important; height: ' + sqSize + 'px !important; max-width: ' + sqSize + 'px !important; max-height: ' + sqSize + 'px !important; } ' +
+                '.piece { font-size: ' + pieceFontSize + 'px !important; line-height: ' + sqSize + 'px !important; } ' +
+                '.sq .piece-inner img, .sq .piece-img { width: ' + imgSize + 'px !important; height: ' + imgSize + 'px !important; max-width: ' + imgSize + 'px !important; max-height: ' + imgSize + 'px !important; display: inline-block !important; vertical-align: middle !important; }';
         },
 
         getLang: function() {
@@ -357,6 +365,17 @@
 
         setAllowUndo: function(allow) {
             return this.set(STORAGE_KEYS.ALLOW_UNDO, !!allow);
+        },
+
+        // --- Piece Theme Setting (ejgfv/Chess.com vs Unicode) ---
+        getPieceTheme: function() {
+            var theme = this.get(STORAGE_KEYS.PIECE_THEME, 'ejgfv');
+            return theme === 'unicode' ? 'unicode' : 'ejgfv';
+        },
+
+        setPieceTheme: function(theme) {
+            var validTheme = theme === 'unicode' ? 'unicode' : 'ejgfv';
+            return this.set(STORAGE_KEYS.PIECE_THEME, validTheme);
         },
 
         // --- Local Quota Management ---

@@ -171,6 +171,10 @@
             'settings.allow_undo_desc': 'Bật hoặc tắt nút Đi lại nước cờ khi chơi với Bot (v1 & v2).',
             'settings.on': 'BẬT',
             'settings.off': 'TẮT',
+            'settings.piece_theme_label': 'Giao diện Quân cờ',
+            'settings.piece_theme_desc': 'Chọn kiểu hiển thị quân cờ: Chess.com hoặc Ký tự Unicode.',
+            'settings.theme_unicode': 'Unicode',
+            'settings.theme_chesscom': 'Chess.com',
 
             'puzzle.btn_level': 'Cấp độ',
             'puzzle.btn_hint': '♙ Gợi ý',
@@ -491,6 +495,10 @@
             'settings.allow_undo_desc': 'Enable or disable the Undo button when playing vs Bot (v1 & v2).',
             'settings.on': 'ON',
             'settings.off': 'OFF',
+            'settings.piece_theme_label': 'Piece Theme',
+            'settings.piece_theme_desc': 'Select chess piece style: Chess.com or Classic Unicode.',
+            'settings.theme_unicode': 'Unicode',
+            'settings.theme_chesscom': 'Chess.com',
 
             'puzzle.btn_level': 'Level',
             'puzzle.btn_hint': '♙ Hint',

@@ -340,6 +340,10 @@
     - Cho phép người chơi Bật (ON) / Tắt (OFF) tính năng Đi lại (Undo) khi chơi cờ với Bot.
     - Trạng thái được lưu trong `localStorage` (`einkchess_allow_undo`), mặc định là Tắt (`false`).
     - Áp dụng đồng bộ cho toàn bộ Bot v1 (`play-bot.html`) và Bot v2 (`play-bot-v2.html`): khi Tắt, nút Undo sẽ tự động ẩn và thao tác đi lại bị vô hiệu hóa; khi Bật, nút Undo hiển thị và hoạt động bình thường.
+  - **Tùy chọn Cài đặt Giao diện Quân cờ (Piece Theme Setting):**
+    - Cho phép người chơi chọn kiểu hiển thị quân cờ: `Chess.com` (Bộ quân cờ chuẩn) hoặc `Unicode` (Ký tự cờ cổ điển).
+    - Trạng thái được lưu trong `localStorage` (`einkchess_piece_theme`), mặc định là `Chess.com` (`ejgfv`).
+    - Bộ quân cờ lưu trữ offline tại `images/pieces/ejgfv/` (PNG chuẩn 1:1), tự động tương thích và hiển thị đồng bộ trên bàn cờ (`ChessBoard`), danh sách quân đã ăn (`captured-white`, `captured-black`) và hộp thoại phong cấp (Promotion Dialog) ở tất cả các chế độ chơi (`play-bot-v2`, `play-bot`, `puzzles`, `analysis`).
   - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng.
   - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key trong khi mục Cài đặt vẫn hoạt động bình thường offline.
 

@@ -274,7 +274,7 @@
             var promoPiece = move.promotion;
             var pUpper = promoPiece.toUpperCase();
 
-            var glyph = this.engine ? this.engine.getGlyph(promoPiece) : '';
+            var glyph = this.engine ? (this.engine.getGlyphHtml ? this.engine.getGlyphHtml(promoPiece) : this.engine.getGlyph(promoPiece)) : '';
             var labelKey = 'game.promotion_' + (pUpper === 'Q' ? 'queen' : pUpper === 'R' ? 'rook' : pUpper === 'B' ? 'bishop' : 'knight');
             var label = typeof ChessI18n !== 'undefined' ? ChessI18n.t(labelKey) : pUpper;
 
@@ -386,7 +386,7 @@
                 if (piece) {
                     var isWhitePiece = this.engine.isWhite(piece);
                     pieceInner.className = 'piece-inner ' + (isWhitePiece ? 'piece-w' : 'piece-b');
-                    pieceInner.innerHTML = this.engine.getGlyph(piece);
+                    pieceInner.innerHTML = this.engine.getGlyphHtml ? this.engine.getGlyphHtml(piece) : this.engine.getGlyph(piece);
                 } else {
                     pieceInner.className = 'piece-inner';
                     pieceInner.innerHTML = '';

@@ -15,6 +15,11 @@
         B_PAWN: 'p', B_KNIGHT: 'n', B_BISHOP: 'b', B_ROOK: 'r', B_QUEEN: 'q', B_KING: 'k'
     };
 
+    var PIECE_LOWER_NAMES = {
+        'P': 'wp', 'N': 'wn', 'B': 'wb', 'R': 'wr', 'Q': 'wq', 'K': 'wk',
+        'p': 'bp', 'n': 'bn', 'b': 'bb', 'r': 'br', 'q': 'bq', 'k': 'bk'
+    };
+
     var GLYPHS = {
         'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
         'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
@@ -61,6 +66,18 @@
     };
 
     ChessEngine.prototype.getGlyph = function(piece) {
+        return GLYPHS[piece] || '';
+    };
+
+    ChessEngine.prototype.getGlyphHtml = function(piece, theme) {
+        if (!piece) return '';
+        var curTheme = theme;
+        if (!curTheme && typeof ChessStorage !== 'undefined' && ChessStorage.getPieceTheme) {
+            curTheme = ChessStorage.getPieceTheme();
+        }
+        if (curTheme !== 'unicode' && PIECE_LOWER_NAMES[piece]) {
+            return '<img src="images/pieces/ejgfv/' + PIECE_LOWER_NAMES[piece] + '.png" class="piece-img" alt="' + piece + '" draggable="false">';
+        }
         return GLYPHS[piece] || '';
     };
 

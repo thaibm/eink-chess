@@ -432,6 +432,8 @@ button,
     vertical-align: middle;
     text-align: center;
     line-height: 1;
+    width: 100%;
+    height: 100%;
 }
 
 /* White Pieces */
@@ -442,6 +444,45 @@ button,
 /* Black Pieces */
 .piece-b {
     color: #000000;
+}
+
+.sq .piece-inner img,
+.sq .piece-img {
+    width: 86%;
+    height: 86%;
+    max-width: 100%;
+    max-height: 100%;
+    vertical-align: middle;
+    display: inline-block;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.status-captured img,
+.status-captured .piece-img {
+    width: 13px !important;
+    height: 13px !important;
+    max-width: 13px !important;
+    max-height: 13px !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    margin: 0 1px !important;
+    padding: 0 !important;
+    pointer-events: none;
+}
+
+.promo-piece-glyph img,
+.promo-piece-glyph .piece-img {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    pointer-events: none;
 }
 
 /* --- 7. Status & Controls Area --- */
