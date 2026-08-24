@@ -24,6 +24,32 @@ function createMockElement(tag) {
                 for (var j = 0; j < sub.length; j++) res.push(sub[j]);
             }
             return res;
+        },
+        getElementsByClassName: function(cls) {
+            var targetClasses = cls.split(' ').filter(Boolean);
+            var res = [];
+            function traverse(node) {
+                var nodeClasses = (node.className || '').split(' ').filter(Boolean);
+                var allMatch = targetClasses.length > 0 && targetClasses.every(function(c) {
+                    return nodeClasses.indexOf(c) !== -1;
+                });
+                if (allMatch) res.push(node);
+                for (var k = 0; k < node.children.length; k++) {
+                    traverse(node.children[k]);
+                }
+            }
+            for (var i = 0; i < children.length; i++) {
+                traverse(children[i]);
+            }
+            return res;
+        },
+        querySelector: function(sel) {
+            if (sel.charAt(0) === '.') {
+                var clsName = sel.substring(1).replace(/\./g, ' ');
+                var found = this.getElementsByClassName(clsName);
+                return found.length > 0 ? found[0] : null;
+            }
+            return null;
         }
     };
 }
@@ -83,7 +109,7 @@ describe('ChessBoard DOM & Touch/Click Delegation (ChessTwinkle pattern)', () =>
 
         // Simulate touch on piece-inner at row 6, col 4 (e2 pawn)
         const sq = board.squaresDOM[6][4];
-        const pieceInner = sq.children[0].children[0];
+        const pieceInner = sq.getElementsByClassName('piece-inner')[0] || sq.children[2].children[0];
 
         // Call ontouchstart with pieceInner as target
         table.ontouchstart({

@@ -359,8 +359,8 @@
                 sqDOM.className = cls;
 
                 // Update rank/file coordinate labels
-                var rankSpan = sqDOM.getElementsByClassName('sq-coord rank')[0] || (sqDOM.querySelector ? sqDOM.querySelector('.sq-coord.rank') : null);
-                var fileSpan = sqDOM.getElementsByClassName('sq-coord file')[0] || (sqDOM.querySelector ? sqDOM.querySelector('.sq-coord.file') : null);
+                var rankSpan = (typeof sqDOM.getElementsByClassName === 'function' ? sqDOM.getElementsByClassName('sq-coord rank')[0] : null) || (typeof sqDOM.querySelector === 'function' ? sqDOM.querySelector('.sq-coord.rank') : null);
+                var fileSpan = (typeof sqDOM.getElementsByClassName === 'function' ? sqDOM.getElementsByClassName('sq-coord file')[0] : null) || (typeof sqDOM.querySelector === 'function' ? sqDOM.querySelector('.sq-coord.file') : null);
 
                 if (this.showCoords) {
                     if (visualC === 0 && rankSpan) {

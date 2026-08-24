@@ -182,6 +182,7 @@
         },
 
         setPuzzleElo: function(elo) {
+            this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
             return this.set(STORAGE_KEYS.PUZZLE_ELO, Math.max(100, Math.round(elo)));
         },
 
@@ -190,6 +191,7 @@
         },
 
         setPuzzleSkillChosen: function(val) {
+            this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
             return this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, val !== false);
         },
 
@@ -198,6 +200,7 @@
         },
 
         setPuzzleStreak: function(streak) {
+            this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
             var s = Math.max(0, parseInt(streak, 10) || 0);
             this.set(STORAGE_KEYS.PUZZLE_STREAK, s);
             var maxS = this.getMaxPuzzleStreak();
@@ -222,6 +225,7 @@
         },
 
         setMaxUnlockedPuzzleLevel: function(lvl) {
+            this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
             var validLvl = Math.max(1, Math.min(8, parseInt(lvl, 10) || 1));
             return this.set(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, validLvl);
         },
@@ -229,10 +233,18 @@
         checkAndMigratePuzzleJourney: function() {
             var migrated = this.get(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, false);
             if (!migrated) {
-                this.set(STORAGE_KEYS.PUZZLE_ELO, 400);
-                this.set(STORAGE_KEYS.PUZZLE_STREAK, 0);
-                this.set(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, 1);
-                this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, false);
+                if (this.get(STORAGE_KEYS.PUZZLE_ELO, null) === null) {
+                    this.set(STORAGE_KEYS.PUZZLE_ELO, 400);
+                }
+                if (this.get(STORAGE_KEYS.PUZZLE_STREAK, null) === null) {
+                    this.set(STORAGE_KEYS.PUZZLE_STREAK, 0);
+                }
+                if (this.get(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, null) === null) {
+                    this.set(STORAGE_KEYS.PUZZLE_MAX_UNLOCKED_LEVEL, 1);
+                }
+                if (this.get(STORAGE_KEYS.PUZZLE_SETUP_DONE, null) === null) {
+                    this.set(STORAGE_KEYS.PUZZLE_SETUP_DONE, false);
+                }
                 this.remove(STORAGE_KEYS.SAVED_PUZZLE);
                 this.set(STORAGE_KEYS.PUZZLE_JOURNEY_MIGRATED, true);
             }

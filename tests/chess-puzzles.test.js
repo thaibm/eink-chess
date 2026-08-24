@@ -332,8 +332,8 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(eloEl.innerText).toBe(1450);
         expect(streakEl.innerText).toBe(4);
         expect(maxStreakEl.innerText).toBe(8);
-        expect(jLvlEl.innerHTML).toContain('Level 3');
-        expect(jLvlEl.innerHTML).toContain('Level 4');
+        expect(jLvlEl.innerHTML).toContain('Lvl 3');
+        expect(jLvlEl.innerHTML).toContain('Lvl 4');
         expect(pIdEl.innerText).toBe('#test_info_01');
         expect(pEloEl.innerText).toBe('1300 ELO');
 
