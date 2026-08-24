@@ -1,0 +1,96 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "EinkChess Public Data API",
+    "version": "1.0.0",
+    "summary": "Read-only static puzzle dataset served by einkchess.fun.",
+    "description": "EinkChess has no application backend. This describes the static, CORS-enabled puzzle dataset published at the site origin. No authentication is required or supported. Puzzle data originates from the Lichess open puzzle database (CC0).",
+    "license": { "name": "CC0-1.0", "identifier": "CC0-1.0" },
+    "contact": { "url": "https://einkchess.fun/docs/api.md" }
+  },
+  "servers": [{ "url": "https://einkchess.fun" }],
+  "externalDocs": {
+    "description": "Human-readable API documentation",
+    "url": "https://einkchess.fun/docs/api.md"
+  },
+  "paths": {
+    "/data/puzzles/manifest.js": {
+      "get": {
+        "operationId": "getPuzzleManifest",
+        "summary": "Puzzle manifest",
+        "description": "JavaScript file declaring PUZZLE_MANIFEST_VERSION (build timestamp) and PUZZLE_MANIFEST (rating bucket -> number of puzzle files). Delivered as JavaScript rather than JSON so legacy Kindle WebKit can load it with a script tag.",
+        "responses": {
+          "200": {
+            "description": "Manifest source",
+            "content": { "text/javascript": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "/data/puzzles/{rating}/{index}.json": {
+      "get": {
+        "operationId": "getPuzzleSet",
+        "summary": "Puzzle set for a rating bucket",
+        "parameters": [
+          {
+            "name": "rating",
+            "in": "path",
+            "required": true,
+            "description": "Rating bucket, 400 to 3400 in steps of 100.",
+            "schema": { "type": "integer", "minimum": 400, "maximum": 3400, "multipleOf": 100 },
+            "example": 1600
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "description": "Zero-padded 3-digit file number, starting at 001. The highest valid value for a bucket is the count given in PUZZLE_MANIFEST.",
+            "schema": { "type": "string", "pattern": "^[0-9]{3}$" },
+            "example": "001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of puzzle records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Puzzle" } }
+              }
+            }
+          },
+          "404": { "description": "No such rating bucket or file index" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Puzzle": {
+        "type": "object",
+        "required": ["PuzzleId", "FEN", "Moves", "Rating"],
+        "properties": {
+          "PuzzleId": { "type": "string", "description": "Lichess puzzle identifier", "example": "WkZvI" },
+          "FEN": {
+            "type": "string",
+            "description": "Position before the opponent's setup move",
+            "example": "3qr1k1/5ppp/b2p4/p2Pb2N/PpP2P2/3Q3P/6P1/5RK1 b - - 0 25"
+          },
+          "Moves": {
+            "type": "string",
+            "description": "Space-separated UCI moves. The first move is played by the engine to reach the puzzle position; the solver plays every subsequent odd-indexed move.",
+            "example": "e5d4 d3d4 f7f6 d4a7 d8e7 a7a6"
+          },
+          "Rating": { "type": "integer", "description": "Lichess difficulty rating", "example": 1673 },
+          "RatingDeviation": { "type": "integer", "description": "Rating uncertainty", "example": 74 },
+          "Popularity": { "type": "integer", "description": "Lichess popularity score", "example": 96 },
+          "NbPlays": { "type": "integer", "description": "Times played on Lichess", "example": 15208 },
+          "Themes": {
+            "type": "string",
+            "description": "Space-separated tactical theme tags",
+            "example": "advantage hangingPiece long middlegame"
+          }
+        }
+      }
+    }
+  }
+}
