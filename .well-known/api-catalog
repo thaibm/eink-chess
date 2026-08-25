@@ -1,0 +1,34 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://einkchess.fun/data/puzzles/",
+      "service-desc": [
+        {
+          "href": "https://einkchess.fun/docs/openapi.json",
+          "type": "application/openapi+json",
+          "title": "EinkChess Public Data API — OpenAPI 3.1 description"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://einkchess.fun/docs/api.md",
+          "type": "text/markdown",
+          "title": "EinkChess Public Data API — documentation"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://einkchess.fun/.well-known/ai-catalog.json",
+          "type": "application/json",
+          "title": "EinkChess agentic resource discovery manifest"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "title": "Puzzle data is CC0, sourced from the Lichess open puzzle database"
+        }
+      ]
+    }
+  ]
+}

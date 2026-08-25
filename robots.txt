@@ -1,0 +1,84 @@
+# robots.txt for EinkChess (https://einkchess.fun)
+# Chess web app optimized for E-ink e-readers (Kindle, Kobo, Boox).
+# Spec: RFC 9309 — https://www.rfc-editor.org/rfc/rfc9309
+# Content Signals: https://contentsignals.org
+#
+# Policy: every crawler is welcome to fetch and index this site, and agents may
+# read it to answer a user's question. We opt out of generative model training.
+#
+#   search=yes   : may be indexed and linked from search results
+#   ai-input=yes : may be retrieved to ground an AI answer (RAG / agent browsing)
+#   ai-train=no  : may NOT be used to train or fine-tune generative models
+#
+# Content-Signal is repeated per group because RFC 9309 matching selects only
+# the single most specific User-agent group — directives are not inherited.
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /chess-old.html
+Disallow: /puzzles-old.html
+
+# --- AI search, answer and agent crawlers --------------------------------
+
+User-agent: GPTBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: OAI-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: ChatGPT-User
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Claude-Web
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: ClaudeBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Claude-User
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Claude-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: anthropic-ai
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Google-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Applebot-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: PerplexityBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Perplexity-User
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Amazonbot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+User-agent: CCBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+Sitemap: https://einkchess.fun/sitemap.xml

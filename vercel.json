@@ -1,0 +1,90 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "Link": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </docs/openapi.json>; rel=\"service-desc\"; type=\"application/openapi+json\", </docs/api.md>; rel=\"service-doc\"; type=\"text/markdown\", </.well-known/ai-catalog.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\""
+      },
+      "continue": true
+    },
+
+    {
+      "src": "^/(?:index\\.html|play-bot-v2\\.html|puzzles\\.html|analysis\\.html|stats\\.html)?$",
+      "headers": { "Vary": "Accept" },
+      "continue": true
+    },
+
+    {
+      "src": "^/\\.well-known/api-catalog$",
+      "headers": {
+        "Content-Type": "application/linkset+json",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=3600"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/\\.well-known/ai-catalog\\.json$",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=3600"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/\\.well-known/agent-skills/(?:.*)\\.json$",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=3600"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/docs/openapi\\.json$",
+      "headers": {
+        "Content-Type": "application/openapi+json",
+        "Access-Control-Allow-Origin": "*"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/(?:md|docs|\\.well-known/agent-skills)/(?:.*)\\.md$",
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Access-Control-Allow-Origin": "*"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/robots\\.txt$",
+      "headers": { "Content-Type": "text/plain; charset=utf-8" },
+      "continue": true
+    },
+    {
+      "src": "^/sitemap\\.xml$",
+      "headers": { "Content-Type": "application/xml; charset=utf-8" },
+      "continue": true
+    },
+    {
+      "src": "^/data/(?:.*)$",
+      "headers": { "Access-Control-Allow-Origin": "*" },
+      "continue": true
+    },
+
+    {
+      "src": "^/(?:index\\.html)?$",
+      "has": [{ "type": "header", "key": "accept", "value": ".*[tT]ext/[mM]arkdown.*" }],
+      "dest": "/md/index.md"
+    },
+    {
+      "src": "^/(play-bot-v2|puzzles|analysis|stats)\\.html$",
+      "has": [{ "type": "header", "key": "accept", "value": ".*[tT]ext/[mM]arkdown.*" }],
+      "dest": "/md/$1.md"
+    },
+
+    { "handle": "filesystem" }
+  ]
+}

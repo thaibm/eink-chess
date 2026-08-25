@@ -37,13 +37,20 @@ function deleteDirSync(dirPath) {
   }
 }
 
+// Regenerate the discovery documents that must stay in sync with the files they
+// point at (agent-skill digests, sitemap lastmod) before anything is copied.
+console.log('Regenerating SEO / agent discovery documents...');
+require('./build-seo.js');
+
 // Clean or create dist directory
 console.log('Cleaning dist directory...');
 deleteDirSync(distDir);
 fs.mkdirSync(distDir, { recursive: true });
 
 // Copy root HTML files
-const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'analysis.html', 'puzzles.html', 'settings.html', 'stats.html', 'chess-old.html', 'puzzles-old.html'];
+// Note: vercel.json is deliberately absent — Vercel reads it from the repository
+// root, not from the output directory, so copying it into dist/ has no effect.
+const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'analysis.html', 'puzzles.html', 'settings.html', 'stats.html', 'chess-old.html', 'puzzles-old.html', 'robots.txt', 'sitemap.xml'];
 filesToCopy.forEach((file) => {
   const src = path.join(__dirname, '..', file);
   if (fs.existsSync(src)) {
@@ -74,6 +81,19 @@ function copyDirSync(srcDir, destDir) {
 console.log('Copying css, js and images assets...');
 copyDirSync(path.join(__dirname, '../css'), path.join(distDir, 'css'));
 copyDirSync(path.join(__dirname, '../js'), path.join(distDir, 'js'));
+
+// Copy agent-discovery directories: markdown page representations, API docs,
+// and the /.well-known/ documents (api-catalog, ai-catalog.json, agent-skills).
+console.log('Copying agent discovery documents...');
+['md', 'docs', '.well-known'].forEach((dir) => {
+  const src = path.join(__dirname, '..', dir);
+  if (fs.existsSync(src)) {
+    copyDirSync(src, path.join(distDir, dir));
+    console.log(`Copied ${dir}/ to dist/`);
+  } else {
+    console.warn(`Warning: ${dir}/ not found — skipping`);
+  }
+});
 
 const imagesSrcDir = path.join(__dirname, '../images');
 if (fs.existsSync(imagesSrcDir)) {
