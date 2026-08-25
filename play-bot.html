@@ -163,10 +163,10 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=13"></script>
+    <script src="js/chess-engine.js?v=15"></script>
     <script src="js/chess-ai.js?v=8"></script>
-    <script src="js/chess-storage.js?v=32"></script>
-    <script src="js/chess-i18n.js?v=55"></script>
+    <script src="js/chess-storage.js?v=33"></script>
+    <script src="js/chess-i18n.js?v=56"></script>
     <script src="js/chess-board.js?v=21"></script>
     <script src="js/chess-backend.js?v=12"></script>
 
@@ -330,6 +330,7 @@
         }
 
         function updateEloBadge() {
+            if (typeof ChessStorage === 'undefined' || !ChessStorage.getBotElo) return;
             var elo = ChessStorage.getBotElo();
             var badge = document.getElementById('bot-elo-badge');
             if (badge && typeof ChessI18n !== 'undefined') {

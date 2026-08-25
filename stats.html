@@ -116,9 +116,10 @@
                         <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.piece_theme_label">Piece Theme</div>
                         <div class="stats-desc" data-i18n="settings.piece_theme_desc">Select chess piece style: Chess.com (Neo Vectors) or Classic Unicode glyphs.</div>
                     </div>
-                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 160px;">
-                        <div class="btn-group" id="setting-theme-group" style="margin: 0; width: 160px;">
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 220px;">
+                        <div class="btn-group" id="setting-theme-group" style="margin: 0; width: 220px;">
                             <div class="btn-group-item active" id="btn-theme-chesscom" onclick="setPieceThemeSetting('ejgfv')" data-i18n="settings.theme_chesscom">Chess.com</div>
+                            <div class="btn-group-item" id="btn-theme-lichess" onclick="setPieceThemeSetting('cburnett')" data-i18n="settings.theme_lichess">Lichess</div>
                             <div class="btn-group-item" id="btn-theme-unicode" onclick="setPieceThemeSetting('unicode')" data-i18n="settings.theme_unicode">Unicode</div>
                         </div>
                     </div>
@@ -204,8 +205,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=32"></script>
-    <script src="js/chess-i18n.js?v=55"></script>
+    <script src="js/chess-storage.js?v=33"></script>
+    <script src="js/chess-i18n.js?v=56"></script>
     <script src="js/chess-backend.js?v=12"></script>
     <script>
         function displayStats(row) {
@@ -310,15 +311,12 @@
 
             var pieceTheme = typeof ChessStorage !== 'undefined' ? ChessStorage.getPieceTheme() : 'ejgfv';
             var btnChessCom = document.getElementById('btn-theme-chesscom');
+            var btnLichess = document.getElementById('btn-theme-lichess');
             var btnUnicode = document.getElementById('btn-theme-unicode');
             if (btnChessCom && btnUnicode) {
-                if (pieceTheme === 'unicode') {
-                    btnUnicode.className = 'btn-group-item active';
-                    btnChessCom.className = 'btn-group-item';
-                } else {
-                    btnChessCom.className = 'btn-group-item active';
-                    btnUnicode.className = 'btn-group-item';
-                }
+                if (btnChessCom) btnChessCom.className = pieceTheme === 'ejgfv' ? 'btn-group-item active' : 'btn-group-item';
+                if (btnLichess) btnLichess.className = pieceTheme === 'cburnett' ? 'btn-group-item active' : 'btn-group-item';
+                if (btnUnicode) btnUnicode.className = pieceTheme === 'unicode' ? 'btn-group-item active' : 'btn-group-item';
             }
 
             var showHints = typeof ChessStorage !== 'undefined' ? ChessStorage.getShowHints() : true;

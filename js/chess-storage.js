@@ -382,14 +382,17 @@
             return this.set(STORAGE_KEYS.ALLOW_UNDO, !!allow);
         },
 
-        // --- Piece Theme Setting (ejgfv/Chess.com vs Unicode) ---
+        // --- Piece Theme Setting (ejgfv/Chess.com, cburnett/Lichess, Unicode) ---
         getPieceTheme: function() {
             var theme = this.get(STORAGE_KEYS.PIECE_THEME, 'ejgfv');
-            return theme === 'unicode' ? 'unicode' : 'ejgfv';
+            if (theme === 'unicode' || theme === 'cburnett' || theme === 'ejgfv') {
+                return theme;
+            }
+            return 'ejgfv';
         },
 
         setPieceTheme: function(theme) {
-            var validTheme = theme === 'unicode' ? 'unicode' : 'ejgfv';
+            var validTheme = (theme === 'unicode' || theme === 'cburnett') ? theme : 'ejgfv';
             return this.set(STORAGE_KEYS.PIECE_THEME, validTheme);
         },
 

@@ -75,7 +75,13 @@
         if (!curTheme && typeof ChessStorage !== 'undefined' && ChessStorage.getPieceTheme) {
             curTheme = ChessStorage.getPieceTheme();
         }
-        if (curTheme !== 'unicode' && PIECE_LOWER_NAMES[piece]) {
+        if (curTheme === 'unicode') {
+            return GLYPHS[piece] || '';
+        }
+        if (curTheme === 'cburnett' && PIECE_LOWER_NAMES[piece]) {
+            return '<img src="images/pieces/cburnett/' + PIECE_LOWER_NAMES[piece] + '.svg" class="piece-img" alt="' + piece + '" draggable="false">';
+        }
+        if (PIECE_LOWER_NAMES[piece]) {
             return '<img src="images/pieces/ejgfv/' + PIECE_LOWER_NAMES[piece] + '.png" class="piece-img" alt="' + piece + '" draggable="false">';
         }
         return GLYPHS[piece] || '';
