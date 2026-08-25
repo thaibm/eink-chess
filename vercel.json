@@ -1,14 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "_comment": [
-    "`routes` is used instead of `headers`/`rewrites` because the markdown",
-    "content negotiation below must run BEFORE the filesystem check — a",
-    "`rewrites` entry for /puzzles.html would never fire, since that file",
-    "exists. Vercel forbids mixing `routes` with `headers`/`rewrites`/",
-    "`redirects`/`cleanUrls`, so every rule lives here.",
-    "Per-page `rel=alternate` markdown links live in each page's <head>, not",
-    "in a second Link header, so no two routes write the same header key."
-  ],
   "routes": [
     {
       "src": "/(.*)",
