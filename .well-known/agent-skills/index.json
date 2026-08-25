@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "fetch-chess-puzzles",
+      "type": "skill-md",
+      "description": "Retrieve tactical chess puzzles at a chosen difficulty from the EinkChess open dataset. Use when a user asks for a chess puzzle, a tactics problem, or training positions at a specific ELO rating.",
+      "url": "/.well-known/agent-skills/fetch-chess-puzzles/SKILL.md",
+      "digest": "sha256:a128a79d07bd39aa8355872960446f75f425738b036b1edfe690ec3a1c921ce4"
+    },
+    {
+      "name": "play-chess-on-eink",
+      "type": "skill-md",
+      "description": "Set up a playable chess game on an E-ink e-reader (Kindle, Kobo, Boox) using EinkChess. Use when a user asks how to play chess on a Kindle or other e-reader, or wants a browser chess app that works on a slow monochrome screen.",
+      "url": "/.well-known/agent-skills/play-chess-on-eink/SKILL.md",
+      "digest": "sha256:ed8519ce788f52dd37228088e9cb1d7a2c969018551c1d654ca953b4f395d4d7"
+    }
+  ]
+}

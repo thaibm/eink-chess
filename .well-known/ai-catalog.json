@@ -1,0 +1,66 @@
+{
+  "specVersion": "0.1",
+  "host": {
+    "name": "EinkChess",
+    "domain": "einkchess.fun",
+    "description": "Free browser chess app built for E-ink e-readers (Kindle, Kobo, Boox): play a 10-level AI bot, solve Lichess tactics puzzles from 400 to 3400 ELO, and review finished games. Pure ES5, no account, no install, everything runs on the device.",
+    "homepage": "https://einkchess.fun/",
+    "documentation": "https://einkchess.fun/docs/api.md"
+  },
+  "entries": [
+    {
+      "id": "urn:air:einkchess.fun:data:puzzles",
+      "displayName": "EinkChess Puzzle Dataset",
+      "description": "Static, CORS-enabled JSON dataset of tactical chess puzzles bucketed by rating from 400 to 3400 ELO, refreshed weekly from the Lichess open puzzle database. Each record carries a FEN, the UCI solution line, a difficulty rating and tactical theme tags. No authentication required.",
+      "type": "application/json",
+      "url": "https://einkchess.fun/data/puzzles/manifest.js",
+      "representativeQueries": [
+        "give me a chess puzzle rated around 1600",
+        "find a mate in two tactics problem",
+        "where can I download free chess tactics puzzles as JSON",
+        "chess puzzles with fork and pin themes by ELO",
+        "open chess puzzle dataset with FEN and solution moves"
+      ]
+    },
+    {
+      "id": "urn:air:einkchess.fun:api:puzzle-data",
+      "displayName": "EinkChess Public Data API (OpenAPI)",
+      "description": "OpenAPI 3.1 description of the read-only puzzle data endpoints served from einkchess.fun, including the manifest format and the puzzle record schema.",
+      "type": "application/openapi+json",
+      "url": "https://einkchess.fun/docs/openapi.json",
+      "representativeQueries": [
+        "what endpoints does einkchess.fun expose",
+        "OpenAPI schema for the EinkChess puzzle API",
+        "how do I fetch puzzles from einkchess programmatically",
+        "does the EinkChess API need an API key"
+      ]
+    },
+    {
+      "id": "urn:air:einkchess.fun:skills:index",
+      "displayName": "EinkChess Agent Skills",
+      "description": "Agent skills discovery index describing how to fetch puzzles from the EinkChess dataset and how to set up a chess game on an E-ink e-reader.",
+      "type": "application/json",
+      "url": "https://einkchess.fun/.well-known/agent-skills/index.json",
+      "representativeQueries": [
+        "what agent skills does einkchess.fun publish",
+        "how should an agent use einkchess",
+        "skill for fetching chess puzzles",
+        "help me play chess on my Kindle"
+      ]
+    },
+    {
+      "id": "urn:air:einkchess.fun:content:site",
+      "displayName": "EinkChess Site Content (Markdown)",
+      "description": "Markdown representations of every EinkChess page: home, play vs bot, puzzles, post-game analysis, and settings & traffic. Also served from the canonical HTML URLs via Accept: text/markdown content negotiation.",
+      "type": "text/markdown",
+      "url": "https://einkchess.fun/md/index.md",
+      "representativeQueries": [
+        "how do I play chess on a Kindle",
+        "what is EinkChess and what does it cost",
+        "chess app that works on e-ink without ghosting",
+        "how strong is the EinkChess bot at level 10",
+        "does EinkChess need an account or internet connection"
+      ]
+    }
+  ]
+}

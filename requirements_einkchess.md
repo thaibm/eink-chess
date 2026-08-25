@@ -383,6 +383,33 @@
   - **Build output directory / Publish directory:** `dist`
   - **Environment Variables:** Đặt hai biến `SUPABASE_URL` và `SUPABASE_ANON_KEY` tương ứng với API Endpoint dự án Supabase của bạn trong Settings của Vercel Dashboard.
 
+### 5.7. SEO & Khả năng Khám phá bởi AI Agent (Agent Discovery)
+- **Mục tiêu:** Site phải được crawler truyền thống lập chỉ mục và được các AI agent đọc hiểu qua các giao thức khám phá chuẩn (RFC 9309, RFC 8288, RFC 9727, Content Signals, ARD, Agent Skills Discovery).
+- **Chính sách nội dung với AI:** Cho phép **mọi** crawler thu thập và lập chỉ mục, cho phép agent đọc để trả lời câu hỏi người dùng, nhưng **từ chối** dùng nội dung để huấn luyện mô hình sinh.
+  - Khai báo bằng `Content-Signal: search=yes, ai-input=yes, ai-train=no` trong `robots.txt`.
+  - Chỉ thị `Content-Signal` phải được **lặp lại trong từng nhóm `User-agent`**, vì theo RFC 9309 crawler chỉ áp dụng nhóm khớp cụ thể nhất và **không kế thừa** chỉ thị từ nhóm `*`.
+- **Các tệp khám phá tĩnh (phát sinh tại thư mục gốc):**
+
+| Tệp | Vai trò |
+|---|---|
+| `robots.txt` | Quy tắc crawl + `Content-Signal` + trỏ tới sitemap. Chặn 2 trang legacy `chess-old.html`, `puzzles-old.html` để tránh trùng lặp nội dung. |
+| `sitemap.xml` | 5 URL chuẩn tắc (home, play-bot-v2, puzzles, analysis, stats). |
+| `.well-known/api-catalog` | Danh mục API theo RFC 9727, kiểu `application/linkset+json`. |
+| `.well-known/ai-catalog.json` | Manifest ARD mô tả năng lực site, mỗi entry có `representativeQueries` để registry tạo embedding. |
+| `.well-known/agent-skills/index.json` | Chỉ mục Agent Skills Discovery v0.2.0, kèm digest `sha256` từng skill. |
+| `.well-known/agent-skills/*/SKILL.md` | 2 skill: `fetch-chess-puzzles`, `play-chess-on-eink`. |
+| `docs/api.md`, `docs/openapi.json` | Tài liệu và đặc tả OpenAPI 3.1 cho bộ dữ liệu puzzle tĩnh (chỉ đọc, có CORS, không cần khóa). |
+| `md/*.md` | Bản Markdown của từng trang, dùng cho content negotiation. |
+
+- **Tự động hóa (chống lệch dữ liệu):** `scripts/build-seo.js` sinh lại `agent-skills/index.json` (băm `sha256` thực tế của từng `SKILL.md`, đọc `description` từ frontmatter) và `sitemap.xml` (`lastmod` theo mtime tệp). Script này được `scripts/build.js` gọi **trước** khi copy sang `dist/`, nên digest và ngày cập nhật không bao giờ lệch với nội dung thật.
+- **Markdown for Agents (Content Negotiation):** Request kèm `Accept: text/markdown` tới trang HTML sẽ nhận bản Markdown tương ứng; trình duyệt thường vẫn nhận HTML. Response gắn `Vary: Accept` để CDN không trộn cache.
+- **Cấu hình `vercel.json` — lý do dùng `routes` thay vì `headers`/`rewrites`:** Trên Vercel, `rewrites` chỉ chạy **sau** khi kiểm tra filesystem, nên rewrite cho `/puzzles.html` sẽ không bao giờ kích hoạt vì tệp đó có thật. Chỉ `routes` chạy **trước** filesystem. Vercel **không cho phép** dùng chung `routes` với `headers`/`rewrites`/`redirects`/`cleanUrls`, do đó toàn bộ quy tắc (Link header, Content-Type, CORS, content negotiation) đều nằm trong mảng `routes`.
+  - `vercel.json` đặt ở **gốc repo**, không copy vào `dist/` — Vercel đọc tệp này từ gốc repository chứ không phải từ thư mục output.
+  - Link header (RFC 8288) toàn site trỏ tới `api-catalog`, `service-desc`, `service-doc` và `describedby`.
+  - Thẻ `rel="alternate"` (bản Markdown) đặt trong `<head>` từng trang **chứ không** thêm Link header thứ hai, tránh việc hai route cùng ghi một header key và đè lên nhau.
+- **Thẻ `<head>` chuẩn tắc:** Mỗi trang chính có `<link rel="canonical">` (URL tuyệt đối) và `<link rel="alternate" type="text/markdown">` trỏ tới bản Markdown.
+- **Phạm vi không triển khai (có chủ đích):** Không phát hành `openid-configuration`, `oauth-protected-resource`, `auth.md`, MCP Server Card hay bản ghi DNS-AID. EinkChess **không có** backend ứng dụng, API cần xác thực hay MCP server; công bố metadata trỏ tới endpoint không tồn tại sẽ khiến agent thật đi vào ngõ cụt. Ngoài ra Vercel DNS không hỗ trợ bản ghi SVCB/HTTPS và ký DNSSEC nên DNS-AID không khả thi trên hạ tầng hiện tại.
+
 ---
 
 ## 6. LỘ TRÌNH TRIỂN KHAI THEO GIAI ĐOẠN (5 PHASES)
