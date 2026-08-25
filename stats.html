@@ -114,13 +114,19 @@
                 <div style="display: table; width: 100%;">
                     <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
                         <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.piece_theme_label">Piece Theme</div>
-                        <div class="stats-desc" data-i18n="settings.piece_theme_desc">Select chess piece style: Chess.com (Neo Vectors) or Classic Unicode glyphs.</div>
+                        <div class="stats-desc" data-i18n="settings.piece_theme_desc">Select chess piece style: Chess.com, Lichess (Vector), or Classic Unicode.</div>
                     </div>
-                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 220px;">
-                        <div class="btn-group" id="setting-theme-group" style="margin: 0; width: 220px;">
-                            <div class="btn-group-item active" id="btn-theme-chesscom" onclick="setPieceThemeSetting('ejgfv')" data-i18n="settings.theme_chesscom">Chess.com</div>
-                            <div class="btn-group-item" id="btn-theme-lichess" onclick="setPieceThemeSetting('cburnett')" data-i18n="settings.theme_lichess">Lichess</div>
-                            <div class="btn-group-item" id="btn-theme-unicode" onclick="setPieceThemeSetting('unicode')" data-i18n="settings.theme_unicode">Unicode</div>
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 180px;">
+                        <div class="btn-group" id="setting-theme-group" style="margin: 0; width: 180px;">
+                            <div class="btn-group-item active" id="btn-theme-chesscom" onclick="setPieceThemeSetting('ejgfv')" title="Chess.com" aria-label="Chess.com" style="padding: 4px 2px; min-height: 38px; vertical-align: middle;">
+                                <img src="images/pieces/ejgfv/wn.png" alt="Chess.com" style="width: 26px; height: 26px; vertical-align: middle; display: inline-block;" draggable="false">
+                            </div>
+                            <div class="btn-group-item" id="btn-theme-lichess" onclick="setPieceThemeSetting('cburnett')" title="Lichess" aria-label="Lichess" style="padding: 4px 2px; min-height: 38px; vertical-align: middle;">
+                                <img src="images/pieces/cburnett/wn.svg" alt="Lichess" style="width: 26px; height: 26px; vertical-align: middle; display: inline-block;" draggable="false">
+                            </div>
+                            <div class="btn-group-item" id="btn-theme-unicode" onclick="setPieceThemeSetting('unicode')" title="Unicode" aria-label="Unicode" style="padding: 4px 2px; min-height: 38px; vertical-align: middle;">
+                                <span style="font-size: 24px; line-height: 26px; vertical-align: middle; display: inline-block;">♞</span>
+                            </div>
                         </div>
                     </div>
                 </div>

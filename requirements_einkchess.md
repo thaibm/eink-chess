@@ -346,6 +346,7 @@
       2. `Lichess` (`cburnett`): Bộ quân cờ SVG vector chuẩn cburnett tương phản cao siêu nhẹ (<1KB/file), sắc nét ở mọi độ phân giải E-ink, lưu trữ offline tại `images/pieces/cburnett/`.
       3. `Unicode` (`unicode`): Ký tự cờ văn bản cổ điển (`♔`, `♚`, ...).
     - Trạng thái được lưu trong `localStorage` (`einkchess_piece_theme`), mặc định là `Chess.com` (`ejgfv`).
+    - Nút chọn theme trên trang Cài đặt (`stats.html`) hiển thị trực tiếp icon quân Mã Trắng tương ứng (`wn.png`, `wn.svg`, `♞`) thay cho text, có `title`/`aria-label` cho trợ năng.
     - Tự động tương thích và hiển thị đồng bộ trên bàn cờ (`ChessBoard`), danh sách quân đã ăn (`captured-white`, `captured-black`) và hộp thoại phong cấp (Promotion Dialog) ở tất cả các chế độ chơi (`play-bot-v2`, `play-bot`, `puzzles`, `analysis`).
   - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng.
   - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key trong khi mục Cài đặt vẫn hoạt động bình thường offline.
