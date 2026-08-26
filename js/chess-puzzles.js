@@ -1181,7 +1181,7 @@
 
     if (typeof document !== 'undefined') {
         document.addEventListener('DOMContentLoaded', function() {
-            if (document.getElementById('puzzle-elo-badge')) {
+            if (document.getElementById('puzzle-meta') || document.getElementById('puzzle-info-modal')) {
                 PuzzleManager.init();
             }
         });
