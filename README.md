@@ -45,12 +45,8 @@
   - **Anti-Cheat & State Persistence:** In-progress puzzles automatically persist to prevent cheating or skipping without penalty on page reload.
   - **Puzzle Meta & Player Stats Modal:** Quick view of puzzle rating, player side, level progress bar, current streak, and best streak. Tactical themes are revealed upon puzzle completion.
 
-- **Multi-Language Support (i18n):**
-  - Instant toggle between **English (EN - Default)** and **Tiếng Việt (VI)** directly from the persistent header without losing game progress.
-
-- **Public Traffic Stats Page ([stats.html](https://einkchess.fun/stats.html)):**
-  - Lightweight Beacon Ping (~500 bytes XHR) collecting privacy-friendly telemetry.
-  - Dedicated E-ink public dashboard showing Realtime active users (10m, 30m, 60m), DAU, WAU, MAU, YAU, and Pageviews.
+- **Game Settings Page ([settings.html](https://einkchess.fun/settings.html)):**
+  - Easily customize piece themes (Chess.com Neo, Lichess Vector, Unicode), Move Hints, Move Review feedback, and Undo button availability.
 
 - **Support the Author (Donation):**
   - High-contrast modal displaying dual QR codes for **Ko-fi** (International) and **MoMo** (Vietnam).
@@ -101,9 +97,8 @@
 - **Đa Ngôn Ngữ Song Ngữ (i18n):**
   - Chuyển đổi tức thì giữa **Tiếng Anh (EN - Mặc định)** và **Tiếng Việt (VI)** trên Persistent Header mà không làm mất trạng thái ván cờ.
 
-- **Trang Thống Kê Traffic Công Khai ([stats.html](https://einkchess.fun/stats.html)):**
-  - Thu thập telemetry siêu nhẹ qua Beacon Ping (~500 bytes XHR).
-  - Trang thống kê tối ưu cho E-ink hiển thị trực tiếp Realtime (10m, 30m, 60m), DAU, WAU, MAU, YAU và tổng lượt xem trang (Pageviews).
+- **Trang Cài Đặt Trò Chơi ([settings.html](https://einkchess.fun/settings.html)):**
+  - Tùy chỉnh trực quan giao diện quân cờ (Chess.com Neo, Lichess Vector, Unicode), Gợi ý nước đi (Show Hints), Đánh giá nước đi tức thì (Move Review), và quyền Đi lại (Undo).
 
 - **Ủng Hộ Tác Giả (Donation):**
   - Modal hiển thị song song 2 mã QR **Ko-fi** (Quốc tế) và **MoMo** (Việt Nam) độ tương phản cao.

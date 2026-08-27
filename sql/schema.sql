@@ -100,3 +100,32 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 6. DAILY ACTIVE USERS (DAU) HISTORY VIEW (LAST 90 DAYS)
+CREATE OR REPLACE VIEW v_daily_active_users AS
+SELECT
+    DATE(created_at) AS date,
+    COUNT(DISTINCT device_id) AS dau
+FROM active_pings
+WHERE created_at >= CURRENT_DATE - INTERVAL '90 days'
+GROUP BY DATE(created_at)
+ORDER BY DATE(created_at) ASC;
+
+-- 7. ACTIVE USERS HISTORY (DAU, ROLLING WAU, ROLLING MAU - LAST 90 DAYS)
+CREATE OR REPLACE VIEW v_active_users_history AS
+WITH daily_series AS (
+    SELECT generate_series(
+        CURRENT_DATE - INTERVAL '89 days',
+        CURRENT_DATE,
+        INTERVAL '1 day'
+    )::DATE AS date
+)
+SELECT
+    d.date,
+    (SELECT COUNT(DISTINCT device_id) FROM active_pings WHERE created_at::DATE = d.date) AS dau,
+    (SELECT COUNT(DISTINCT device_id) FROM active_pings WHERE created_at >= (d.date - INTERVAL '6 days')::TIMESTAMPTZ AND created_at < (d.date + INTERVAL '1 day')::TIMESTAMPTZ) AS wau,
+    (SELECT COUNT(DISTINCT device_id) FROM active_pings WHERE created_at >= (d.date - INTERVAL '29 days')::TIMESTAMPTZ AND created_at < (d.date + INTERVAL '1 day')::TIMESTAMPTZ) AS mau
+FROM daily_series d
+ORDER BY d.date ASC;
+
+

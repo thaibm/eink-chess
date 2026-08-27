@@ -48,7 +48,7 @@
 - Trang chủ hiển thị trực quan 3 thẻ chức năng chính:
   1. **Chơi với Máy (Bot AI)**: Tomitank / Minimax offline, hiển thị ELO Bot tương ứng.
   2. **Giải Đố Cờ Thế (Puzzles)**: Tải động bài tập chiến thuật thích ứng, hiển thị ELO Puzzle tương ứng.
-  3. **Cài Đặt & Thống Kê (Settings & Traffic)**: Tùy chỉnh giao diện quân cờ, chế độ Undo, và xem báo cáo lưu lượng truy cập thực tế (`stats.html`).
+  3. **Cài Đặt (Settings)**: Tùy chỉnh giao diện quân cờ, chế độ Undo, hiển thị gợi ý và đánh giá nước đi (`settings.html`).
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 25-28vh`), tăng kích thước chữ (Title 16-17px, Desc 14px, Button 15px) và touch target (nút bấm chính min 44px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
 - **Chân trang (Footer):** Hiển thị thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
 
@@ -333,8 +333,8 @@
     - **Realtime Users:** Số thiết bị active trong 10 phút, 30 phút, và 60 phút (1 giờ) gần nhất.
     - **DAU / WAU / MAU / YAU:** Số thiết bị duy nhất hôm nay / 7 ngày qua / 30 ngày qua / 365 ngày qua (Rolling window).
     - **Device Views:** Số lượt thiết bị xem hôm nay (`device_views_today`) và tổng lượt thiết bị xem tích lũy toàn thời gian (`total_device_views_all_time`).
-- **Trang Thống Kê & Tùy Chọn Cài Đặt (`stats.html`):**
-  - Cung cấp trang xem thống kê traffic công khai và tùy chọn cài đặt trò chơi (Game Settings), liên kết từ chân trang (Footer) Trang chủ `index.html`.
+- **Trang Cài Đặt Trò Chơi (`settings.html`):**
+  - Cung cấp trang tùy chọn cài đặt trò chơi (Game Settings) công khai, liên kết từ thẻ thứ 3 trên Trang chủ `index.html`.
   - Thiết kế tối giản, độ tương phản cao, phông chữ lớn và tối ưu hóa touch targets (min 44px) cho thiết bị E-ink.
   - **Tùy chọn Cài đặt Cho phép Đi lại (Allow Undo Setting):**
     - Cho phép người chơi Bật (ON) / Tắt (OFF) tính năng Đi lại (Undo) khi chơi cờ với Bot.
@@ -346,10 +346,23 @@
       2. `Lichess` (`cburnett`): Bộ quân cờ SVG vector chuẩn cburnett tương phản cao siêu nhẹ (<1KB/file), sắc nét ở mọi độ phân giải E-ink, lưu trữ offline tại `images/pieces/cburnett/`.
       3. `Unicode` (`unicode`): Ký tự cờ văn bản cổ điển (`♔`, `♚`, ...).
     - Trạng thái được lưu trong `localStorage` (`einkchess_piece_theme`), mặc định là `Chess.com` (`ejgfv`).
-    - Nút chọn theme trên trang Cài đặt (`stats.html`) hiển thị trực tiếp icon quân Mã Trắng tương ứng (`wn.png`, `wn.svg`, `♞`) thay cho text, có `title`/`aria-label` cho trợ năng.
+    - Nút chọn theme trên trang Cài đặt (`settings.html`) hiển thị trực tiếp icon quân Mã Trắng tương ứng (`wn.png`, `wn.svg`, `♞`) thay cho text, có `title`/`aria-label` cho trợ năng.
     - Tự động tương thích và hiển thị đồng bộ trên bàn cờ (`ChessBoard`), danh sách quân đã ăn (`captured-white`, `captured-black`) và hộp thoại phong cấp (Promotion Dialog) ở tất cả các chế độ chơi (`play-bot-v2`, `play-bot`, `puzzles`, `analysis`).
-  - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng.
-  - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key trong khi mục Cài đặt vẫn hoạt động bình thường offline.
+  - **Tùy chọn Gợi ý nước đi (Show Hints):** Bật/Tắt hiển thị các chấm tròn gợi ý nước đi hợp lệ.
+  - **Tùy chọn Đánh giá nước đi (Move Review):** Bật/Tắt huy hiệu đánh giá và nhận xét chiến thuật tức thì sau mỗi nước đi khi đấu Bot v2.
+
+- **Trang Thống Kê Lưu Lượng Nội Bộ (`stats.html`):**
+  - Trang báo cáo lưu lượng truy cập và phân tích người chơi dành riêng cho quản trị viên / nhà phát triển.
+  - Không hiển thị công khai trên giao diện người dùng thông thường (đã gỡ bỏ toàn bộ liên kết điều hướng từ Trang chủ và sitemap công khai, chặn bot tìm kiếm qua `robots.txt`).
+  - Truy cập trực tiếp qua URL `stats.html`.
+  - Truy vấn trực tiếp REST API từ Supabase, hiển thị các mốc Realtime (10m, 30m, 60m) cùng các số liệu lưu lượng (DAU, WAU, MAU, YAU, Device Views).
+  - **Biểu đồ Line Daily Active Users (DAU Trend - 7D / 30D / 90D):**
+    - Sử dụng kỹ thuật Pure SVG (ES5 Vanilla JS), không phụ thuộc thư viện bên thứ 3, tối ưu độ tương phản đơn sắc nét cao cho màn hình E-ink (không animation, không blur/shadow).
+    - Cung cấp nhóm nút chuyển đổi nhanh 3 mốc: `7 Ngày (7D)`, `30 Ngày (30D)`, `90 Ngày (90D)`.
+    - Hiển thị thống kê tóm tắt nhanh: Trung bình DAU (`Average`) và Đỉnh DAU (`Peak`) trong khoảng thời gian đã chọn.
+    - Trục tung Y có lưới tọa độ đứt nét xám nhạt tự động căn chỉnh mốc tối đa; trục hoành X đánh dấu các mốc ngày (DD/MM); đường biểu diễn nét đen đậm (`stroke-width: 2.5px`) kèm các điểm chấm tròn và nhãn số lượng người dùng.
+    - Đồng bộ truy vấn qua SQL View `v_daily_active_users` (tổng hợp `COUNT(DISTINCT device_id)` theo ngày trong 90 ngày qua) và tự động sinh dữ liệu mẫu hợp lý khi ở chế độ ngoại tuyến (Offline Mode).
+  - Tự động fallback sang chế độ ngoại tuyến (Offline Mode) an toàn khi chưa cấu hình Supabase URL/Anon Key trong khi mục Cài đặt và biểu đồ mẫu vẫn hoạt động trơn tru.
 
 ### 5.4. Cơ chế Quota Freemium & Lộ trình Tính phí
 1. **Chế độ Miễn phí Hoàn toàn (Free & Unlimited):**
@@ -500,12 +513,13 @@
   - [x] Tích hợp nút "Phân tích ván đấu" vào Modal Game Over của `play-bot-v2.html` và lưu dữ liệu ván đấu tự động qua `ChessStorage.saveAnalysisGame()`.
   - [x] Tích hợp nút "Xem lại & Phân tích ván trước" trên màn hình chính `index.html` trong Modal Cấu hình ván mới nếu có dữ liệu ván đấu đã chơi trước đó.
   - [x] Chuyển đổi hiển thị điểm ELO trên `index.html`: Bỏ huy hiệu ELO ở thanh Header chung, đưa điểm ELO tương ứng vào từng thẻ chế độ (`#bot-elo-badge` tại thẻ Play vs Bot, `#puzzle-elo-badge` tại thẻ Chess Puzzles).
-  - [x] Chuyển mục Traffic thành thẻ chức năng thứ 3 trên Trang chủ: "Cài đặt & Thống kê (Settings & Traffic)" dẫn trực tiếp vào `stats.html` để tùy chỉnh cài đặt và xem báo cáo lưu lượng.
+  - [x] Tách riêng trang Cài đặt (`settings.html`) và Thống kê lưu lượng (`stats.html`):
+    - Thẻ thứ 3 trên Trang chủ chuyển thành "Cài đặt (Settings)" dẫn trực tiếp vào `settings.html`.
+    - `settings.html` chứa toàn bộ tùy chỉnh: Cho phép Đi lại (Undo), Giao diện quân cờ (Theme), Gợi ý nước đi (Show Hints) và Đánh giá nước đi (Move Review).
+    - `stats.html` tách thành trang quản trị lưu lượng nội bộ (Traffic Overview, Biểu đồ hoạt động người dùng DAU / WAU / MAU 7D/30D/90D SVG đa chế độ với cửa sổ rolling 7 ngày / 30 ngày, thống kê TB và đỉnh, hỗ trợ chạm/rê chuột vào từng điểm để xem giá trị chi tiết), gỡ bỏ liên kết từ trang chủ và sitemap công khai, chặn crawler qua `robots.txt`.
   - [x] Chuyển đổi hiển thị ELO và thông tin cấp độ Bot trên `play-bot-v2.html`: Loại bỏ huy hiệu ELO/Bot info trên thanh Header, tích hợp thành 1 item dạng nút bấm (`#bot-meta`, `.puzzle-meta-box`) nằm ở vị trí chính giữa trên cùng một hàng của thanh nút điều khiển Footer (Action Bar). Rút gọn nội dung sang định dạng siêu gọn `Lvl {lvl} · {elo}` (EN) / `Cấp {lvl} · {elo}` (VI) (VD: `Lvl 1 · 400` / `Cấp 1 · 400`). Khi nhấn vào nút `#bot-meta`, hiển thị popup **Thông tin Trận đấu (Match Information Modal)** bao gồm: ELO người chơi & bên cầm quân, cấp độ & engine Bot, bảng dự tính điểm ELO cược (Win / Draw / Loss), đặc tính AI tương ứng theo cấp độ, và nút Đóng (Close) không làm gián đoạn ván cờ đang chơi.
-  - [x] Chuyển cài đặt "Gợi ý nước đi (Show Hints)" và "Đánh giá nước đi (Move Review)" vào mục Cài đặt Trò chơi trên trang `stats.html`:
-    - Loại bỏ nút "Hints: ON/OFF" trên thanh Action Bar của `play-bot-v2.html` và `play-bot.html`, giúp thanh điều khiển gọn gàng còn 6 nút chuẩn cân đối.
-    - Loại bỏ tùy chọn "3. Move Review" khỏi modal thiết lập ván đấu trên Trang chủ `index.html` và `play-bot-v2.html`, giúp popup mở ván tinh gọn và thao tác nhanh chóng hơn.
-    - Bổ sung 2 cài đặt `[BẬT / TẮT]` tương ứng trong thẻ GAME SETTINGS của `stats.html` và đồng bộ qua `ChessStorage.getShowHints()` / `ChessStorage.getDefaultBotReview()`.
+  - [x] Loại bỏ nút "Hints: ON/OFF" trên thanh Action Bar của `play-bot-v2.html` và `play-bot.html`, giúp thanh điều khiển gọn gàng còn 6 nút chuẩn cân đối.
+  - [x] Loại bỏ tùy chọn "3. Move Review" khỏi modal thiết lập ván đấu trên Trang chủ `index.html` và `play-bot-v2.html`, giúp popup mở ván tinh gọn và thao tác nhanh chóng hơn.
   - [x] Bàn cờ tại màn hình phân tích `analysis.html` được thiết lập ở chế độ chỉ xem (`readOnly: true`, `interactive: false`), vô hiệu hóa việc chọn quân và highlight nước đi khi chạm vào các ô bàn cờ.
 
 ### Phase 6 — PvP Online & Polish Toàn Diện (Tạm hoãn / Ẩn trên Trang chủ)

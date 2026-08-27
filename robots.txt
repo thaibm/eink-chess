@@ -18,6 +18,7 @@ Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /chess-old.html
 Disallow: /puzzles-old.html
+Disallow: /stats.html
 
 # --- AI search, answer and agent crawlers --------------------------------
 

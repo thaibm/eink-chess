@@ -1,19 +1,16 @@
-# Settings & Traffic — EinkChess
+# Traffic Stats — EinkChess
 
 > Canonical HTML: <https://einkchess.fun/stats.html>
 
-## Game settings
-
-- **Allow Undo (Play Bot)** — enable or disable the Undo button when playing vs Bot (v1 and v2).
-- **Show Move Hints (Play Bot)** — show legal-move indicator dots when a piece is selected.
-- **Move Review (Play Bot v2)** — show an instant evaluation badge and tactical feedback after each move.
-- Piece style selection.
-
-Settings are stored in the browser and never leave the device.
-
 ## Traffic overview
 
-Live usage counters for EinkChess: Active Players (last 60 minutes), Daily Active
-Users (DAU), Weekly Active Users (WAU) and Monthly Active Users (MAU).
+Live usage counters and active player statistics for EinkChess:
+- Active Players (last 60 minutes)
+- Daily Active Users (DAU)
+- Weekly Active Users (WAU)
+- Monthly Active Users (MAU)
+- Yearly Active Users (YAU)
+- Daily and cumulative device views
+- Daily Active Users (DAU) historical trend chart (7D / 30D / 90D)
 
 - Related: </md/index.md>

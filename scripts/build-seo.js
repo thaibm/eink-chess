@@ -66,7 +66,7 @@ var PAGES = [
   { loc: '/play-bot-v2.html', file: 'play-bot-v2.html', changefreq: 'weekly', priority: '0.9' },
   { loc: '/puzzles.html', file: 'puzzles.html', changefreq: 'weekly', priority: '0.9' },
   { loc: '/analysis.html', file: 'analysis.html', changefreq: 'monthly', priority: '0.7' },
-  { loc: '/stats.html', file: 'stats.html', changefreq: 'monthly', priority: '0.5' }
+  { loc: '/settings.html', file: 'settings.html', changefreq: 'monthly', priority: '0.5' }
 ];
 
 var entries = PAGES.filter(function (page) {

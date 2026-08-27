@@ -13,7 +13,7 @@
       "type": "skill-md",
       "description": "Set up a playable chess game on an E-ink e-reader (Kindle, Kobo, Boox) using EinkChess. Use when a user asks how to play chess on a Kindle or other e-reader, or wants a browser chess app that works on a slow monochrome screen.",
       "url": "/.well-known/agent-skills/play-chess-on-eink/SKILL.md",
-      "digest": "sha256:ed8519ce788f52dd37228088e9cb1d7a2c969018551c1d654ca953b4f395d4d7"
+      "digest": "sha256:11d5853d1e48d8e9c0d3471b9df14c2a0ad92517e19b61c1594d0c4970c6baa3"
     }
   ]
 }

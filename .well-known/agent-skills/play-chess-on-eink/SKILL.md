@@ -40,7 +40,7 @@ around `lvl=8`.
 | Play vs Bot | `/play-bot-v2.html` | Tomitank 7.0 engine, 10 levels, local ELO tracking |
 | Puzzles | `/puzzles.html` | Lichess tactics, 400–3400 ELO, unlocks as you improve |
 | Analysis | `/analysis.html` | Move-by-move review of your last game |
-| Settings & Traffic | `/stats.html` | Undo, move hints, move review, piece style |
+| Settings | `/settings.html` | Undo, move hints, move review, piece style |
 
 ## Advice specific to E-ink
 

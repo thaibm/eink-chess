@@ -32,11 +32,11 @@ per-move tactical feedback.
 
 - Page: <https://einkchess.fun/analysis.html>
 
-### Settings & Traffic
+### Settings
 Configure piece style, Undo availability, move hint dots, and per-move review
-badges; view live usage statistics (active players, DAU, WAU, MAU).
+badges.
 
-- Page: <https://einkchess.fun/stats.html>
+- Page: <https://einkchess.fun/settings.html>
 
 ## E-ink design constraints
 
