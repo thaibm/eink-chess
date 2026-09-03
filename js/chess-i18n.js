@@ -231,6 +231,8 @@
             'settings.show_hints_desc': 'Hiển thị các chấm gợi ý nước đi hợp lệ khi chạm vào quân cờ.',
             'settings.move_review_label': 'Đánh giá nước đi (Chơi với Bot v2)',
             'settings.move_review_desc': 'Hiển thị huy hiệu đánh giá và nhận xét chiến thuật sau mỗi nước đi của bạn.',
+            'settings.auto_refresh_modal_label': 'Tự động làm mới khi đóng popup',
+            'settings.auto_refresh_modal_desc': 'Tự động nháy trắng màn hình để khử bóng mờ sau khi đóng các popup/hộp thoại.',
 
             'puzzle.btn_level': 'Cấp độ',
             'puzzle.btn_hint': '♙ Gợi ý',
@@ -612,6 +614,8 @@
             'settings.show_hints_desc': 'Show legal move indicator dots on board when selecting a piece.',
             'settings.move_review_label': 'Move Review (Play Bot v2)',
             'settings.move_review_desc': 'Show instant evaluation badge and tactical feedback after each move.',
+            'settings.auto_refresh_modal_label': 'Auto Refresh on Popup Close',
+            'settings.auto_refresh_modal_desc': 'Automatically flash screen white to clear ghosting after closing popups.',
 
             'puzzle.btn_level': 'Level',
             'puzzle.btn_hint': '♙ Hint',

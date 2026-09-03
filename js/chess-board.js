@@ -289,6 +289,9 @@
                     self.selectedSquare = null;
                     self.validMoves = [];
                     self.onMove(selectedMove);
+                    if (typeof self.onClosePromotion === 'function') {
+                        self.onClosePromotion();
+                    }
                 };
             })(move);
 
@@ -301,6 +304,9 @@
             self.selectedSquare = null;
             self.validMoves = [];
             self.render();
+            if (typeof self.onClosePromotion === 'function') {
+                self.onClosePromotion();
+            }
         };
 
         modal.className = 'modal-overlay active';

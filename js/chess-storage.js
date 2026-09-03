@@ -31,7 +31,8 @@
         PIECE_THEME: 'einkchess_piece_theme',
         SHOW_HINTS: 'einkchess_show_hints',
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
-        ANALYSIS_GAME: 'einkchess_analysis_game'
+        ANALYSIS_GAME: 'einkchess_analysis_game',
+        AUTO_REFRESH_MODAL: 'einkchess_auto_refresh_modal'
     };
 
     function generateUUID() {
@@ -403,6 +404,15 @@
 
         setShowHints: function(enabled) {
             return this.set(STORAGE_KEYS.SHOW_HINTS, !!enabled);
+        },
+
+        // --- Auto Refresh on Modal Close Setting (default: false) ---
+        getAutoRefreshModal: function() {
+            return this.get(STORAGE_KEYS.AUTO_REFRESH_MODAL, false);
+        },
+
+        setAutoRefreshModal: function(enabled) {
+            return this.set(STORAGE_KEYS.AUTO_REFRESH_MODAL, !!enabled);
         },
 
         // --- Local Quota Management ---

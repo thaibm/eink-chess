@@ -91,14 +91,26 @@
                     self.handlePlayerMove(move);
                 }
             });
+            this.board.onClosePromotion = function() {
+                if (self.shouldAutoRefreshOnModalClose()) {
+                    self.refreshScreen(120);
+                }
+            };
 
             this.updateHeaderUI();
             this.updateActionBarUI();
 
             // Send telemetry ping
             var backend = getBackend();
-            if (backend && backend.sendPing) {
-                backend.sendPing('play_puzzle', '/puzzles.html');
+            if (backend) {
+                backend.onCloseDonate = function() {
+                    if (self.shouldAutoRefreshOnModalClose()) {
+                        self.refreshScreen(120);
+                    }
+                };
+                if (backend.sendPing) {
+                    backend.sendPing('play_puzzle', '/puzzles.html');
+                }
             }
 
             if (storage && !storage.hasChosenPuzzleSkill()) {
@@ -195,6 +207,9 @@
             if (modal) {
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
+            }
+            if (this.shouldAutoRefreshOnModalClose()) {
+                this.refreshScreen(120);
             }
         },
 
@@ -310,6 +325,9 @@
             if (modal) {
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
+            }
+            if (this.shouldAutoRefreshOnModalClose()) {
+                this.refreshScreen(120);
             }
         },
 
@@ -905,6 +923,9 @@
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
             }
+            if (this.shouldAutoRefreshOnModalClose()) {
+                this.refreshScreen(120);
+            }
         },
 
         confirmHint: function() {
@@ -990,6 +1011,9 @@
             if (modal) {
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
+            }
+            if (this.shouldAutoRefreshOnModalClose()) {
+                this.refreshScreen(120);
             }
         },
 
@@ -1147,10 +1171,30 @@
                 modal.className = 'modal-overlay';
                 modal.style.display = 'none';
             }
+            if (this.shouldAutoRefreshOnModalClose()) {
+                this.refreshScreen(120);
+            }
         },
 
-        refreshScreen: function() {
-            if (typeof document === 'undefined') return;
+        shouldAutoRefreshOnModalClose: function() {
+            var storage = getStorage();
+            return (storage && storage.getAutoRefreshModal) ? storage.getAutoRefreshModal() : false;
+        },
+
+        refreshScreen: function(delay) {
+            if (typeof document === 'undefined' || !document.createElement || !document.body) return;
+            if (this._isRefreshing) return;
+
+            var self = this;
+            if (delay && delay > 0) {
+                setTimeout(function() {
+                    self.refreshScreen();
+                }, delay);
+                return;
+            }
+
+            this._isRefreshing = true;
+
             var overlay = document.createElement('div');
             overlay.style.position = 'fixed';
             overlay.style.top = '0';
@@ -1161,8 +1205,8 @@
             overlay.style.backgroundColor = '#ffffff';
             document.body.appendChild(overlay);
 
-            var self = this;
             setTimeout(function() {
+                self._isRefreshing = false;
                 if (overlay.parentNode) {
                     overlay.parentNode.removeChild(overlay);
                 }

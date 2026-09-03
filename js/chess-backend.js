@@ -83,6 +83,9 @@
             if (modal) {
                 modal.className = 'modal-overlay';
             }
+            if (typeof this.onCloseDonate === 'function') {
+                this.onCloseDonate();
+            }
         }
     };
 

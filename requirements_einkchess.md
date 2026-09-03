@@ -80,6 +80,18 @@
 - **Ràng buộc:** Bắt buộc phải gắn thêm tham số phiên bản (version query parameter, ví dụ `?v=1.0.1` hoặc timestamp `?v=20240815`) vào tất cả các thẻ `<script src="...">` và `<link rel="stylesheet" href="...">`.
 - Mỗi khi chỉnh sửa bất kỳ file CSS hay JS nào, **phải cập nhật lại mã version này** trong các file HTML tương ứng để đảm bảo thiết bị tải phiên bản mới nhất.
 
+### 3.4. Tự động Khử Lưu Ảnh khi Đóng Popup (Auto Refresh on Popup Close)
+- Màn hình E-ink có đặc tính lưu ảnh (ghosting) vật lý rõ rệt sau khi hiển thị các lớp phủ (`modal-overlay` bán trong suốt) và các hộp thoại popup.
+- **Cơ chế tùy chọn (Settings):** Tính năng này được quản lý qua tùy chọn trong trang Cài đặt (`settings.html`), lưu trữ trong `localStorage` (`einkchess_auto_refresh_modal`), **mặc định là TẮT (OFF / `false`)**.
+- **Khi tính năng được Bật (ON):** Khi đóng bất kỳ popup/modal nào trên màn hình chơi (`play-bot-v2.html` và `puzzles.html`), hệ thống tự động kích hoạt hàm refresh màn hình (`handleRefresh(120)` hoặc `PuzzleManager.refreshScreen(120)`):
+  - **Độ trễ ổn định trạng thái (120ms Settlement Delay):** Áp dụng độ trễ 120ms trước khi tạo overlay trắng. Khoảng trễ này đảm bảo trình duyệt WebKit trên Kindle hoàn tất việc ẩn lớp DOM modal và vẽ lại bàn cờ tĩnh, đưa phần cứng E-ink về trạng thái nghỉ trước khi kích hoạt chu kỳ refresh vật lý (hoàn toàn tương đương trạng thái khi người chơi ấn nút Refresh thủ công).
+  - Tạo một overlay trắng phủ toàn màn hình `#ffffff` trong 200ms để kích hoạt chu kỳ refresh vật lý của màn hình E-ink, xóa sạch bóng mờ của popup vừa đóng, sau đó gỡ bỏ overlay và gọi `board.render()`.
+  - **Phạm vi áp dụng:** Áp dụng cho toàn bộ các popup: Setup/Level modal, Game Over modal, Bot/Puzzle Info modal, Confirm Resign modal, Confirm Hint/Skip modal, Donate Ko-fi modal (`ChessBackend.onCloseDonate`), và Pawn Promotion modal (`board.onClosePromotion`).
+  - **Chống nháy trắng dư thừa:**
+    - Có cờ debounce guard (`isRefreshing` / `_isRefreshing`) chống tạo nhiều overlay khi thao tác nhanh hoặc gọi lồng nhau.
+    - Trong `play-bot-v2.html`, khi người chơi bấm "New Game" từ Game Over popup để mở tiếp Match Setup popup, hệ thống không kích hoạt refresh ngay lúc đóng Game Over, mà chỉ refresh sau khi Match Setup popup đóng lại, đảm bảo giao diện hiển thị mượt mà không nhấp nháy gián đoạn.
+- **Nút Làm mới thủ công:** Nút **`[Refresh]`** trên action bar của bàn cờ luôn luôn hoạt động bình thường độc lập với cài đặt này.
+
 ---
 
 ## 4. CHI TIẾT CÁC CHẾ ĐỘ CHƠI (GAME MODES)
@@ -323,6 +335,7 @@
   - `einkchess_quota`: Object lưu trữ số lượt chơi đã dùng trong ngày (`{ date: 'YYYY-MM-DD', bot_cloud: 0, puzzle: 0, pvp: 0 }`).
   - `einkchess_default_bot_lvl`: Cấu hình độ khó của Bot AI được chọn gần nhất (Mặc định: 1).
   - `einkchess_default_side`: Bên cầm quân được chọn gần nhất (Trắng `w` / Đen `b`, mặc định: `w`).
+  - `einkchess_auto_refresh_modal`: Tùy chọn Bật/Tắt tự động nháy trắng làm mới màn hình khi đóng popup (Mặc định: `false`).
 
 ### 5.3. Tracking Active Users & Trang Thống Kê (DAU / MAU / Realtime)
 - **Mục tiêu:** Đếm người dùng thực tế và phân tích lưu lượng mà không gây nặng máy Kindle.
@@ -350,6 +363,8 @@
     - Tự động tương thích và hiển thị đồng bộ trên bàn cờ (`ChessBoard`), danh sách quân đã ăn (`captured-white`, `captured-black`) và hộp thoại phong cấp (Promotion Dialog) ở tất cả các chế độ chơi (`play-bot-v2`, `play-bot`, `puzzles`, `analysis`).
   - **Tùy chọn Gợi ý nước đi (Show Hints):** Bật/Tắt hiển thị các chấm tròn gợi ý nước đi hợp lệ.
   - **Tùy chọn Đánh giá nước đi (Move Review):** Bật/Tắt huy hiệu đánh giá và nhận xét chiến thuật tức thì sau mỗi nước đi khi đấu Bot v2.
+  - **Tùy chọn Tự động làm mới khi đóng popup (Auto Refresh on Popup Close):**
+    - Cho phép người chơi Bật (ON) / Tắt (OFF) tự động flash trắng khử bóng mờ sau khi đóng các popup (mặc định: `false` / TẮT). Khi Bật, hệ thống áp dụng cơ chế 120ms Settlement Delay và 200ms white overlay khi đóng bất kỳ modal nào. Nút Refresh thủ công trên action bar luôn hoạt động độc lập không phụ thuộc cài đặt này.
 
 - **Trang Thống Kê Lưu Lượng Nội Bộ (`stats.html`):**
   - Trang báo cáo lưu lượng truy cập và phân tích người chơi dành riêng cho quản trị viên / nhà phát triển.
