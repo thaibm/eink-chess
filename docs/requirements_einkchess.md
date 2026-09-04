@@ -74,8 +74,8 @@
   - Mở ra khi người chơi nhấn vào nút `#bot-meta` ở giữa thanh điều khiển Footer.
   - Hiển thị Bảng Matchup (Người chơi ELO + Bên cầm quân vs Tên Bot, Cấp độ & ELO tương ứng), Thẻ dự tính điểm ELO cược FIDE (Thắng / Hòa / Thua tính động theo chênh lệch trình độ), và Đặc tính Bot (mô tả phong cách, thời gian nghĩ và tỷ lệ blunder theo từng cấp độ), kèm nút "Đóng" không làm gián đoạn ván cờ.
 - **Modal Cấu Hình Ván Đấu (Match Setup Modal `#setup-modal`):**
-  - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng) và Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên) vào Modal Popup `#setup-modal`.
-  - Nút "Ván mới" tại Footer và trong Popup Thống kê khi bấm sẽ mở Modal Cấu hình này. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
+  - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng) và Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên) vào Modal Popup `#setup-modal`. Mặc định bên cầm quân là Ngẫu nhiên (Random).
+  - Footer của modal bố trí nút "Đóng" ở bên trái và nút "Bắt Đầu" ở bên phải với viền đen (`border: 2px solid #000000`) thay vì nền đen để tối ưu hiển thị E-ink. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
 - **Modal Kết Thúc Trận Đấu & Xác Nhận Đầu Hàng (Game Over & Confirm Resign Modals - Chuẩn Play-Bot-v2):**
   - **Modal Xác Nhận Đầu Hàng (`#resign-modal`):** Khi người chơi nhấn nút "Xin thua / Đầu hàng", popup xác nhận hiện ra tránh bấm nhầm trên màn hình cảm ứng E-ink với 2 nút "Hủy" và "Đồng ý đầu hàng".
   - **Modal Kết Thúc Ván Đấu (`#gameover-modal`):** Khi trận đấu kết thúc (Chiếu hết, Đầu hàng, Hòa cờ do Stalemate / Luật 50 nước / Lặp 3 lần / Không đủ quân), hiển thị popup Game Over chuẩn với:

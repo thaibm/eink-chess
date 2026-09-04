@@ -174,25 +174,25 @@
                 <div style="font-weight: bold; margin-top: 12px; margin-bottom: 5px; font-size: 14px;"
                     data-i18n="home.setup_side_label">2. Chọn Bên Cầm Quân:</div>
                 <div class="btn-group" id="setup-side-group">
-                    <div class="btn-group-item active" id="side-opt-w" onclick="selectSetupSide('w')"
+                    <div class="btn-group-item" id="side-opt-w" onclick="selectSetupSide('w')"
                         data-i18n="home.side_white">&#9812; Trắng (Đi trước)</div>
                     <div class="btn-group-item" id="side-opt-b" onclick="selectSetupSide('b')"
                         data-i18n="home.side_black">&#9818; Đen (Đi sau)</div>
-                    <div class="btn-group-item" id="side-opt-r" onclick="selectSetupSide('r')"
+                    <div class="btn-group-item active" id="side-opt-r" onclick="selectSetupSide('r')"
                         data-i18n="home.side_random">Ngẫu nhiên</div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 4px 0;">
-                    <div style="display: table-cell; width: 60%; padding: 0;">
-                        <button type="button" class="btn btn-primary" onclick="startConfiguredGame()"
-                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px;"
-                            data-i18n="game.btn_start_game">Bắt Đầu</button>
-                    </div>
                     <div style="display: table-cell; width: 40%; padding: 0;">
                         <button type="button" class="btn" onclick="closeSetupModal()"
-                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px; background-color: #ffffff; color: #000000;"
+                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px; background-color: #ffffff; color: #000000; border: 2px solid #000000;"
                             data-i18n="game.btn_close">Đóng</button>
+                    </div>
+                    <div style="display: table-cell; width: 60%; padding: 0;">
+                        <button type="button" class="btn" onclick="startConfiguredGame()"
+                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px; background-color: #ffffff; color: #000000; border: 2px solid #000000;"
+                            data-i18n="game.btn_start_game">Bắt Đầu</button>
                     </div>
                 </div>
             </div>
@@ -2794,7 +2794,7 @@
         }
 
         var setupSelectedRank = 0;
-        var setupSelectedSide = 'w';
+        var setupSelectedSide = 'r';
 
         function updateBotMetaButton() {
             var el = document.getElementById('bot-level-name');
@@ -2810,9 +2810,8 @@
 
         function openSetupModal() {
             var defaultLvl = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotLevelV2) ? ChessStorage.getDefaultBotLevelV2() - 1 : 0;
-            var defaultSide = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultSide) ? ChessStorage.getDefaultSide() : 'w';
             setupSelectedRank = (typeof gRank === 'number') ? gRank : defaultLvl;
-            setupSelectedSide = (gPC === B ? 'b' : (gPC === W ? 'w' : defaultSide));
+            setupSelectedSide = 'r';
             updateSetupModalUI();
             var modal = document.getElementById('setup-modal');
             if (modal) modal.className = 'modal-overlay active';
