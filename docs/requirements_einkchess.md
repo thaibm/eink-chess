@@ -74,10 +74,17 @@
   - Mở ra khi người chơi nhấn vào nút `#bot-meta` ở giữa thanh điều khiển Footer.
   - Hiển thị Bảng Matchup (Người chơi ELO + Bên cầm quân vs Tên Bot, Cấp độ & ELO tương ứng), Thẻ dự tính điểm ELO cược FIDE (Thắng / Hòa / Thua tính động theo chênh lệch trình độ), và Đặc tính Bot (mô tả phong cách, thời gian nghĩ và tỷ lệ blunder theo từng cấp độ), kèm nút "Đóng" không làm gián đoạn ván cờ.
 - **Modal Cấu Hình Ván Đấu (Match Setup Modal `#setup-modal`):**
-  - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng) và Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên) vào Modal Popup `#setup-modal`. Mặc định bên cầm quân là Ngẫu nhiên (Random).
-  - Footer của modal bố trí nút "Đóng" ở bên trái và nút "Bắt Đầu" ở bên phải với viền đen (`border: 2px solid #000000`) thay vì nền đen để tối ưu hiển thị E-ink. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
+  - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng), Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên), và Tùy chọn Bot Xin Thua (Tắt - Đấu tới cùng / Bật - Chỉ tàn cuộc) vào Modal Popup `#setup-modal`. Mặc định bên cầm quân là Ngẫu nhiên (Random), Bot Xin Thua mặc định là Tắt (Off).
+  - Footer của modal bố trí nút "Đóng" ở bên trái và nút "Bắt Đầu" ở bên phải với viền đen (`border: 2px solid #000000`) thay vì nền đen để tối ưu hiển thị E-ink. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, lưu tùy chọn Bot Xin Thua vào `ChessStorage`, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
 - **Modal Kết Thúc Trận Đấu & Xác Nhận Đầu Hàng (Game Over & Confirm Resign Modals - Chuẩn Play-Bot-v2):**
   - **Modal Xác Nhận Đầu Hàng (`#resign-modal`):** Khi người chơi nhấn nút "Xin thua / Đầu hàng", popup xác nhận hiện ra tránh bấm nhầm trên màn hình cảm ứng E-ink với 2 nút "Hủy" và "Đồng ý đầu hàng".
+  - **Cơ Chế Bot Tự Động Xin Thua (Bot Resignation):**
+    - **Mặc định TẮT (OFF):** Bot sẽ không bao giờ xin thua, kiên trì chiến đấu đến khi bị chiếu hết hoặc hòa cờ.
+    - **Khi BẬT (ON):** Giảm tối đa độ nhạy, chỉ cho phép Bot xin thua khi thỏa mãn ĐỒNG THỜI các điều kiện:
+      1. Số nước đi tối thiểu từ sau nước thứ 25 (`gMoveNum >= 25`).
+      2. Thế cờ đã bước vào Tàn cuộc (`computeMainPhase(gB) <= 0.35`).
+      3. Bot đã mất hoàn toàn quân Hậu (không còn Hậu trên bàn cờ).
+      4. Điểm đánh giá thua nặng liên tục: Cấp 7+ thua sâu <= `-1200` cp trong `6` lượt liên tiếp; Cấp 1–6 thua sâu <= `-1500` cp trong `8` lượt liên tiếp.
   - **Modal Kết Thúc Ván Đấu (`#gameover-modal`):** Khi trận đấu kết thúc (Chiếu hết, Đầu hàng, Hòa cờ do Stalemate / Luật 50 nước / Lặp 3 lần / Không đủ quân), hiển thị popup Game Over chuẩn với:
     - Tiêu đề kết quả rõ ràng (Chiếu hết thắng/thua, Đầu hàng, Hòa cờ).
     - Thẻ cập nhật điểm ELO trực quan (`oldElo (±delta) → newElo`).
@@ -92,6 +99,7 @@
   - **Show Move Hints (Gợi ý nước đi):** Bật/tắt các chấm tròn gợi ý nước đi hợp lệ (`.dot-marker`, `.ring-marker`) theo `ChessStorage.getShowHints()`.
   - **Allow Undo (Cho phép đi lại):** Hiển thị/ẩn nút `[Đi lại]` trên thanh Footer theo `ChessStorage.getAllowUndo()`. Khi kích hoạt, hoàn tác 2 nước đi (nước Bot và nước người chơi) qua cơ chế replay stack sạch sẽ.
   - **Auto Refresh on Modal Close (Tự động làm mới khi đóng popup):** Tự động gọi `handleRefresh(120)` xóa bóng mờ E-ink khi đóng các popup Modal (Cấu hình ván đấu, Thông tin trận đấu, Thống kê, PGN) theo `ChessStorage.getAutoRefreshModal()`.
+  - **Bot Resignation (Bot Xin Thua):** Cho phép bật/tắt quyền đầu hàng của Bot qua `ChessStorage.getBotCanResign()` / `setBotCanResign()` (key `einkchess_bot_can_resign`, mặc định `false` / TẮT).
   - **Default Bot Level & Side:** Tự động áp dụng cấp độ và bên cầm quân mặc định từ `ChessStorage` khi mở Setup Modal.
 - **Hỗ Trợ Song Ngữ Toàn Diện (Multi-language i18n Support tương tự Play-Bot-v2):**
   - Tích hợp `js/chess-i18n.js` với 2 ngôn ngữ: Tiếng Việt (`vi`) và Tiếng Anh (`en`).

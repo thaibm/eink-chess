@@ -34,7 +34,8 @@
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
         SAVED_MONOLITH_GAME: 'einkchess_monolith_saved_game',
         ANALYSIS_GAME: 'einkchess_analysis_game',
-        AUTO_REFRESH_MODAL: 'einkchess_auto_refresh_modal'
+        AUTO_REFRESH_MODAL: 'einkchess_auto_refresh_modal',
+        BOT_CAN_RESIGN: 'einkchess_bot_can_resign'
     };
 
     function generateUUID() {
@@ -479,6 +480,15 @@
 
         setAutoRefreshModal: function(enabled) {
             return this.set(STORAGE_KEYS.AUTO_REFRESH_MODAL, !!enabled);
+        },
+
+        // --- Bot Can Resign Setting (default: false / OFF) ---
+        getBotCanResign: function() {
+            return this.get(STORAGE_KEYS.BOT_CAN_RESIGN, false);
+        },
+
+        setBotCanResign: function(enabled) {
+            return this.set(STORAGE_KEYS.BOT_CAN_RESIGN, !!enabled);
         },
 
         // --- Local Quota Management ---

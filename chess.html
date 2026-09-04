@@ -108,15 +108,14 @@
     <!-- 6. CONFIRM RESIGN MODAL (PLAY-BOT-V2 STYLE) -->
     <div id="resign-modal" class="modal-overlay" onclick="if(event.target===this) closeResignModal()">
         <div class="modal-box">
-            <div class="modal-title" data-i18n="game.resign_title">Xác nhận đầu hàng</div>
+            <div class="modal-title" data-i18n="game.resign_title">Confirm Resignation</div>
             <div class="modal-body" data-i18n="game.resign_body">
-                Bạn có chắc chắn muốn nhận thua ván cờ này không?<br>
-                Điểm ELO của bạn sẽ bị trừ theo kết quả thua cuộc.
+                Are you sure you want to resign this game?<br>
+                Your ELO rating will decrease according to loss result.
             </div>
             <div class="modal-footer">
-                <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Hủy</button>
-                <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý đầu
-                    hàng</button>
+                <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Confirm Resign</button>
             </div>
         </div>
     </div>
@@ -180,6 +179,15 @@
                         data-i18n="home.side_black">&#9818; Đen (Đi sau)</div>
                     <div class="btn-group-item active" id="side-opt-r" onclick="selectSetupSide('r')"
                         data-i18n="home.side_random">Ngẫu nhiên</div>
+                </div>
+
+                <div style="font-weight: bold; margin-top: 12px; margin-bottom: 5px; font-size: 14px;"
+                    data-i18n="home.setup_resign_label">3. Bot Resignation:</div>
+                <div class="btn-group" id="setup-resign-group">
+                    <div class="btn-group-item active" id="resign-opt-off" onclick="selectSetupResign(false)"
+                        data-i18n="home.setup_resign_off">OFF (Fight to end)</div>
+                    <div class="btn-group-item" id="resign-opt-on" onclick="selectSetupResign(true)"
+                        data-i18n="home.setup_resign_on">ON (Endgame only)</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -293,8 +301,8 @@
     </div>
 
     <script src="js/tomitank-source.js?v=1"></script>
-    <script src="js/chess-storage.js?v=38"></script>
-    <script src="js/chess-i18n.js?v=65"></script>
+    <script src="js/chess-storage.js?v=39"></script>
+    <script src="js/chess-i18n.js?v=67"></script>
     <script src="js/chess-book.js?v=1"></script>
     <script src="js/chess-persona.js?v=1"></script>
     <script src="js/chess-review.js?v=1"></script>
@@ -805,10 +813,11 @@
            ~500ms hiển thị, chấp nhận được. */
         var TRUE_CPLOSS_EVAL_TIME = 500;
         var CPLOSS_MATE_CAP = 1000; /* cap sentinel mate ±9999 trước khi trừ, xem nơi dùng */
-        var RESIGN_SCORE = -700;
-        var RESIGN_STREAK = 3;
-        var RESIGN_SCORE_LOW = -950;  /* cấp 1-5: search nông (100-300ms) kém tin cậy hơn */
-        var RESIGN_STREAK_LOW = 5;    /* -> ngưỡng cao hơn + chuỗi dài hơn mới resign */
+        var RESIGN_SCORE = -1200;
+        var RESIGN_STREAK = 6;
+        var RESIGN_SCORE_LOW = -1500; /* cấp 1-6: search nông (100-300ms) kém tin cậy hơn */
+        var RESIGN_STREAK_LOW = 8;    /* -> ngưỡng cao hơn + chuỗi dài hơn mới resign */
+        var RESIGN_MIN_MOVES = 25;    /* Chỉ xét xin thua từ sau nước thứ 25 */
         var DRAW_SCORE = 25;
         var DRAW_STREAK = 8;
         var PHASE_MAX = 2 * (320 + 320 + 330 + 330 + 500 + 500 + 900);  /* = 6400 */
@@ -1798,6 +1807,9 @@
             if (!gActive) return;
             var modal = document.getElementById('resign-modal');
             if (modal) {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.applyTranslations(modal);
+                }
                 modal.className = 'modal-overlay active';
                 modal.style.display = 'block';
             }
@@ -2420,7 +2432,8 @@
             clearDrawOffer(); gActive = false;
             gGameToken++;  // [FIX]
             var el = document.getElementById('status');
-            if (el) { setStatusText(el, 'status gameover', 'M\u00e1y xin thua \u2014 ' + randChat('resign')); }
+            var resignTxt = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.win_resign_title') : 'M\u00e1y xin thua';
+            if (el) { setStatusText(el, 'status gameover', resignTxt + ' \u2014 ' + randChat('resign')); }
             /* [FIX log-level-off-by-one v2] Không cần quan tâm thứ tự rankUpdate/
                showStats nữa — log dùng gGameStartRank (chốt lúc bắt đầu ván, xem
                newGame()), không đọc gRank sống nên thứ tự gọi ở đây không ảnh hưởng. */
@@ -2795,6 +2808,7 @@
 
         var setupSelectedRank = 0;
         var setupSelectedSide = 'r';
+        var setupSelectedBotResign = false;
 
         function updateBotMetaButton() {
             var el = document.getElementById('bot-level-name');
@@ -2812,9 +2826,15 @@
             var defaultLvl = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotLevelV2) ? ChessStorage.getDefaultBotLevelV2() - 1 : 0;
             setupSelectedRank = (typeof gRank === 'number') ? gRank : defaultLvl;
             setupSelectedSide = 'r';
+            setupSelectedBotResign = (typeof ChessStorage !== 'undefined') ? ChessStorage.getBotCanResign() : false;
             updateSetupModalUI();
             var modal = document.getElementById('setup-modal');
-            if (modal) modal.className = 'modal-overlay active';
+            if (modal) {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.applyTranslations(modal);
+                }
+                modal.className = 'modal-overlay active';
+            }
         }
 
         function closeSetupModal() {
@@ -2832,6 +2852,11 @@
 
         function selectSetupSide(side) {
             setupSelectedSide = side;
+            updateSetupModalUI();
+        }
+
+        function selectSetupResign(canResign) {
+            setupSelectedBotResign = !!canResign;
             updateSetupModalUI();
         }
 
@@ -2855,6 +2880,17 @@
                     } else {
                         sel.className = sel.className.replace(/\bactive\b/g, '').trim();
                     }
+                }
+            }
+            var optOff = document.getElementById('resign-opt-off');
+            var optOn = document.getElementById('resign-opt-on');
+            if (optOff && optOn) {
+                if (setupSelectedBotResign) {
+                    if (optOn.className.indexOf('active') < 0) optOn.className += ' active';
+                    optOff.className = optOff.className.replace(/\bactive\b/g, '').trim();
+                } else {
+                    if (optOff.className.indexOf('active') < 0) optOff.className += ' active';
+                    optOn.className = optOn.className.replace(/\bactive\b/g, '').trim();
                 }
             }
         }
@@ -3044,6 +3080,9 @@
                     sessionStorage.removeItem('einkchess_monolith_consumed_search');
                 }
             } catch (e) { }
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setBotCanResign(setupSelectedBotResign);
+            }
             gRank = setupSelectedRank;
             rankSave();
             rankDisplay();
@@ -4625,23 +4664,39 @@
 
                 /* Resign check (dùng infoScore từ bestMove thay evalNow)
                    infoScore dương=AI thắng (negamax). AI thua nặng khi infoScore rất âm.
-                   [FIX] Cấp 1-5 dùng ngưỡng RIÊNG cao hơn hẳn (RESIGN_SCORE_LOW=-950,
-                   RESIGN_STREAK_LOW=5) thay vì ngưỡng chung -700/3: search ở cấp này
-                   rất nông (100-300ms, depth 2-5), 1 chuỗi ngắn "-700" nhiều khả năng
-                   chỉ là artifact của search nông chứ chưa chắc thế cờ thực sự ngã
-                   ngũ — cần thiệt hại RÕ RỆT HƠN và LẶP LẠI NHIỀU LƯỢT HƠN mới đủ tin
-                   cậy để resign. Cấp 6+ giữ nguyên -700/3. */
-                /* [FIX v4] Đồng bộ với buffer-zone Cấp 1-7 mà v3 đã mở ở Diff 2/3 — nếu
-                   không, Cấp 6-7 (đã "yếu hóa" bởi persona/guard) vẫn dùng ngưỡng resign
-                   của AI mạnh, có thể xin thua hơi sớm so với chủ đích. */
-                var _resignScore = (gRank <= 6) ? RESIGN_SCORE_LOW : RESIGN_SCORE;
-                var _resignStreak = (gRank <= 6) ? RESIGN_STREAK_LOW : RESIGN_STREAK;
-                var _resignResetFloor = _resignScore - 200;  /* giữ đúng biên độ gốc (-900 = -700-200) cho cấp 6+, áp tỉ lệ tương tự cho cấp 1-5 */
-                if (infoScore !== 0) {
-                    if (gMoveNum > 12 && infoScore <= _resignScore) gBadEvalStreak++;
-                    else if (infoScore > _resignResetFloor) gBadEvalStreak = 0;
+                   Chỉ xét khi botCanResign được BẬT (mặc định TẮT - bot chiến đấu tới cùng),
+                   nước đi >= RESIGN_MIN_MOVES (>=25), và thế cờ đã bước vào TÀN CUỘC
+                   (computeMainPhase(gB) <= 0.35 và Bot không còn Hậu trên bàn). */
+                var _botCanResign = (typeof ChessStorage !== 'undefined') ? ChessStorage.getBotCanResign() : false;
+                if (!_botCanResign) {
+                    gBadEvalStreak = 0;
+                } else {
+                    var _isEndgame = (computeMainPhase(gB) <= 0.35);
+                    var _botColor = (gPC === 1) ? -1 : 1;
+                    var _botHasQueen = false;
+                    for (var _q = 0; _q < 64; _q++) {
+                        var _qp = gB[_q];
+                        if (_qp && col(_qp) === _botColor && typ(_qp) === 5) {
+                            _botHasQueen = true;
+                            break;
+                        }
+                    }
+
+                    var _resignScore = (gRank <= 6) ? RESIGN_SCORE_LOW : RESIGN_SCORE;
+                    var _resignStreak = (gRank <= 6) ? RESIGN_STREAK_LOW : RESIGN_STREAK;
+                    var _resignResetFloor = _resignScore - 200;
+
+                    if (_isEndgame && !_botHasQueen && gMoveNum >= RESIGN_MIN_MOVES) {
+                        if (infoScore !== 0) {
+                            if (infoScore <= _resignScore) gBadEvalStreak++;
+                            else if (infoScore > _resignResetFloor) gBadEvalStreak = 0;
+                        }
+                    } else {
+                        gBadEvalStreak = 0;
+                    }
+
+                    if (gBadEvalStreak >= _resignStreak) { tFlush('resign'); aiResign(); return; }
                 }
-                if (gBadEvalStreak >= _resignStreak) { tFlush('resign'); aiResign(); return; }
 
                 /* [Mục 1+3] Có thể đổi uciMove sang 1 ứng viên khác trong best4rootmoves
                    (nếu roll trúng nhiễu + có ứng viên đủ gần điểm), thiên vị nhẹ theo

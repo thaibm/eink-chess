@@ -129,7 +129,7 @@
                     </div>
                 </div>
             </div>
-            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 2px;">
+            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 8px;">
                 <div style="display: table; width: 100%;">
                     <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
                         <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.auto_refresh_modal_label">Auto Refresh on Popup Close</div>
@@ -139,6 +139,20 @@
                         <div class="btn-group" id="setting-refresh-modal-group" style="margin: 0; width: 110px;">
                             <div class="btn-group-item" id="btn-refresh-modal-on" onclick="setAutoRefreshModalSetting(true)" data-i18n="settings.on">ON</div>
                             <div class="btn-group-item active" id="btn-refresh-modal-off" onclick="setAutoRefreshModalSetting(false)" data-i18n="settings.off">OFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 2px;">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
+                        <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.bot_resign_label">Bot Resignation (Play Bot)</div>
+                        <div class="settings-desc" data-i18n="settings.bot_resign_desc">Allow Bot to resign in hopeless endgame positions. Default is OFF (Bot fights until checkmate/draw).</div>
+                    </div>
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 110px;">
+                        <div class="btn-group" id="setting-bot-resign-group" style="margin: 0; width: 110px;">
+                            <div class="btn-group-item" id="btn-bot-resign-on" onclick="setBotCanResignSetting(true)" data-i18n="settings.on">ON</div>
+                            <div class="btn-group-item active" id="btn-bot-resign-off" onclick="setBotCanResignSetting(false)" data-i18n="settings.off">OFF</div>
                         </div>
                     </div>
                 </div>
@@ -173,8 +187,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=38"></script>
-    <script src="js/chess-i18n.js?v=65"></script>
+    <script src="js/chess-storage.js?v=39"></script>
+    <script src="js/chess-i18n.js?v=67"></script>
     <script src="js/chess-backend.js?v=13"></script>
     <script>
         function renderSettingsUI() {
@@ -239,6 +253,19 @@
                     btnAutoRefreshOff.className = 'btn-group-item active';
                 }
             }
+
+            var botResign = typeof ChessStorage !== 'undefined' ? ChessStorage.getBotCanResign() : false;
+            var btnResignOn = document.getElementById('btn-bot-resign-on');
+            var btnResignOff = document.getElementById('btn-bot-resign-off');
+            if (btnResignOn && btnResignOff) {
+                if (botResign) {
+                    btnResignOn.className = 'btn-group-item active';
+                    btnResignOff.className = 'btn-group-item';
+                } else {
+                    btnResignOn.className = 'btn-group-item';
+                    btnResignOff.className = 'btn-group-item active';
+                }
+            }
         }
 
         function setAllowUndoSetting(allow) {
@@ -272,6 +299,13 @@
         function setAutoRefreshModalSetting(enabled) {
             if (typeof ChessStorage !== 'undefined') {
                 ChessStorage.setAutoRefreshModal(enabled);
+            }
+            renderSettingsUI();
+        }
+
+        function setBotCanResignSetting(enabled) {
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setBotCanResign(enabled);
             }
             renderSettingsUI();
         }
