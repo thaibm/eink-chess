@@ -20,7 +20,8 @@
             <a href="index.html" class="header-logo" data-i18n="header.logo">EinkChess</a>
             <span class="header-center"></span>
             <span class="header-actions">
-                <button type="button" class="hdr-btn btn-lang-toggle" onclick="ChessI18n.toggleLang()" id="btn-lang-toggle">EN</button>
+                <button type="button" class="hdr-btn btn-lang-toggle" onclick="ChessI18n.toggleLang()"
+                    id="btn-lang-toggle">EN</button>
                 <button type="button" class="hdr-btn hdr-btn-pgn" onclick="showDetailOverlay()">PGN</button>
                 <a href="index.html" class="hdr-btn" data-i18n="header.menu">Menu</a>
             </span>
@@ -60,33 +61,42 @@
         <div class="action-bar" id="ctrl-wrap-el">
             <!-- Hidden elements preserved for JS safety -->
             <select id="rank-sel" style="display:none"></select>
-            <div id="captured-bar" style="display:none"><span id="cap-black"></span><span id="cap-center"></span><span id="cap-white"></span></div>
+            <div id="captured-bar" style="display:none"><span id="cap-black"></span><span id="cap-center"></span><span
+                    id="cap-white"></span></div>
 
             <!-- In-game Action Bar (5 columns with bot info in center) -->
             <div class="action-bar-grid" id="game-actions-row">
                 <div class="action-bar-row">
                     <div class="action-bar-cell hidden" id="action-cell-undo" style="display:none">
-                        <button type="button" class="btn" id="btn-undo" onclick="handleUndo()" title="Đi lại nước cờ" data-i18n="game.btn_undo">Đi lại</button>
+                        <button type="button" class="btn" id="btn-undo" onclick="handleUndo()" title="Đi lại nước cờ"
+                            data-i18n="game.btn_undo">Đi lại</button>
                     </div>
                     <div class="action-bar-cell">
-                        <button type="button" class="btn" id="btn-resign" onclick="openResignModal()" title="Đầu hàng ván đấu" data-i18n="game.btn_resign">Xin thua</button>
+                        <button type="button" class="btn" id="btn-resign" onclick="openResignModal()"
+                            title="Đầu hàng ván đấu" data-i18n="game.btn_resign">Xin thua</button>
                     </div>
                     <div class="action-bar-cell">
-                        <button type="button" class="btn" id="btn-flip" onclick="handleFlip()" title="Lật ngược bàn cờ" data-i18n="game.btn_flip">Lật bàn</button>
+                        <button type="button" class="btn" id="btn-flip" onclick="handleFlip()" title="Lật ngược bàn cờ"
+                            data-i18n="game.btn_flip">Lật bàn</button>
                     </div>
                     <div class="action-bar-cell">
-                        <button type="button" id="bot-meta" class="btn puzzle-meta-box" onclick="openBotInfoModal()" title="Thông tin trận đấu">
+                        <button type="button" id="bot-meta" class="btn puzzle-meta-box" onclick="openBotInfoModal()"
+                            title="Thông tin trận đấu">
                             <span id="bot-level-name">Cấp 1 · 400</span>
                         </button>
                     </div>
                     <div class="action-bar-cell">
-                        <button type="button" class="btn" id="btn-refresh" onclick="handleRefresh()" title="Làm mới màn hình E-ink" data-i18n="game.btn_refresh">Refresh</button>
+                        <button type="button" class="btn" id="btn-refresh" onclick="handleRefresh()"
+                            title="Làm mới màn hình E-ink" data-i18n="game.btn_refresh">Refresh</button>
                     </div>
                     <div class="action-bar-cell">
-                        <button type="button" class="btn btn-primary" id="main-btn" onclick="openSetupModal()" title="Cấu hình ván mới" data-i18n="game.btn_new_game">Ván mới</button>
+                        <button type="button" class="btn btn-primary" id="main-btn" onclick="openSetupModal()"
+                            title="Cấu hình ván mới" data-i18n="game.btn_new_game">Ván mới</button>
                         <div class="btn-split" id="split-btn" style="display:none">
-                            <button class="btn btn-split-item btn-resign" onclick="openResignModal()" data-i18n="game.btn_resign">Thua</button>
-                            <button class="btn btn-split-item btn-new" onclick="openSetupModal()" data-i18n="game.btn_new_game">Mới</button>
+                            <button class="btn btn-split-item btn-resign" onclick="openResignModal()"
+                                data-i18n="game.btn_resign">Thua</button>
+                            <button class="btn btn-split-item btn-new" onclick="openSetupModal()"
+                                data-i18n="game.btn_new_game">Mới</button>
                         </div>
                     </div>
                 </div>
@@ -105,7 +115,8 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeResignModal()" data-i18n="game.btn_cancel">Hủy</button>
-                <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý đầu hàng</button>
+                <button class="btn btn-primary" onclick="confirmResign()" data-i18n="game.btn_confirm_resign">Đồng ý đầu
+                    hàng</button>
             </div>
         </div>
     </div>
@@ -131,38 +142,57 @@
         <div class="modal-box">
             <div class="modal-title" data-i18n="game.setup_title">CẤU HÌNH VÁN ĐẤU</div>
             <div class="modal-body">
-                <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;" data-i18n="home.setup_level_label">1. Chọn Cấp Độ AI:</div>
+                <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;" data-i18n="home.setup_level_label">
+                    1. Chọn Cấp Độ AI:</div>
                 <div id="setup-level-group">
                     <div class="btn-group">
-                        <div class="btn-group-item active" id="lvl-opt-0" onclick="selectSetupLevel(0)" data-i18n="home.level_v2_1">Cấp 1 (~400)</div>
-                        <div class="btn-group-item" id="lvl-opt-1" onclick="selectSetupLevel(1)" data-i18n="home.level_v2_2">Cấp 2 (~600)</div>
-                        <div class="btn-group-item" id="lvl-opt-2" onclick="selectSetupLevel(2)" data-i18n="home.level_v2_3">Cấp 3 (~800)</div>
-                        <div class="btn-group-item" id="lvl-opt-3" onclick="selectSetupLevel(3)" data-i18n="home.level_v2_4">Cấp 4 (~1000)</div>
-                        <div class="btn-group-item" id="lvl-opt-4" onclick="selectSetupLevel(4)" data-i18n="home.level_v2_5">Cấp 5 (~1200)</div>
+                        <div class="btn-group-item active" id="lvl-opt-0" onclick="selectSetupLevel(0)"
+                            data-i18n="home.level_v2_1">Cấp 1 (~400)</div>
+                        <div class="btn-group-item" id="lvl-opt-1" onclick="selectSetupLevel(1)"
+                            data-i18n="home.level_v2_2">Cấp 2 (~600)</div>
+                        <div class="btn-group-item" id="lvl-opt-2" onclick="selectSetupLevel(2)"
+                            data-i18n="home.level_v2_3">Cấp 3 (~800)</div>
+                        <div class="btn-group-item" id="lvl-opt-3" onclick="selectSetupLevel(3)"
+                            data-i18n="home.level_v2_4">Cấp 4 (~1000)</div>
+                        <div class="btn-group-item" id="lvl-opt-4" onclick="selectSetupLevel(4)"
+                            data-i18n="home.level_v2_5">Cấp 5 (~1200)</div>
                     </div>
                     <div class="btn-group" style="margin-top: 5px;">
-                        <div class="btn-group-item" id="lvl-opt-5" onclick="selectSetupLevel(5)" data-i18n="home.level_v2_6">Cấp 6 (~1400)</div>
-                        <div class="btn-group-item" id="lvl-opt-6" onclick="selectSetupLevel(6)" data-i18n="home.level_v2_7">Cấp 7 (~1600)</div>
-                        <div class="btn-group-item" id="lvl-opt-7" onclick="selectSetupLevel(7)" data-i18n="home.level_v2_8">Cấp 8 (~1800)</div>
-                        <div class="btn-group-item" id="lvl-opt-8" onclick="selectSetupLevel(8)" data-i18n="home.level_v2_9">Cấp 9 (~2200)</div>
-                        <div class="btn-group-item" id="lvl-opt-9" onclick="selectSetupLevel(9)" data-i18n="home.level_v2_10">Cấp 10 (~2400)</div>
+                        <div class="btn-group-item" id="lvl-opt-5" onclick="selectSetupLevel(5)"
+                            data-i18n="home.level_v2_6">Cấp 6 (~1400)</div>
+                        <div class="btn-group-item" id="lvl-opt-6" onclick="selectSetupLevel(6)"
+                            data-i18n="home.level_v2_7">Cấp 7 (~1600)</div>
+                        <div class="btn-group-item" id="lvl-opt-7" onclick="selectSetupLevel(7)"
+                            data-i18n="home.level_v2_8">Cấp 8 (~1800)</div>
+                        <div class="btn-group-item" id="lvl-opt-8" onclick="selectSetupLevel(8)"
+                            data-i18n="home.level_v2_9">Cấp 9 (~2200)</div>
+                        <div class="btn-group-item" id="lvl-opt-9" onclick="selectSetupLevel(9)"
+                            data-i18n="home.level_v2_10">Cấp 10 (~2400)</div>
                     </div>
                 </div>
 
-                <div style="font-weight: bold; margin-top: 12px; margin-bottom: 5px; font-size: 14px;" data-i18n="home.setup_side_label">2. Chọn Bên Cầm Quân:</div>
+                <div style="font-weight: bold; margin-top: 12px; margin-bottom: 5px; font-size: 14px;"
+                    data-i18n="home.setup_side_label">2. Chọn Bên Cầm Quân:</div>
                 <div class="btn-group" id="setup-side-group">
-                    <div class="btn-group-item active" id="side-opt-w" onclick="selectSetupSide('w')" data-i18n="home.side_white">&#9812; Trắng (Đi trước)</div>
-                    <div class="btn-group-item" id="side-opt-b" onclick="selectSetupSide('b')" data-i18n="home.side_black">&#9818; Đen (Đi sau)</div>
-                    <div class="btn-group-item" id="side-opt-r" onclick="selectSetupSide('r')" data-i18n="home.side_random">Ngẫu nhiên</div>
+                    <div class="btn-group-item active" id="side-opt-w" onclick="selectSetupSide('w')"
+                        data-i18n="home.side_white">&#9812; Trắng (Đi trước)</div>
+                    <div class="btn-group-item" id="side-opt-b" onclick="selectSetupSide('b')"
+                        data-i18n="home.side_black">&#9818; Đen (Đi sau)</div>
+                    <div class="btn-group-item" id="side-opt-r" onclick="selectSetupSide('r')"
+                        data-i18n="home.side_random">Ngẫu nhiên</div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 4px 0;">
                     <div style="display: table-cell; width: 60%; padding: 0;">
-                        <button type="button" class="btn btn-primary" onclick="startConfiguredGame()" style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px;" data-i18n="game.btn_start_game">Bắt Đầu</button>
+                        <button type="button" class="btn btn-primary" onclick="startConfiguredGame()"
+                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px;"
+                            data-i18n="game.btn_start_game">Bắt Đầu</button>
                     </div>
                     <div style="display: table-cell; width: 40%; padding: 0;">
-                        <button type="button" class="btn" onclick="closeSetupModal()" style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px; background-color: #ffffff; color: #000000;" data-i18n="game.btn_close">Đóng</button>
+                        <button type="button" class="btn" onclick="closeSetupModal()"
+                            style="width: 100%; min-height: 42px; line-height: 20px; font-size: 14px; font-weight: bold; padding: 10px 4px; background-color: #ffffff; color: #000000;"
+                            data-i18n="game.btn_close">Đóng</button>
                     </div>
                 </div>
             </div>
@@ -178,13 +208,16 @@
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 2px solid #000000;">
                     <thead>
                         <tr style="background-color: #f0f0f0; border-bottom: 2px solid #000000;">
-                            <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px; font-weight: bold; border-right: 1px solid #000000;" data-i18n="game.player_label">Người chơi (Bạn)</th>
-                            <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px; font-weight: bold;" data-i18n="game.bot_label">Đối thủ Bot</th>
+                            <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px; font-weight: bold; border-right: 1px solid #000000;"
+                                data-i18n="game.player_label">Người chơi (Bạn)</th>
+                            <th style="padding: 6px 8px; text-align: left; width: 50%; font-size: 13px; font-weight: bold;"
+                                data-i18n="game.bot_label">Đối thủ Bot</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="padding: 8px; vertical-align: top; border-right: 1px solid #000000; font-size: 13px;">
+                            <td
+                                style="padding: 8px; vertical-align: top; border-right: 1px solid #000000; font-size: 13px;">
                                 <div style="font-size: 16px; font-weight: bold;" id="info-player-elo">1200 ELO</div>
                                 <div style="margin-top: 4px; font-size: 12px;" id="info-player-side">Bên Trắng (♙)</div>
                             </td>
@@ -197,14 +230,17 @@
                 </table>
 
                 <!-- ELO Stakes Card -->
-                <div style="border: 2px solid #000000; padding: 8px 10px; margin-bottom: 10px; background-color: #f8f8f8;">
-                    <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; border-bottom: 1px solid #888888; padding-bottom: 4px;" data-i18n="game.elo_stakes_title">Dự tính điểm ELO (Projected):</div>
+                <div
+                    style="border: 2px solid #000000; padding: 8px 10px; margin-bottom: 10px; background-color: #f8f8f8;">
+                    <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; border-bottom: 1px solid #888888; padding-bottom: 4px;"
+                        data-i18n="game.elo_stakes_title">Dự tính điểm ELO (Projected):</div>
                     <div style="display: table; width: 100%; text-align: center;">
                         <div style="display: table-cell; width: 33%;">
                             <div style="font-size: 11px; font-weight: bold;" data-i18n="game.win_stake">Thắng</div>
                             <div style="font-weight: bold; font-size: 15px;" id="info-stake-win">+16</div>
                         </div>
-                        <div style="display: table-cell; width: 33%; border-left: 1px solid #888888; border-right: 1px solid #888888;">
+                        <div
+                            style="display: table-cell; width: 33%; border-left: 1px solid #888888; border-right: 1px solid #888888;">
                             <div style="font-size: 11px; font-weight: bold;" data-i18n="game.draw_stake">Hòa</div>
                             <div style="font-weight: bold; font-size: 15px;" id="info-stake-draw">+0</div>
                         </div>
@@ -216,13 +252,18 @@
                 </div>
 
                 <!-- Bot Characteristics -->
-                <div style="border: 1px solid #000000; padding: 8px 10px; font-size: 12px; line-height: 1.4; background-color: #ffffff;">
-                    <div style="font-weight: bold; margin-bottom: 3px;" data-i18n="game.bot_profile_title">Đặc tính Bot:</div>
-                    <div id="info-bot-desc">Cấp độ nhập môn, tỷ lệ blunder cao (~45%), phù hợp làm quen cách đi quân.</div>
+                <div
+                    style="border: 1px solid #000000; padding: 8px 10px; font-size: 12px; line-height: 1.4; background-color: #ffffff;">
+                    <div style="font-weight: bold; margin-bottom: 3px;" data-i18n="game.bot_profile_title">Đặc tính Bot:
+                    </div>
+                    <div id="info-bot-desc">Cấp độ nhập môn, tỷ lệ blunder cao (~45%), phù hợp làm quen cách đi quân.
+                    </div>
                 </div>
             </div>
             <div class="modal-footer" style="text-align: center;">
-                <button type="button" class="btn btn-primary" onclick="closeBotInfoModal()" style="margin: 0; padding: 10px; width: 100%; min-height: 42px; font-size: 14px; font-weight: bold;" data-i18n="game.btn_close">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="closeBotInfoModal()"
+                    style="margin: 0; padding: 10px; width: 100%; min-height: 42px; font-size: 14px; font-weight: bold;"
+                    data-i18n="game.btn_close">Đóng</button>
             </div>
         </div>
     </div>
@@ -284,19 +325,19 @@
            useTime=true: searchTime(t) — iterative deepening tới hết giờ
            useTime=false: search(d) — exact depth, nhanh hơn */
         var ELO_CFG = [
-            { d: 2, t: 50, useTime: true },   /* Cấp 1  */
-            { d: 2, t: 100, useTime: true },   /* Cấp 2  */
-            { d: 3, t: 200, useTime: true },   /* Cấp 3  */
-            { d: 3, t: 300, useTime: true },   /* Cấp 4  */
-            { d: 4, t: 400, useTime: true },   /* [FIX v4, bản người dùng sửa] Cấp 5 — giảm từ
+            { d: 2, t: 200, useTime: true },   /* Cấp 1  */
+            { d: 2, t: 400, useTime: true },   /* Cấp 2  */
+            { d: 3, t: 700, useTime: true },   /* Cấp 3  */
+            { d: 3, t: 1000, useTime: true },   /* Cấp 4  */
+            { d: 4, t: 1500, useTime: true },   /* [FIX v4, bản người dùng sửa] Cấp 5 — giảm từ
                                     500 nhưng vẫn > Cấp 4 (300), giữ đúng thứ tự
                                     tăng dần thời gian theo cấp (bản gốc v4 đề
                                     xuất 250, thấp hơn cả Cấp 4 — phá thứ tự). */
-            { d: 4, t: 500, useTime: true },   /* Cấp 6 — giữ nguyên, không đổi */
-            { d: 4, t: 1000, useTime: true },   /* Cấp 7  */
-            { d: 5, t: 2000, useTime: true },   /* Cấp 8  */
-            { d: 5, t: 3000, useTime: true },   /* Cấp 9  */
-            { d: 6, t: 4000, useTime: true }    /* Cấp 10 */
+            { d: 4, t: 2000, useTime: true },   /* Cấp 6 — giữ nguyên, không đổi */
+            { d: 4, t: 4000, useTime: true },   /* Cấp 7  */
+            { d: 5, t: 6000, useTime: true },   /* Cấp 8  */
+            { d: 5, t: 8000, useTime: true },   /* Cấp 9  */
+            { d: 6, t: 12000, useTime: true }    /* Cấp 10 */
         ];
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -2216,8 +2257,8 @@
             } else { cEl.innerHTML = ''; }
         }
 
-        function showCapturedBar() {}
-        function showColorBtn() {}
+        function showCapturedBar() { }
+        function showColorBtn() { }
         function onRankSelect(val) { gRank = parseInt(val); rankDisplay(); }
 
         function materialNoKings() {
@@ -5298,7 +5339,7 @@
     </script>
 
     <!-- tomitankChess 7.0 ES5 engine (Worker source) -->
-    
+
 
 </body>
 
