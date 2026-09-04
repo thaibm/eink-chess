@@ -1075,4 +1075,10 @@ button,
     border-color: #ffffff;
     outline: 1px solid #000000;
 }
+.sq-review-badge.bg-green,
+.sq-review-badge.bg-success {
+    background-color: #2e7d32;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
 

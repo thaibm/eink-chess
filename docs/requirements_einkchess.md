@@ -273,10 +273,13 @@
    - **TRƯỜNG HỢP ĐI ĐÚNG:**
      - Status bar hiển thị nhãn tick lớn `✔`: *"Chính xác! ✔"*.
      - Nếu câu đố còn các nước tiếp theo trong kịch bản: Bot tự động đi nước phản đòn sau 0.5s, người chơi tiếp tục giải nước kế tiếp.
-      - Nếu đã hoàn thành toàn bộ chuỗi nước đi:
-        - Hiển thị popup: *"Giải đố thành công! ♔"*.
-        - Cập nhật điểm ELO và chuỗi giải đúng (Streak).
-        - Cung cấp 2 nút bấm: **`[Tiếp theo]`** và **`[Trang chủ]`**.
+     - Nếu đã hoàn thành toàn bộ chuỗi nước đi:
+       - Khóa tương tác bàn cờ (`read-only`), hiển thị huy hiệu tick xanh (`✔`, class `sq-review-badge bg-green`) ở góc trên bên phải (top-right) của ô cờ vừa thực hiện nước đi cuối cùng tương tự như cơ chế đánh giá nước đi (Move Review).
+       - Trì hoãn mở modal kết quả (`#gameover-modal`) trong **5 giây** để người chơi có thời gian quan sát thế cờ sau khi giải xong.
+       - Trong thời gian 5 giây này, người chơi có thể bấm nút **`[Tiếp theo]`** ở Action Bar để chuyển ngay sang câu đố mới mà không cần đợi.
+       - Khi hết 5 giây, hiển thị popup kết quả: *"Giải đố thành công! ♔"* (hoặc *"Solved with mistakes"* nếu có nước đi sai trước đó).
+       - Cập nhật điểm ELO và chuỗi giải đúng (Streak).
+       - Cung cấp 2 nút bấm: **`[Tiếp theo]`** và **`[Trang chủ]`**.
    - **TRƯỜNG HỢP ĐI SAI:**
      - Status bar hiển thị nhãn cross lớn `✖`: *"Chưa chính xác! ✖"*.
      - Đánh dấu trạng thái `hasFailed = true` (phán quyết 1 lần duy nhất), reset chuỗi Streak.

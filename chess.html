@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>Play vs Bot - Kindle Chess</title>
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
-    <link rel="stylesheet" href="css/einkchess.css?v=65">
+    <link rel="stylesheet" href="css/einkchess.css?v=66">
     <link rel="stylesheet" href="css/chess-game.css?v=4">
     <link rel="canonical" href="https://einkchess.fun/chess.html">
     <link rel="alternate" type="text/markdown" href="md/chess.md" title="Markdown version for AI agents">
@@ -179,15 +179,6 @@
                         data-i18n="home.side_black">&#9818; Đen (Đi sau)</div>
                     <div class="btn-group-item active" id="side-opt-r" onclick="selectSetupSide('r')"
                         data-i18n="home.side_random">Ngẫu nhiên</div>
-                </div>
-
-                <div style="font-weight: bold; margin-top: 12px; margin-bottom: 5px; font-size: 14px;"
-                    data-i18n="home.setup_resign_label">3. Bot Resignation:</div>
-                <div class="btn-group" id="setup-resign-group">
-                    <div class="btn-group-item active" id="resign-opt-off" onclick="selectSetupResign(false)"
-                        data-i18n="home.setup_resign_off">OFF (Fight to end)</div>
-                    <div class="btn-group-item" id="resign-opt-on" onclick="selectSetupResign(true)"
-                        data-i18n="home.setup_resign_on">ON (Endgame only)</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2808,7 +2799,6 @@
 
         var setupSelectedRank = 0;
         var setupSelectedSide = 'r';
-        var setupSelectedBotResign = false;
 
         function updateBotMetaButton() {
             var el = document.getElementById('bot-level-name');
@@ -2826,7 +2816,6 @@
             var defaultLvl = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotLevelV2) ? ChessStorage.getDefaultBotLevelV2() - 1 : 0;
             setupSelectedRank = (typeof gRank === 'number') ? gRank : defaultLvl;
             setupSelectedSide = 'r';
-            setupSelectedBotResign = (typeof ChessStorage !== 'undefined') ? ChessStorage.getBotCanResign() : false;
             updateSetupModalUI();
             var modal = document.getElementById('setup-modal');
             if (modal) {
@@ -2855,11 +2844,6 @@
             updateSetupModalUI();
         }
 
-        function selectSetupResign(canResign) {
-            setupSelectedBotResign = !!canResign;
-            updateSetupModalUI();
-        }
-
         function updateSetupModalUI() {
             for (var i = 0; i < 10; i++) {
                 var el = document.getElementById('lvl-opt-' + i);
@@ -2880,17 +2864,6 @@
                     } else {
                         sel.className = sel.className.replace(/\bactive\b/g, '').trim();
                     }
-                }
-            }
-            var optOff = document.getElementById('resign-opt-off');
-            var optOn = document.getElementById('resign-opt-on');
-            if (optOff && optOn) {
-                if (setupSelectedBotResign) {
-                    if (optOn.className.indexOf('active') < 0) optOn.className += ' active';
-                    optOff.className = optOff.className.replace(/\bactive\b/g, '').trim();
-                } else {
-                    if (optOff.className.indexOf('active') < 0) optOff.className += ' active';
-                    optOn.className = optOn.className.replace(/\bactive\b/g, '').trim();
                 }
             }
         }
@@ -3080,9 +3053,6 @@
                     sessionStorage.removeItem('einkchess_monolith_consumed_search');
                 }
             } catch (e) { }
-            if (typeof ChessStorage !== 'undefined') {
-                ChessStorage.setBotCanResign(setupSelectedBotResign);
-            }
             gRank = setupSelectedRank;
             rankSave();
             rankDisplay();

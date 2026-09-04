@@ -140,9 +140,9 @@
         this.render();
     };
 
-    ChessBoard.prototype.setReviewBadge = function(r, c, symbol, isDark) {
+    ChessBoard.prototype.setReviewBadge = function(r, c, symbol, isDark, customClass) {
         if (r !== null && typeof r !== 'undefined' && c !== null && typeof c !== 'undefined' && symbol) {
-            this.reviewBadge = { r: r, c: c, symbol: symbol, isDark: !!isDark };
+            this.reviewBadge = { r: r, c: c, symbol: symbol, isDark: !!isDark, customClass: customClass || '' };
         } else {
             this.reviewBadge = null;
         }
@@ -407,7 +407,11 @@
                         badgeEl = document.createElement('div');
                         sqDOM.appendChild(badgeEl);
                     }
-                    badgeEl.className = 'sq-review-badge' + (this.reviewBadge.isDark ? ' bg-dark' : '');
+                    var badgeCls = 'sq-review-badge' + (this.reviewBadge.isDark ? ' bg-dark' : '');
+                    if (this.reviewBadge.customClass) {
+                        badgeCls += ' ' + this.reviewBadge.customClass;
+                    }
+                    badgeEl.className = badgeCls;
                     badgeEl.innerHTML = this.reviewBadge.symbol;
                 } else if (badgeEl && badgeEl.parentNode === sqDOM) {
                     sqDOM.removeChild(badgeEl);

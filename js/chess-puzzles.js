@@ -46,6 +46,7 @@
         puzzleColor: 'w', // color the player plays
         hasFailed: false,  // set true on first wrong move (proportional ELO)
         isSolved: false,   // set true when puzzle is completed
+        modalTimer: null,
 
         // ELO bucket range
         MIN_BUCKET: 400,
@@ -730,6 +731,13 @@
         },
 
         startPuzzle: function(puzzle) {
+            if (this.modalTimer) {
+                clearTimeout(this.modalTimer);
+                this.modalTimer = null;
+            }
+            if (this.board && this.board.clearReviewBadge) {
+                this.board.clearReviewBadge();
+            }
             this.currentPuzzle = puzzle;
             this.hasFailed = false;
             this.isSolved = false;
@@ -1043,6 +1051,10 @@
         },
 
         nextPuzzle: function() {
+            if (this.modalTimer) {
+                clearTimeout(this.modalTimer);
+                this.modalTimer = null;
+            }
             this.closeModal();
             this.currentPuzzle = null;
             this.solutionMoves = [];
@@ -1052,6 +1064,9 @@
             if (this.board) {
                 this.board.selectedSquare = null;
                 this.board.validDestinations = [];
+                if (this.board.clearReviewBadge) {
+                    this.board.clearReviewBadge();
+                }
             }
             var storage = getStorage();
             if (storage) {
@@ -1062,6 +1077,7 @@
         },
 
         puzzleSolved: function() {
+            if (this.isSolved) return;
             this.isPlayerTurn = false;
             this.isSolved = true;
             this.updateActionBarUI();
@@ -1095,9 +1111,25 @@
 
             this.updateHeaderUI();
             
+            // Set green checkmark review badge on the last move square
+            if (this.board) {
+                if (this.board.setInteractive) {
+                    this.board.setInteractive(false);
+                }
+                if (this.board.setReviewBadge && this.solutionMoves && this.solutionMoves.length > 0) {
+                    var lastUci = this.solutionMoves[this.solutionMoves.length - 1];
+                    if (lastUci && lastUci.length >= 4) {
+                        var targetCoords = this.algebraicToCoords(lastUci.substring(2, 4));
+                        if (targetCoords) {
+                            this.board.setReviewBadge(targetCoords.r, targetCoords.c, '✔', false, 'bg-green');
+                        }
+                    }
+                }
+            }
+
             if (typeof document === 'undefined') return;
 
-            // Show Game Over Modal
+            // Prepare Game Over Modal
             var modal = document.getElementById('gameover-modal');
             var body = document.getElementById('gameover-body');
             var title = document.getElementById('gameover-title');
@@ -1158,6 +1190,24 @@
                 }
             }
             
+            // Delay modal display by 5s to allow player to review the completed board
+            if (this.modalTimer) {
+                clearTimeout(this.modalTimer);
+                this.modalTimer = null;
+            }
+            var self = this;
+            this.modalTimer = setTimeout(function() {
+                self.showGameOverModal();
+            }, 5000);
+        },
+
+        showGameOverModal: function() {
+            if (this.modalTimer) {
+                clearTimeout(this.modalTimer);
+                this.modalTimer = null;
+            }
+            if (typeof document === 'undefined') return;
+            var modal = document.getElementById('gameover-modal');
             if (modal) {
                 modal.className = 'modal-overlay active';
                 modal.style.display = 'block';
@@ -1165,6 +1215,10 @@
         },
 
         closeModal: function() {
+            if (this.modalTimer) {
+                clearTimeout(this.modalTimer);
+                this.modalTimer = null;
+            }
             if (typeof document === 'undefined') return;
             var modal = document.getElementById('gameover-modal');
             if (modal) {
