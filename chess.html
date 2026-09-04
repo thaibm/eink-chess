@@ -258,6 +258,7 @@
     <script src="js/chess-persona.js?v=1"></script>
     <script src="js/chess-review.js?v=1"></script>
     <script src="js/chess-coach.js?v=1"></script>
+    <script src="js/chess-backend.js?v=13"></script>
     <script>
         /* ═══════════════════════════════════════════════════════════════════
            SECTION 1 — CONSTANTS & CONFIG
@@ -5250,6 +5251,11 @@
                 }
             } else if (!restoreSavedGame()) {
                 newGame();
+            }
+
+            // Send telemetry ping
+            if (typeof ChessBackend !== 'undefined' && ChessBackend.sendPing) {
+                ChessBackend.sendPing('play_bot', '/chess.html');
             }
         }
 

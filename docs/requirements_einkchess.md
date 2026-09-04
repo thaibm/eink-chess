@@ -61,7 +61,8 @@
   4. `js/chess-persona.js`: Danh sách 10 Bot Persona và từ điển đối thoại song ngữ `CHAT_TEXT_VI` / `CHAT_TEXT_EN` qua `randChat()`.
   5. `js/chess-review.js`: Thuật toán phân loại nước đi `classifyMove()` (Brilliant, Great, Best, Inaccuracy, Mistake, Blunder) và Static Exchange Evaluation (`seeFull`).
   6. `js/chess-coach.js`: Lớp phủ SVG vẽ mũi tên trực quan hướng dẫn nước đi (`drawCoachArrow()`, `clearCoachArrows()`).
-  7. `chess.html`: Controller mỏng điều phối DOM và vòng đời trò chơi.
+  7. `js/chess-backend.js`: Tích hợp telemetry ping (`play_bot`, `/chess.html`) theo dõi DAU/MAU tương tự `play-bot-v2.html`.
+  8. `chess.html`: Controller mỏng điều phối DOM và vòng đời trò chơi.
 - **Cấu trúc phân bổ 4 tầng dọc:**
   1. **Header Bar:** Thu nhỏ thành 1 dòng (Logo EinkChess, nút xem PGN Overlay, nút Menu trở về `index.html`).
   2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị quân cờ bị bắt (Trắng bên trái, Đen bên phải) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa.
