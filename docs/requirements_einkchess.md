@@ -52,8 +52,16 @@
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 25-28vh`), tăng kích thước chữ (Title 16-17px, Desc 14px, Button 15px) và touch target (nút bấm chính min 44px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
 - **Chân trang (Footer):** Hiển thị thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
 
-### 2.6. Chuẩn Giao Diện Zero-Scroll Monolith (`chess.html`)
-- **Định hướng thiết kế:** Đồng bộ 100% ngôn ngữ thiết kế từ `play-bot` / `play-bot-v2.html` vào phiên bản engine monolith `chess.html`, đảm bảo vừa khít khung nhìn tuyệt đối không xuất hiện thanh cuộn trên mọi màn hình E-ink (Kindle 6", Paperwhite, Kobo, Oasis...).
+### 2.6. Chuẩn Giao Diện Zero-Scroll & Kiến Trúc Mô-Đun (`chess.html`)
+- **Định hướng thiết kế:** Đồng bộ 100% ngôn ngữ thiết kế từ `play-bot` / `play-bot-v2.html` vào `chess.html`, đảm bảo vừa khít khung nhìn tuyệt đối không xuất hiện thanh cuộn trên mọi màn hình E-ink (Kindle 6", Paperwhite, Kobo, Oasis...).
+- **Kiến trúc mô-đun hóa độc lập (Modular Architecture):** Để chuẩn bị thay thế hoàn toàn `play-bot.html` và `play-bot-v2.html`, file monolith `chess.html` được tái cấu trúc thành các module tái sử dụng:
+  1. `css/chess-game.css`: Toàn bộ stylesheet giao diện game, review pills, badges và modal overlays.
+  2. `js/tomitank-source.js`: Mã nguồn engine Tomitank 7.0 (~411KB) được tái sử dụng trực tiếp qua `window.TOMITANK_SOURCE`, triệt tiêu 100% mã trùng lặp trong HTML.
+  3. `js/chess-book.js`: Thư viện khai cuộc `BOOK_MAP` (~1,084 biến thể) và thuật toán tra cứu nước đi sách `openingBookMove()`.
+  4. `js/chess-persona.js`: Danh sách 10 Bot Persona và từ điển đối thoại song ngữ `CHAT_TEXT_VI` / `CHAT_TEXT_EN` qua `randChat()`.
+  5. `js/chess-review.js`: Thuật toán phân loại nước đi `classifyMove()` (Brilliant, Great, Best, Inaccuracy, Mistake, Blunder) và Static Exchange Evaluation (`seeFull`).
+  6. `js/chess-coach.js`: Lớp phủ SVG vẽ mũi tên trực quan hướng dẫn nước đi (`drawCoachArrow()`, `clearCoachArrows()`).
+  7. `chess.html`: Controller mỏng điều phối DOM và vòng đời trò chơi.
 - **Cấu trúc phân bổ 4 tầng dọc:**
   1. **Header Bar:** Thu nhỏ thành 1 dòng (Logo EinkChess, nút xem PGN Overlay, nút Menu trở về `index.html`).
   2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị quân cờ bị bắt (Trắng bên trái, Đen bên phải) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa.
@@ -67,9 +75,14 @@
 - **Modal Cấu Hình Ván Đấu (Match Setup Modal `#setup-modal`):**
   - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng) và Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên) vào Modal Popup `#setup-modal`.
   - Nút "Ván mới" tại Footer và trong Popup Thống kê khi bấm sẽ mở Modal Cấu hình này. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
-- **Thanh PGN/History:** Ẩn khỏi màn hình chính để tiết kiệm không gian dọc, xem lại qua nút PGN trên Header.
-- **Thống Kê Ván Đấu (Stats Modal Popup):** Chuyển bảng thống kê Brilliant / Great / Best / Blunder khi kết thúc ván thành Modal Popup (`#stats-overlay`), giữ nguyên các tính năng xem lại nước đi (`jumpToClassify`, nút tua ◀/▶, ⏮/⏭) mà không làm vỡ bố cục bàn cờ chính.
-- **Cơ Chế Tự Động Lưu & Khôi Phục Ván Đấu (Auto-Save / Resume Game tương tự Play-Bot-v2):**
+- **Modal Kết Thúc Trận Đấu & Xác Nhận Đầu Hàng (Game Over & Confirm Resign Modals - Chuẩn Play-Bot-v2):**
+  - **Modal Xác Nhận Đầu Hàng (`#resign-modal`):** Khi người chơi nhấn nút "Xin thua / Đầu hàng", popup xác nhận hiện ra tránh bấm nhầm trên màn hình cảm ứng E-ink với 2 nút "Hủy" và "Đồng ý đầu hàng".
+  - **Modal Kết Thúc Ván Đấu (`#gameover-modal`):** Khi trận đấu kết thúc (Chiếu hết, Đầu hàng, Hòa cờ do Stalemate / Luật 50 nước / Lặp 3 lần / Không đủ quân), hiển thị popup Game Over chuẩn với:
+    - Tiêu đề kết quả rõ ràng (Chiếu hết thắng/thua, Đầu hàng, Hòa cờ).
+    - Thẻ cập nhật điểm ELO trực quan (`oldElo (±delta) → newElo`).
+    - 3 nút điều hướng: `[Trang chủ]` (`index.html`), `[Phân tích ván đấu]` (`goToAnalysis()`) dẫn sang `analysis.html`, và `[Ván mới]` (`openSetupModal()`).
+  - Tự động lưu toàn bộ dữ liệu ván đấu vào `ChessStorage.saveAnalysisGame()` ngay khi trận đấu kết thúc.
+  - Thay thế hoàn toàn chế độ xem lại tại chỗ (In-page review mode) cũ, tập trung hóa trải nghiệm phân tích toàn diện, xem lại nước đi, huy hiệu và mũi tên chiến thuật sang `analysis.html`.
   - Tự động lưu toàn bộ trạng thái ván cờ (`gRank`, `gPC`, `gFlip`, `gB`, `gTurn`, `gEP`, `gCasB`, `gHalf`, `gFull`, `gHist`, `gUciHist`, `gLast`, `gCapturedBlack`, `gCapturedWhite`) vào `localStorage` (`einkchess_monolith_saved_game`) sau mỗi nước đi hợp lệ.
   - Khi người dùng tải lại trang (F5/Refresh) hoặc mở lại trình duyệt, hệ thống tự động khôi phục đúng trạng thái bàn cờ, highlight nước đi cuối và tự kích hoạt Bot tính toán nếu đến lượt đi của Bot.
   - Tự động dọn dẹp bộ nhớ lưu trữ khi ván cờ kết thúc (Chiếu hết, Stalemate, Hòa luật 50 nước, Lặp lại 3 lần, Hết quân chiếu hết, hoặc khi một bên Đầu hàng / bấm Ván mới).
@@ -574,6 +587,13 @@
   - [x] Loại bỏ nút "Hints: ON/OFF" trên thanh Action Bar của `play-bot-v2.html` và `play-bot.html`, giúp thanh điều khiển gọn gàng còn 6 nút chuẩn cân đối.
   - [x] Loại bỏ tùy chọn "3. Move Review" khỏi modal thiết lập ván đấu trên Trang chủ `index.html` và `play-bot-v2.html`, giúp popup mở ván tinh gọn và thao tác nhanh chóng hơn.
   - [x] Bàn cờ tại màn hình phân tích `analysis.html` được thiết lập ở chế độ chỉ xem (`readOnly: true`, `interactive: false`), vô hiệu hóa việc chọn quân và highlight nước đi khi chạm vào các ô bàn cờ.
+  - [x] **Tái Sử Dụng & Nâng Cấp Module Phân Loại Nước Đi (`js/chess-review.js`):** Tích hợp sâu thư viện `chess-review.js` vào `analysis.html`, bổ sung thuật toán phân loại nước đi chuyên sâu: Nước đi Thiên tài (Brilliant `!!`), Nước đi Xuất sắc (Great `!`), Tối ưu (`★`), Tốt (`✔`), Kém chính xác (`?!`), Sai lầm (`?`), Đại sai lầm (`??`), Bỏ lỡ thắng cuộc (Missed Win), Bỏ lỡ chiếu hết (Missed Mate) dựa trên chênh lệch đánh giá và kiểm tra tĩnh Static Exchange Evaluation (SEE).
+  - [x] **Mũi Tên Chỉ Đường Chiến Thuật Trực Quan (Tactical Coach Arrows):** Lớp phủ SVG trên bàn cờ phân tích (`#analysis-coach-svg`) tự động hiển thị mũi tên trực quan chuẩn tương phản cao E-ink:
+    - Mũi tên xanh lá cây (`green`): Chỉ ra nước đi tối ưu mà đáng lẽ người chơi nên đi (`bestMove`).
+    - Mũi tên xanh mòng két (`teal`): Chỉ ra nước đi trừng phạt của đối phương khi người chơi mắc sai lầm/blunder/bỏ lỡ nước thắng (`punishMove`).
+    - Tự động xoay tọa độ mũi tên theo góc nhìn bàn cờ (`flip`).
+  - [x] **Huy Hiệu Trực Quan Trên Ô Cờ (On-Board Move Badges):** Hiển thị trực tiếp huy hiệu đánh giá (`!!`, `!`, `★`, `✔`, `?!`, `?`, `??`) trên ô cờ đích của nước vừa đi đồng bộ với bảng lịch sử.
+  - [x] **Đồng Bộ Thời Gian Tính Toán:** Giá trị thời gian chọn trong Modal Cấu hình (600ms, 1200ms, 2000ms) được truyền trực tiếp vào `ai.analyze(fen, thinkTime)` và điều chỉnh phân loại `ChessReview.classifyMove(...)`.
 
 ### Phase 6 — PvP Online & Polish Toàn Diện (Tạm hoãn / Ẩn trên Trang chủ)
 - [ ] Thẻ "Chơi với Bạn bè (PvP)" đang tạm thời được comment ẩn trên `index.html`.

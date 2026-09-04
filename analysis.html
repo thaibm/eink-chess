@@ -10,6 +10,14 @@
     <link rel="canonical" href="https://einkchess.fun/analysis.html">
     <link rel="alternate" type="text/markdown" href="md/analysis.md"
         title="Markdown version for AI agents">
+    <script src="js/chess-engine.js?v=16"></script>
+    <script src="js/tomitank-source.js?v=1"></script>
+    <script src="js/chess-ai-v2.js?v=12"></script>
+    <script src="js/chess-storage.js?v=35"></script>
+    <script src="js/chess-i18n.js?v=63"></script>
+    <script src="js/chess-board.js?v=22"></script>
+    <script src="js/chess-review.js?v=2"></script>
+    <script src="js/chess-backend.js?v=13"></script>
     <style>
         /* Analysis Specific Layout & Zero-Scroll E-ink Styles */
         body {
@@ -40,9 +48,26 @@
             margin-right: 4px;
         }
 
+        .analysis-board-wrap {
+            position: relative;
+            width: 100%;
+            margin: 0 auto;
+        }
+
         .analysis-board-col .board-container {
-            margin: 0 !important;
-            padding: 0 !important;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        #analysis-coach-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
         }
 
         .analysis-history-col {
@@ -420,7 +445,23 @@
             <!-- 2. MIDDLE ROW: CHESS BOARD + MOVE HISTORY TABLE (SIDE-BY-SIDE) -->
             <div class="analysis-middle-row">
                 <div class="analysis-board-col">
-                    <div class="board-container" id="board-container"></div>
+                    <div class="analysis-board-wrap">
+                        <div class="board-container" id="board-container"></div>
+                        <svg id="analysis-coach-svg" viewBox="0 0 8 8" preserveAspectRatio="none">
+                            <defs>
+                                <marker id="arr-grn" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">
+                                    <polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(26,122,26,0.85)" />
+                                </marker>
+                                <marker id="arr-teal" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">
+                                    <polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(0,150,136,0.85)" />
+                                </marker>
+                                <marker id="arr-pur" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">
+                                    <polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(120,26,154,0.85)" />
+                                </marker>
+                            </defs>
+                            <g id="svg-arrows"></g>
+                        </svg>
+                    </div>
                 </div>
                 <div class="analysis-history-col">
                     <div class="analysis-history-box" id="analysis-history-box">
@@ -607,15 +648,6 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="js/chess-engine.js?v=15"></script>
-    <script src="js/tomitank-source.js?v=1"></script>
-    <script src="js/chess-ai-v2.js?v=12"></script>
-    <script src="js/chess-storage.js?v=34"></script>
-    <script src="js/chess-i18n.js?v=61"></script>
-    <script src="js/chess-board.js?v=22"></script>
-    <script src="js/chess-backend.js?v=13"></script>
-
     <script>
         var gameData = null;
         var engine = null;
@@ -765,7 +797,38 @@
             renderEvalChart();
         }
 
+        var _analysisInitAttempts = 0;
         function initAnalysis() {
+            if (typeof ChessEngine === 'undefined' || typeof ChessBoard === 'undefined' || typeof ChessAIV2 === 'undefined') {
+                _analysisInitAttempts++;
+                if (_analysisInitAttempts <= 10) {
+                    if (typeof ChessEngine === 'undefined') {
+                        var se = document.createElement('script');
+                        se.src = 'js/chess-engine.js?v=' + Date.now();
+                        document.head.appendChild(se);
+                    }
+                    if (typeof ChessBoard === 'undefined') {
+                        var sb = document.createElement('script');
+                        sb.src = 'js/chess-board.js?v=' + Date.now();
+                        document.head.appendChild(sb);
+                    }
+                    if (typeof ChessAIV2 === 'undefined') {
+                        var sa = document.createElement('script');
+                        sa.src = 'js/chess-ai-v2.js?v=' + Date.now();
+                        document.head.appendChild(sa);
+                    }
+                    setTimeout(initAnalysis, 250);
+                    return;
+                }
+                var emptyEl = document.getElementById('analysis-empty');
+                if (emptyEl) {
+                    emptyEl.innerHTML = '<div style="font-size: 16px; font-weight: bold; margin-bottom: 12px;">Không thể tải thư viện phân tích ván cờ.</div>' +
+                        '<button class="btn btn-primary" onclick="location.reload()">Tải lại trang (Reload)</button>';
+                    emptyEl.style.display = 'block';
+                }
+                return;
+            }
+
             applyAnalysisLayout();
 
             try {
@@ -842,6 +905,7 @@
         }
 
         function buildMoveTimeline() {
+            if (typeof ChessEngine === 'undefined') return;
             var tempEngine = new ChessEngine();
             moveHistory = [];
 
@@ -943,6 +1007,43 @@
             setTimeout(function () {
                 ai.analyze(tempEngine, selectedThinkTime, function (bestMove, score, meta) {
                     evalCache[stepIdx] = computeMoveEvaluation(item, bestMove, score, meta);
+
+                    // Refine previous move with the actual position evaluation from stepIdx
+                    if (stepIdx > 0) {
+                        var prevIdx = stepIdx - 1;
+                        var prevEval = evalCache[prevIdx];
+                        var prevItem = moveHistory[prevIdx];
+                        if (prevEval) {
+                            if (prevEval.isSameMove) {
+                                prevEval.cpLoss = 0;
+                            } else {
+                                var evalBefore = prevEval.rawScore;
+                                var evalBest = prevEval.rawScore;
+                                var evalActual = -score;
+                                var actualLoss = Math.max(0, evalBest - evalActual);
+                                prevEval.cpLoss = actualLoss;
+                                prevEval.punishMove = bestMove;
+
+                                if (typeof ChessReview !== 'undefined' && ChessReview.classifyMove) {
+                                    var lbl = ChessReview.classifyMove({
+                                        evalBefore: evalBefore,
+                                        evalBest: evalBest,
+                                        evalActual: evalActual,
+                                        mateBest: prevEval.isMate ? prevEval.mateIn : null,
+                                        mateActual: (Math.abs(score) >= 90000) ? (score > 0 ? -Math.ceil((100000 - Math.abs(score)) / 2) : Math.ceil((100000 - Math.abs(score)) / 2)) : null,
+                                        rating: 1500
+                                    });
+                                    var isDark = (lbl === 'Brilliant' || lbl === 'Great' || lbl === 'Best' || lbl === 'Blunder');
+                                    var sym = (lbl === 'Brilliant' ? '!!' : lbl === 'Great' ? '!' : lbl === 'Great Defense' ? '[!]' : lbl === 'Best' ? '★' : lbl === 'Missed Win' ? '[+]' : lbl === 'Missed Mate' ? '[#]' : lbl === 'Mistake' ? '?' : lbl === 'Blunder' ? '??' : '?!');
+                                    var bKey = 'analysis.eval_' + (lbl === 'Brilliant' ? 'brilliant' : lbl === 'Great' ? 'great' : lbl === 'Great Defense' ? 'great_def' : lbl === 'Best' ? 'best' : lbl === 'Missed Win' ? 'missed_win' : lbl === 'Missed Mate' ? 'missed_mate' : lbl === 'Mistake' ? 'mistake' : lbl === 'Blunder' ? 'blunder' : 'inaccuracy');
+
+                                    prevEval.badge = { symbol: sym, labelKey: bKey, isDark: isDark };
+                                    prevEval.label = (lbl === 'Brilliant' ? 'brilliant' : lbl === 'Great' ? 'great' : lbl === 'Great Defense' ? 'greatDef' : lbl === 'Missed Win' ? 'missedWin' : lbl === 'Missed Mate' ? 'missedMate' : lbl.toLowerCase());
+                                }
+                            }
+                        }
+                    }
+
                     if (stepIdx % 4 === 0) {
                         renderEvalChart();
                     }
@@ -976,8 +1077,8 @@
 
             var t = function (k) { return (typeof ChessI18n !== 'undefined') ? ChessI18n.t(k) : k; };
 
-            var playerStats = { best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
-            var botStats = { best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
+            var playerStats = { brilliant: 0, great: 0, best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
+            var botStats = { brilliant: 0, great: 0, best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalCpLoss: 0, totalDepth: 0, totalTime: 0, count: 0 };
 
             for (var i = 0; i < moveHistory.length; i++) {
                 var res = evalCache[i];
@@ -990,11 +1091,13 @@
                 stats.totalTime += (res.time || 600);
 
                 var sym = res.badge ? res.badge.symbol : '';
-                if (sym === '★') stats.best++;
+                if (sym === '!!') stats.brilliant++;
+                else if (sym === '!' || sym === '[!]') stats.great++;
+                else if (sym === '★') stats.best++;
                 else if (sym === '✔') stats.good++;
                 else if (sym === '?!') stats.inaccuracy++;
-                else if (sym === '?') stats.mistake++;
-                else if (sym === '??') stats.blunder++;
+                else if (sym === '?' || sym === '[+]') stats.mistake++;
+                else if (sym === '??' || sym === '[#]') stats.blunder++;
             }
 
             var playerSideLabel = playerSide === 'w' ? t('game.turn_white') : t('game.turn_black');
@@ -1023,6 +1126,12 @@
             html += '<tr><td class="col-metric">' + t('analysis.acpl') + '</td><td>' + playerAcpl + '</td><td>' + botAcpl + '</td></tr>';
             html += '<tr><td class="col-metric">' + t('analysis.avg_depth') + '</td><td><strong>' + playerAvgDepth + '</strong></td><td><strong>' + botAvgDepth + '</strong></td></tr>';
             html += '<tr><td class="col-metric">' + t('analysis.time_per_move') + '</td><td>' + playerAvgTime + '</td><td>' + botAvgTime + '</td></tr>';
+            if (playerStats.brilliant > 0 || botStats.brilliant > 0) {
+                html += '<tr><td class="col-metric">' + t('analysis.eval_brilliant') + '</td><td><strong>' + playerStats.brilliant + '</strong></td><td><strong>' + botStats.brilliant + '</strong></td></tr>';
+            }
+            if (playerStats.great > 0 || botStats.great > 0) {
+                html += '<tr><td class="col-metric">' + t('analysis.eval_great') + '</td><td><strong>' + playerStats.great + '</strong></td><td><strong>' + botStats.great + '</strong></td></tr>';
+            }
             html += '<tr><td class="col-metric">' + t('analysis.eval_best') + '</td><td><strong>' + playerStats.best + '</strong></td><td><strong>' + botStats.best + '</strong></td></tr>';
             html += '<tr><td class="col-metric">' + t('analysis.eval_good') + '</td><td>' + playerStats.good + '</td><td>' + botStats.good + '</td></tr>';
             html += '<tr><td class="col-metric">' + t('analysis.eval_inaccuracy') + '</td><td>' + playerStats.inaccuracy + '</td><td>' + botStats.inaccuracy + '</td></tr>';
@@ -1246,6 +1355,10 @@
                 engine.initBoard();
                 board.setLastMove(null, null);
                 board.clearReviewBadge();
+                var svgEl = document.getElementById('analysis-coach-svg');
+                if (svgEl && typeof ChessReview !== 'undefined') {
+                    ChessReview.clearArrows(svgEl);
+                }
             } else {
                 var item = moveHistory[idx];
                 engine.loadFEN(item.fenAfter);
@@ -1342,6 +1455,9 @@
                 isSameMove: isSameMove,
                 reasonObj: reasonObj,
                 playedMove: playedMove,
+                bestMove: bestMove,
+                punishMove: null,
+                label: isSameMove ? 'best' : 'mistake',
                 cpLoss: cpLoss,
                 side: item.side,
                 depth: metaDepth,
@@ -1473,6 +1589,16 @@
             } else {
                 badgeEl.style.display = 'none';
                 if (board) board.clearReviewBadge();
+            }
+
+            // 1b. Tactical Coach Arrows on Board
+            var svgEl = document.getElementById('analysis-coach-svg');
+            if (svgEl && typeof ChessReview !== 'undefined') {
+                if (evalObj && evalObj.bestMove && !evalObj.isSameMove) {
+                    ChessReview.renderTacticalArrows(svgEl, evalObj.bestMove, evalObj.punishMove, evalObj.label, playerSide);
+                } else {
+                    ChessReview.clearArrows(svgEl);
+                }
             }
 
             // 2. Score format
