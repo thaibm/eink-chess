@@ -88,7 +88,7 @@
   - Khi người dùng tải lại trang (F5/Refresh) hoặc mở lại trình duyệt, hệ thống tự động khôi phục đúng trạng thái bàn cờ, highlight nước đi cuối và tự kích hoạt Bot tính toán nếu đến lượt đi của Bot.
   - Tự động dọn dẹp bộ nhớ lưu trữ khi ván cờ kết thúc (Chiếu hết, Stalemate, Hòa luật 50 nước, Lặp lại 3 lần, Hết quân chiếu hết, hoặc khi một bên Đầu hàng / bấm Ván mới).
 - **Đồng Bộ & Áp Dụng Toàn Diện Cấu Hình Từ Trang Settings (Settings Configurations Support tương tự Play-Bot-v2):**
-  - **Piece Theme (Kiểu quân cờ):** Hỗ trợ 3 theme thông qua `ChessStorage.getPieceTheme()`: Chess.com (PNG `ejgfv`), Lichess (SVG `cburnett`), và Unicode (`unicode`) hiển thị trên 64 ô bàn cờ, modal phong cấp và thanh quân bị bắt.
+  - **Piece Theme (Kiểu quân cờ):** Hỗ trợ 3 theme thông qua `ChessStorage.getPieceTheme()`: Chess.com (PNG `ejgfv`), Lichess (SVG `cburnett`), và Unicode (`unicode`) hiển thị trên 64 ô bàn cờ, modal phong cấp và thanh quân bị bắt. Kích thước quân cờ Unicode được chuẩn hoá đồng bộ trên cả `play-bot-v2.html` và `chess.html` với tỉ lệ chuẩn `Math.floor(sqSize * 0.75)` (đảm bảo hiển thị to, rõ, cân đối không bị thu nhỏ).
   - **Show Move Hints (Gợi ý nước đi):** Bật/tắt các chấm tròn gợi ý nước đi hợp lệ (`.dot-marker`, `.ring-marker`) theo `ChessStorage.getShowHints()`.
   - **Allow Undo (Cho phép đi lại):** Hiển thị/ẩn nút `[Đi lại]` trên thanh Footer theo `ChessStorage.getAllowUndo()`. Khi kích hoạt, hoàn tác 2 nước đi (nước Bot và nước người chơi) qua cơ chế replay stack sạch sẽ.
   - **Auto Refresh on Modal Close (Tự động làm mới khi đóng popup):** Tự động gọi `handleRefresh(120)` xóa bóng mờ E-ink khi đóng các popup Modal (Cấu hình ván đấu, Thông tin trận đấu, Thống kê, PGN) theo `ChessStorage.getAutoRefreshModal()`.

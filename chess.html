@@ -7,7 +7,7 @@
     <title>Play vs Bot - Kindle Chess</title>
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <link rel="stylesheet" href="css/einkchess.css?v=65">
-    <link rel="stylesheet" href="css/chess-game.css?v=3">
+    <link rel="stylesheet" href="css/chess-game.css?v=4">
     <link rel="canonical" href="https://einkchess.fun/chess.html">
     <link rel="alternate" type="text/markdown" href="md/chess.md" title="Markdown version for AI agents">
 </head>
@@ -3134,6 +3134,23 @@
                 cells[i].style.lineHeight = cellH + 'px';
                 cells[i].style.fontSize = fontSize + 'px';
             }
+            if (gPieceSpans) {
+                for (var s = 0; s < gPieceSpans.length; s++) {
+                    if (gPieceSpans[s]) {
+                        gPieceSpans[s].style.fontSize = fontSize + 'px';
+                        gPieceSpans[s].style.lineHeight = cellH + 'px';
+                    }
+                }
+            }
+            var styleId = 'dynamic-piece-style';
+            var styleEl = document.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
+            styleEl.innerHTML =
+                '.sq .piece, .piece { font-size: ' + fontSize + 'px !important; line-height: ' + cellH + 'px !important; }';
         }
 
         function buildBoardOnce() {
@@ -3153,6 +3170,10 @@
                     cell.setAttribute('data-s', s);
                     var sp = document.createElement('span');
                     sp.className = 'piece';
+                    if (gCellH) {
+                        sp.style.fontSize = Math.floor(gCellH * 0.75) + 'px';
+                        sp.style.lineHeight = gCellH + 'px';
+                    }
                     cell.appendChild(sp);
                     var dot = document.createElement('div');
                     dot.className = 'dot-marker hidden';

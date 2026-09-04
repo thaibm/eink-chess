@@ -359,6 +359,12 @@ html {
             align-items: center;
             text-align: center;
             line-height: inherit;
+            font-size: inherit;
+        }
+
+        .sq .piece {
+            font-size: inherit;
+            line-height: inherit;
         }
 
         .sq .piece-img,
