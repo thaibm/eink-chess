@@ -65,7 +65,7 @@
 - **Cấu trúc phân bổ 4 tầng dọc:**
   1. **Header Bar:** Thu nhỏ thành 1 dòng (Logo EinkChess, nút xem PGN Overlay, nút Menu trở về `index.html`).
   2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị quân cờ bị bắt (Trắng bên trái, Đen bên phải) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa.
-  3. **Bàn Cờ Auto-Scaling:** Tự động tính toán kích thước số nguyên pixel chia hết cho 8 dựa trên chiều cao còn lại của viewport, sử dụng `box-sizing: content-box` để 64 ô cờ nằm vừa khít 8x8 không bị rớt dòng.
+  3. **Bàn Cờ Auto-Scaling & Viền 4 Phía Sắc Nét:** Tự động tính toán kích thước số nguyên pixel chia hết cho 8 dựa trên chiều cao và chiều rộng còn lại của viewport (trừ đi 12px padding hai bên và 4px viền 2px mỗi bên), sử dụng `box-sizing: content-box` để 64 ô cờ nằm vừa khít 8x8 không bị rớt dòng hay tràn màn hình bên phải, căn thẳng hàng tuyệt đối với thanh trạng thái và thanh điều khiển, hiển thị trọn vẹn viền đen 2px sắc nét trên cả 4 cạnh.
   4. **Thanh Điều Khiển Dưới Bàn Cờ (Action Controls - Chuẩn Play-Bot-v2 5 Nút):** 
      - 5 nút cân đối 20% mỗi nút: `Xin thua` (Resign), `Lật bàn` (Flip), nút thông tin trận đấu ở giữa `#bot-meta` (`Cấp X · ELO`, `.puzzle-meta-box`), `Refresh` (Xử lý lưu ảnh ghosting), `Ván mới` (New Game).
      - Chiều cao tối ưu 42px, viền đơn sắc 2px solid, nút Ván mới nổi bật nền đen `btn-primary`, nút bot-meta nền xám `#f0f0f0`.
@@ -97,11 +97,16 @@
   - Nút chuyển đổi ngôn ngữ (`#btn-lang-toggle`) trên Header cho phép đổi nhanh `EN` / `VI` không cần tải lại trang.
   - Tự động dịch toàn bộ giao diện: Header, Menu, thanh điều khiển Footer (`Undo`, `Resign`, `Flip`, `Refresh`, `New Game`), Modal Cấu hình ván đấu, Modal Thông tin trận đấu, Modal Thống kê, Modal PGN, Khung phong cấp, và trạng thái lượt đi / chiếu / kết thúc ván cờ.
   - **Hỗ trợ song ngữ cho hệ thống câu thoại Bot (Bot Chat Banter i18n):** Tích hợp song song 2 từ điển câu thoại (`CHAT_TEXT_VI` và `CHAT_TEXT_EN`) gồm 34 danh mục cảm xúc, nhận xét khai cuộc, tàn cuộc, chiếu tướng, phản ứng blunder/brilliant và câu giục đi cờ tự động thích ứng theo ngôn ngữ được chọn qua `randChat()`.
-- **Lựa Chọn Phiên Bản Bot Từ Modal Trang Chủ (Bot Version Launcher from Home Modal):**
+- **Lựa Chọn Phiên Bản Bot & Tiếp Tục Ván Đấu Đa Chế Độ Từ Trang Chủ (Multi-mode Bot Launcher & Dual Continue Match):**
   - Modal chọn cấu hình ván cờ trên `index.html` cung cấp 2 lựa chọn khởi động:
     - Nút **`Bot v1`**: Điều hướng tới `play-bot-v2.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
     - Nút **`Play Bot V2`**: Điều hướng tới `chess.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
   - Trang `chess.html` hỗ trợ nhận các tham số URL (`?new=1&lvl=...&side=...`) để tự động khởi tạo đúng cấp độ AI và bên cầm quân theo yêu cầu.
+  - **Cơ chế Tiếp tục ván đấu đa phiên bản (Dual-mode Continue Match):**
+    - `ChessStorage.getBotSavedStatus()` tự động kiểm tra trạng thái ván dở ở cả Bot v1 (`play-bot-v2.html`) và Bot v2 (`chess.html`) kèm theo `savedAt` timestamp.
+    - Nếu chỉ có ván dở ở v1: Thẻ Bot hiển thị tag `Đang có ván dở (Bot v1 - Cấp X)`, bấm Tiếp tục chuyển trực tiếp tới `play-bot-v2.html`.
+    - Nếu chỉ có ván dở ở v2: Thẻ Bot hiển thị tag `Đang có ván dở (Bot v2 - Cấp X)`, bấm Tiếp tục chuyển trực tiếp tới `chess.html`.
+    - Nếu có ván dở ở CẢ 2 chế độ: Thẻ Bot hiển thị tag `Có 2 ván dở (v1 & v2)`, bấm Tiếp tục mở modal popup E-ink `#home-continue-modal` cho phép người chơi chọn ván muốn tiếp tục (có gắn nhãn `(Mới nhất)` cho ván được chơi gần nhất).
 
 ---
 

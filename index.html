@@ -137,6 +137,35 @@
             </div>
         </div>
 
+        <!-- 3.1. CONTINUE MATCH MODAL (DUAL MODE SELECTOR) -->
+        <div id="home-continue-modal" class="modal-overlay" onclick="if(event.target===this) closeHomeContinueModal()">
+            <div class="modal-box" style="max-width: 440px;">
+                <div class="modal-title" id="home-continue-title" data-i18n="home.continue_modal_title">CHỌN VÁN ĐẤU TIẾP TỤC</div>
+                <div class="modal-body" style="padding-top: 10px; padding-bottom: 6px;">
+                    <div id="home-continue-body" data-i18n="home.continue_modal_body" style="font-size: 13px; line-height: 1.4; margin-bottom: 12px; color: #222;">
+                        Bạn đang có ván đấu chưa hoàn thành ở cả 2 chế độ. Hãy chọn ván bạn muốn tiếp tục:
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <button class="btn btn-primary btn-block" id="home-continue-v2-btn" onclick="resumeBotV2()"
+                            style="margin: 0; width: 100%; min-height: 44px; padding: 10px 6px; font-size: 14px; font-weight: bold; text-align: center;">
+                            Tiếp tục Bot v2
+                        </button>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <button class="btn btn-block" id="home-continue-v1-btn" onclick="resumeBotV1()"
+                            style="margin: 0; width: 100%; min-height: 44px; padding: 10px 6px; font-size: 14px; font-weight: bold; text-align: center; border: 2px solid #000; background: #fff;">
+                            Tiếp tục Bot v1
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding-top: 6px;">
+                    <button class="btn btn-block" onclick="closeHomeContinueModal()"
+                        style="width: 100%; padding: 8px; font-size: 13px; background-color: #ffffff; color: #000000; border: 1px solid #000000;"
+                        data-i18n="game.btn_cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 4. FEATURE COMING SOON MODAL -->
         <div id="feature-modal" class="modal-overlay" onclick="if(event.target===this) closeFeatureModal()">
             <div class="modal-box">
@@ -184,8 +213,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=34"></script>
-    <script src="js/chess-i18n.js?v=61"></script>
+    <script src="js/chess-storage.js?v=36"></script>
+    <script src="js/chess-i18n.js?v=64"></script>
     <script src="js/chess-backend.js?v=13"></script>
     <script>
         var selectedLvl = 1;
@@ -204,20 +233,25 @@
         }
 
         function updateBotCard() {
-            var savedV2 = (typeof ChessStorage !== 'undefined') ? ChessStorage.getSavedBotGameV2() : null;
-            var hasV2 = savedV2 && savedV2.engine && !savedV2.gameOver;
+            var botStatus = (typeof ChessStorage !== 'undefined' && ChessStorage.getBotSavedStatus) ?
+                ChessStorage.getBotSavedStatus() : { count: 0, v1: { exists: false }, v2: { exists: false }, latest: null };
 
             var tagEl = document.getElementById('bot-card-tag');
             var actionsEl = document.getElementById('bot-card-actions');
             if (!actionsEl) return;
 
             if (tagEl) {
-                if (hasV2) {
+                if (botStatus.count > 0) {
                     tagEl.removeAttribute('data-i18n');
-                    if (typeof ChessI18n !== 'undefined') {
-                        tagEl.innerHTML = ChessI18n.t('home.saved_game_tag', { lvl: savedV2.botLevel || 1 });
+                    if (botStatus.count === 2) {
+                        tagEl.innerHTML = (typeof ChessI18n !== 'undefined') ?
+                            ChessI18n.t('home.saved_game_tag_both') : '2 Saved Games (v1 &amp; v2)';
+                    } else if (botStatus.v2.exists) {
+                        tagEl.innerHTML = (typeof ChessI18n !== 'undefined') ?
+                            ChessI18n.t('home.saved_game_tag_v2', { lvl: botStatus.v2.level }) : ('Saved (Bot v2 - Lvl ' + botStatus.v2.level + ')');
                     } else {
-                        tagEl.innerHTML = 'Saved (Lvl ' + (savedV2.botLevel || 1) + ')';
+                        tagEl.innerHTML = (typeof ChessI18n !== 'undefined') ?
+                            ChessI18n.t('home.saved_game_tag_v1', { lvl: botStatus.v1.level }) : ('Saved (Bot v1 - Lvl ' + botStatus.v1.level + ')');
                     }
                 } else {
                     tagEl.setAttribute('data-i18n', 'home.bot_card_tag');
@@ -229,7 +263,7 @@
                 }
             }
 
-            if (hasV2) {
+            if (botStatus.count > 0) {
                 var resumeText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.bot_card_btn_resume') : 'Continue Match';
                 var newGameText = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.bot_card_btn_new') : 'New Game';
                 actionsEl.innerHTML =
@@ -247,8 +281,65 @@
             }
         }
 
-        function resumeSavedGame() {
+        function resumeBotV1() {
+            closeHomeContinueModal();
             location.href = 'play-bot-v2.html';
+        }
+
+        function resumeBotV2() {
+            closeHomeContinueModal();
+            location.href = 'chess.html';
+        }
+
+        function openHomeContinueModal() {
+            var botStatus = (typeof ChessStorage !== 'undefined' && ChessStorage.getBotSavedStatus) ?
+                ChessStorage.getBotSavedStatus() : { v1: { exists: false, level: 1 }, v2: { exists: false, level: 1 }, latest: null };
+
+            var v1Btn = document.getElementById('home-continue-v1-btn');
+            var v2Btn = document.getElementById('home-continue-v2-btn');
+            var recentBadge = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('home.latest_badge') : ' (Recent)';
+
+            if (v1Btn) {
+                var v1Text = (typeof ChessI18n !== 'undefined') ?
+                    ChessI18n.t('home.continue_modal_v1', { lvl: botStatus.v1.level }) : ('Continue Bot v1 (Lvl ' + botStatus.v1.level + ')');
+                if (botStatus.latest === 'v1') v1Text += recentBadge;
+                v1Btn.innerHTML = v1Text;
+            }
+            if (v2Btn) {
+                var v2Text = (typeof ChessI18n !== 'undefined') ?
+                    ChessI18n.t('home.continue_modal_v2', { lvl: botStatus.v2.level }) : ('Continue Bot v2 (Lvl ' + botStatus.v2.level + ')');
+                if (botStatus.latest === 'v2') v2Text += recentBadge;
+                v2Btn.innerHTML = v2Text;
+            }
+
+            var modal = document.getElementById('home-continue-modal');
+            if (modal) {
+                modal.className = 'modal-overlay active';
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeHomeContinueModal() {
+            var modal = document.getElementById('home-continue-modal');
+            if (modal) {
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+            }
+        }
+
+        function resumeSavedGame() {
+            var botStatus = (typeof ChessStorage !== 'undefined' && ChessStorage.getBotSavedStatus) ?
+                ChessStorage.getBotSavedStatus() : { count: 0, v1: { exists: false }, v2: { exists: false } };
+
+            if (botStatus.count >= 2) {
+                openHomeContinueModal();
+            } else if (botStatus.v2.exists) {
+                resumeBotV2();
+            } else if (botStatus.v1.exists) {
+                resumeBotV1();
+            } else {
+                openHomeSetupModal();
+            }
         }
 
         function initHome() {

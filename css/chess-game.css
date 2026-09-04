@@ -64,7 +64,7 @@ html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            padding: 0 4px;
+            padding: 0 6px;
             box-sizing: border-box;
             -webkit-box-sizing: border-box;
         }
@@ -235,6 +235,7 @@ html {
 
         .board-wrap {
             position: relative;
+            margin: 0 auto;
         }
 
         .board {
@@ -244,6 +245,7 @@ html {
             -webkit-box-sizing: content-box;
             box-sizing: content-box;
             background-color: #ffffff;
+            margin: 0 auto;
         }
 
         #coach-svg {

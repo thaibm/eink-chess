@@ -31,6 +31,7 @@
         PIECE_THEME: 'einkchess_piece_theme',
         SHOW_HINTS: 'einkchess_show_hints',
         SAVED_BOT_GAME_V2: 'einkchess_saved_bot_game_v2',
+        SAVED_MONOLITH_GAME: 'einkchess_monolith_saved_game',
         ANALYSIS_GAME: 'einkchess_analysis_game',
         AUTO_REFRESH_MODAL: 'einkchess_auto_refresh_modal'
     };
@@ -323,6 +324,62 @@
 
         clearSavedBotGameV2: function() {
             return this.remove(STORAGE_KEYS.SAVED_BOT_GAME_V2);
+        },
+
+        // --- Monolith Bot Game State (chess.html - Bot v2) ---
+        saveMonolithGame: function(gameState) {
+            return this.set(STORAGE_KEYS.SAVED_MONOLITH_GAME, gameState);
+        },
+
+        getSavedMonolithGame: function() {
+            return this.get(STORAGE_KEYS.SAVED_MONOLITH_GAME, null);
+        },
+
+        clearSavedMonolithGame: function() {
+            return this.remove(STORAGE_KEYS.SAVED_MONOLITH_GAME);
+        },
+
+        // Unified check across both modes (v1: play-bot-v2.html, v2: chess.html)
+        getBotSavedStatus: function() {
+            var s1 = this.getSavedBotGameV2();
+            var hasV1 = !!(s1 && s1.engine && !s1.gameOver);
+            var v1Info = {
+                exists: hasV1,
+                level: (hasV1 && s1.botLevel) ? s1.botLevel : 1,
+                side: (hasV1 && s1.playerSide) ? s1.playerSide : 'w',
+                savedAt: (hasV1 && (s1.savedAt || s1.updatedAt)) ? (s1.savedAt || s1.updatedAt) : 0,
+                data: s1
+            };
+
+            var s2 = this.getSavedMonolithGame();
+            var hasV2 = !!(s2 && s2.gB && s2.gB.length === 64 && s2.gActive && s2.gGameStarted);
+            var v2Level = 1;
+            if (hasV2 && typeof s2.gRank === 'number') {
+                v2Level = s2.gRank + 1;
+            }
+            var v2Side = (hasV2 && s2.gPC === -1) ? 'b' : 'w';
+            var v2Info = {
+                exists: hasV2,
+                level: v2Level,
+                side: v2Side,
+                savedAt: (hasV2 && (s2.savedAt || s2.updatedAt)) ? (s2.savedAt || s2.updatedAt) : 0,
+                data: s2
+            };
+
+            var count = (hasV1 ? 1 : 0) + (hasV2 ? 1 : 0);
+            var latest = null;
+            if (count === 1) {
+                latest = hasV1 ? 'v1' : 'v2';
+            } else if (count === 2) {
+                latest = (v2Info.savedAt >= v1Info.savedAt) ? 'v2' : 'v1';
+            }
+
+            return {
+                v1: v1Info,
+                v2: v2Info,
+                count: count,
+                latest: latest
+            };
         },
 
         // --- Post-Game Analysis State ---

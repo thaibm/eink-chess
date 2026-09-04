@@ -7,7 +7,7 @@
     <title>Play vs Bot - Kindle Chess</title>
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <link rel="stylesheet" href="css/einkchess.css?v=65">
-    <link rel="stylesheet" href="css/chess-game.css?v=2">
+    <link rel="stylesheet" href="css/chess-game.css?v=3">
     <link rel="canonical" href="https://einkchess.fun/chess.html">
     <link rel="alternate" type="text/markdown" href="md/chess.md" title="Markdown version for AI agents">
 </head>
@@ -252,8 +252,8 @@
     </div>
 
     <script src="js/tomitank-source.js?v=1"></script>
-    <script src="js/chess-storage.js?v=35"></script>
-    <script src="js/chess-i18n.js?v=63"></script>
+    <script src="js/chess-storage.js?v=36"></script>
+    <script src="js/chess-i18n.js?v=64"></script>
     <script src="js/chess-book.js?v=1"></script>
     <script src="js/chess-persona.js?v=1"></script>
     <script src="js/chess-review.js?v=1"></script>
@@ -2626,7 +2626,11 @@
 
         function clearSavedGame() {
             try {
-                localStorage.removeItem(MONOLITH_SAVED_GAME_KEY);
+                if (typeof ChessStorage !== 'undefined' && ChessStorage.clearSavedMonolithGame) {
+                    ChessStorage.clearSavedMonolithGame();
+                } else {
+                    localStorage.removeItem(MONOLITH_SAVED_GAME_KEY);
+                }
             } catch (e) { }
         }
 
@@ -2653,17 +2657,26 @@
                     gCapturedBlack: gCapturedBlack,
                     gCapturedWhite: gCapturedWhite,
                     gGameStarted: gGameStarted,
-                    gActive: gActive
+                    gActive: gActive,
+                    savedAt: new Date().getTime()
                 };
-                localStorage.setItem(MONOLITH_SAVED_GAME_KEY, JSON.stringify(state));
+                if (typeof ChessStorage !== 'undefined' && ChessStorage.saveMonolithGame) {
+                    ChessStorage.saveMonolithGame(state);
+                } else {
+                    localStorage.setItem(MONOLITH_SAVED_GAME_KEY, JSON.stringify(state));
+                }
             } catch (e) { }
         }
 
         function restoreSavedGame() {
             try {
-                var raw = localStorage.getItem(MONOLITH_SAVED_GAME_KEY);
-                if (!raw) return false;
-                var s = JSON.parse(raw);
+                var s = (typeof ChessStorage !== 'undefined' && ChessStorage.getSavedMonolithGame) ?
+                    ChessStorage.getSavedMonolithGame() : null;
+                if (!s) {
+                    var raw = localStorage.getItem(MONOLITH_SAVED_GAME_KEY);
+                    if (!raw) return false;
+                    s = JSON.parse(raw);
+                }
                 if (!s || !s.gB || s.gB.length !== 64 || !s.gActive) {
                     clearSavedGame();
                     return false;
@@ -3051,39 +3064,54 @@
             var safeOffset = 20; // safety buffer to strictly prevent any scrolling
 
             var nonBoardH = headerH + statusH + ctrlH + safeOffset;
-            var availableH = vh - nonBoardH;
-            var availableW = vw - 12; // 6px padding each side
+            var padX = 12; // 6px padding on each side of #game-wrap
+
+            // Available width and height for square area (accounting for 2px board border on each side = 4px)
+            var availableH = vh - nonBoardH - 4;
+            var availableW = vw - padX - 4;
 
             var maxBoardSize = Math.min(availableW, availableH);
             if (maxBoardSize < 80) maxBoardSize = 80;
 
             var sqSize = Math.floor(maxBoardSize / 8);
             var exactBoardSize = sqSize * 8;
-            var fullBoardWidth = exactBoardSize + 4; // 2px border each side
+            var fullBoardWidth = exactBoardSize + 4; // exactBoardSize + 2px border on left + 2px border on right
 
             /* Apply integer pixel dimensions */
             bd.style.boxSizing = 'content-box';
             bd.style.webkitBoxSizing = 'content-box';
             bd.style.width = exactBoardSize + 'px';
             bd.style.height = exactBoardSize + 'px';
+            bd.style.border = '2px solid #000000';
+            bd.style.marginLeft = 'auto';
+            bd.style.marginRight = 'auto';
 
             if (boardOuter) {
                 boardOuter.style.width = fullBoardWidth + 'px';
                 boardOuter.style.maxWidth = fullBoardWidth + 'px';
+                boardOuter.style.marginLeft = 'auto';
+                boardOuter.style.marginRight = 'auto';
             }
             if (boardWrap) {
                 boardWrap.style.width = fullBoardWidth + 'px';
+                boardWrap.style.maxWidth = fullBoardWidth + 'px';
+                boardWrap.style.marginLeft = 'auto';
+                boardWrap.style.marginRight = 'auto';
             }
             if (wrap) {
-                wrap.style.maxWidth = fullBoardWidth + 'px';
+                wrap.style.maxWidth = (fullBoardWidth + padX) + 'px';
+                wrap.style.width = '100%';
             }
             if (headerEl) {
+                headerEl.style.width = fullBoardWidth + 'px';
                 headerEl.style.maxWidth = fullBoardWidth + 'px';
             }
             if (statusEl) {
+                statusEl.style.width = fullBoardWidth + 'px';
                 statusEl.style.maxWidth = fullBoardWidth + 'px';
             }
             if (ctrl) {
+                ctrl.style.width = fullBoardWidth + 'px';
                 ctrl.style.maxWidth = fullBoardWidth + 'px';
             }
 
