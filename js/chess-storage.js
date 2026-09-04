@@ -352,7 +352,7 @@
             };
 
             var s2 = this.getSavedMonolithGame();
-            var hasV2 = !!(s2 && s2.gB && s2.gB.length === 64 && s2.gActive && s2.gGameStarted);
+            var hasV2 = !!(s2 && s2.gB && s2.gB.length === 64 && s2.gActive);
             var v2Level = 1;
             if (hasV2 && typeof s2.gRank === 'number') {
                 v2Level = s2.gRank + 1;

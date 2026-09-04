@@ -293,7 +293,7 @@
     </div>
 
     <script src="js/tomitank-source.js?v=1"></script>
-    <script src="js/chess-storage.js?v=36"></script>
+    <script src="js/chess-storage.js?v=37"></script>
     <script src="js/chess-i18n.js?v=64"></script>
     <script src="js/chess-book.js?v=1"></script>
     <script src="js/chess-persona.js?v=1"></script>
@@ -2586,8 +2586,17 @@
                 _isPlayerBlack = true;
             } else if (forcedSide === 'w') {
                 _isPlayerBlack = false;
-            } else {
+            } else if (forcedSide === 'r') {
                 _isPlayerBlack = Math.random() < 0.5;
+            } else {
+                var defSide = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultSide) ? ChessStorage.getDefaultSide() : 'w';
+                if (defSide === 'b') {
+                    _isPlayerBlack = true;
+                } else if (defSide === 'r') {
+                    _isPlayerBlack = Math.random() < 0.5;
+                } else {
+                    _isPlayerBlack = false;
+                }
             }
             gPC = _isPlayerBlack ? B : W;
             gFlip = _isPlayerBlack;
@@ -2600,6 +2609,7 @@
             hideSplitButton();
             renderBoard(); setStatus();
             tomiEnsure();
+            saveCurrentGameState();
             if (gPC === B && gActive) {
                 var _t3 = gGameToken;
                 setTimeout(function () { if (_t3 !== gGameToken) return; aiMove(); }, 1000);
@@ -2677,7 +2687,7 @@
         }
 
         function saveCurrentGameState() {
-            if (!gActive || !gGameStarted || !gB) {
+            if (!gActive || !gB) {
                 return;
             }
             try {
@@ -2726,10 +2736,10 @@
 
                 gGameToken++;
                 gRank = (typeof s.gRank === 'number') ? s.gRank : 0;
-                gPC = s.gPC || W;
+                gPC = (typeof s.gPC === 'number') ? s.gPC : W;
                 gFlip = (typeof s.gFlip === 'boolean') ? s.gFlip : (gPC === B);
                 gB = s.gB;
-                gTurn = s.gTurn || W;
+                gTurn = (typeof s.gTurn === 'number') ? s.gTurn : W;
                 gEP = (typeof s.gEP === 'number') ? s.gEP : -1;
                 gCasB = (typeof s.gCasB === 'number') ? s.gCasB : CAS_ALL;
                 gHalf = s.gHalf || 0;
