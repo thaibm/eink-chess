@@ -148,7 +148,9 @@ html {
             background-color: #f9f9f9;
             cursor: pointer;
             table-layout: fixed;
-            min-height: 26px;
+            height: 28px;
+            max-height: 28px;
+            box-sizing: border-box;
             -webkit-flex-shrink: 0;
             flex-shrink: 0;
         }
@@ -196,12 +198,13 @@ html {
         .status-cap-side {
             display: table-cell;
             vertical-align: middle;
-            width: 26%;
-            font-size: 15px;
+            width: 28%;
+            font-size: 14px;
             line-height: 1;
             overflow: hidden;
             white-space: nowrap;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
+            max-width: 0;
         }
 
         #status-cap-white {
@@ -221,7 +224,16 @@ html {
             font-size: 12px;
             font-weight: bold;
             line-height: 1.2;
-            width: 48%;
+            width: 44%;
+            max-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-text-inner.compact {
+            font-size: 10.5px;
+            letter-spacing: -0.5px;
         }
 
         /* ── BOARD ── */
@@ -397,14 +409,15 @@ html {
         .status-cap-side .piece-img,
         .cap-piece img,
         .cap-piece .piece-img {
-            width: 14px !important;
-            height: 14px !important;
-            max-width: 14px !important;
-            max-height: 14px !important;
+            width: 13px !important;
+            height: 13px !important;
+            max-width: 13px !important;
+            max-height: 13px !important;
             vertical-align: middle !important;
             display: inline-block !important;
-            margin: 0 1px !important;
+            margin: 0 !important;
             padding: 0 !important;
+            pointer-events: none;
         }
 
         /* ── ACTION BAR & BUTTONS (PLAY-BOT-V2 STYLE) ── */

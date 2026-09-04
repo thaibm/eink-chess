@@ -7,7 +7,7 @@
     <title>Play vs Bot - Kindle Chess</title>
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <link rel="stylesheet" href="css/einkchess.css?v=66">
-    <link rel="stylesheet" href="css/chess-game.css?v=4">
+    <link rel="stylesheet" href="css/chess-game.css?v=6">
     <link rel="canonical" href="https://einkchess.fun/chess.html">
     <link rel="alternate" type="text/markdown" href="md/chess.md" title="Markdown version for AI agents">
 </head>
@@ -2206,58 +2206,34 @@
         var gDeviceLabel = gIsWeakDevice ? 'Kindle' : 'PC'; /* Hiển thị trong tiêu đề Log */
 
         function updateCaptured() {
-            var bar = document.getElementById('captured-bar');
-            if (!bar) return;
+            var sCapW = document.getElementById('status-cap-white');
+            var sCapB = document.getElementById('status-cap-black');
             var bEl = document.getElementById('cap-black');
             var wEl = document.getElementById('cap-white');
             var cEl = document.getElementById('cap-center');
-            var lastPiece = null, lastIsBlack = false;
-            if (gLast && gLast[2]) {
-                var lt = typ(gLast[2]);
-                if (lt >= 2 && lt <= 5) {
-                    lastIsBlack = (col(gLast[2]) === B);
-                    lastPiece = lastIsBlack ? CAP_SYM[lt] : CAP_SYM_W[lt];
-                }
+
+            var sortedW = (gCapturedWhite || []).slice().sort(function (a, b) {
+                return typ(b) - typ(a);
+            });
+            var sortedB = (gCapturedBlack || []).slice().sort(function (a, b) {
+                return typ(b) - typ(a);
+            });
+
+            var wHtml = '';
+            for (var i = 0; i < sortedW.length; i++) {
+                wHtml += getPieceHtml(sortedW[i]);
             }
-            function sideList(arr, isBlack) {
-                var end = (lastPiece && lastIsBlack === isBlack) ? arr.length - 1 : arr.length;
-                return arr.slice(0, end);
+
+            var bHtml = '';
+            for (var j = 0; j < sortedB.length; j++) {
+                bHtml += getPieceHtml(sortedB[j]);
             }
-            function typeCounts(arr) {
-                var c = [0, 0, 0, 0, 0, 0, 0];
-                for (var i = 0; i < arr.length; i++) { var t = typ(arr[i]); if (t >= 2 && t <= 5) c[t]++; }
-                return c;
-            }
-            var blackList = sideList(gCapturedBlack, true);
-            var whiteList = sideList(gCapturedWhite, false);
-            var blackCnt = typeCounts(blackList), whiteCnt = typeCounts(whiteList);
-            var theme = (typeof ChessStorage !== 'undefined' && ChessStorage.getPieceTheme) ? ChessStorage.getPieceTheme() : 'ejgfv';
-            function buildSide(arr, sym, isBlack, ownCnt, otherCnt) {
-                if (!arr.length) return '';
-                var keep = [0, 0, 0, 0, 0, 0, 0];
-                for (var t = 2; t <= 5; t++) keep[t] = Math.max(0, ownCnt[t] - otherCnt[t]);
-                var ordered = isBlack ? arr : arr.slice().reverse();
-                var out = '';
-                for (var i = 0; i < ordered.length; i++) {
-                    var tt = typ(ordered[i]);
-                    if (tt >= 2 && tt <= 5 && keep[tt] > 0) {
-                        var pContent = (theme === 'unicode') ? sym[tt] : getPieceHtml(isBlack ? -tt : tt);
-                        out += '<span class="cap-piece">' + pContent + '</span>';
-                        keep[tt]--;
-                    }
-                }
-                return out;
-            }
-            bEl.innerHTML = buildSide(blackList, CAP_SYM, true, blackCnt, whiteCnt);
-            wEl.innerHTML = buildSide(whiteList, CAP_SYM_W, false, whiteCnt, blackCnt);
-            var sCapW = document.getElementById('status-cap-white');
-            var sCapB = document.getElementById('status-cap-black');
-            if (sCapW) sCapW.innerHTML = wEl.innerHTML;
-            if (sCapB) sCapB.innerHTML = bEl.innerHTML;
-            if (lastPiece) {
-                var lastContent = (theme === 'unicode') ? lastPiece : getPieceHtml(lastIsBlack ? -typ(gLast[2]) : typ(gLast[2]));
-                cEl.innerHTML = '<span class="cap-piece new">' + lastContent + '</span>';
-            } else { cEl.innerHTML = ''; }
+
+            if (sCapW) sCapW.innerHTML = wHtml;
+            if (sCapB) sCapB.innerHTML = bHtml;
+            if (wEl) wEl.innerHTML = wHtml;
+            if (bEl) bEl.innerHTML = bHtml;
+            if (cEl) cEl.innerHTML = '';
         }
 
         function showCapturedBar() { }
@@ -2753,8 +2729,36 @@
                 gUciHist = s.gUciHist || [];
                 gLast = s.gLast || null;
                 gPosHistFen = s.gPosHistFen || [];
-                gCapturedBlack = s.gCapturedBlack || [];
-                gCapturedWhite = s.gCapturedWhite || [];
+                gCapturedBlack = [];
+                gCapturedWhite = [];
+                if (s.gUciHist && s.gUciHist.length > 0) {
+                    var _simB = [
+                        WR, WN, WB, WQ, WK, WB, WN, WR,
+                        WP, WP, WP, WP, WP, WP, WP, WP,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+                        BP, BP, BP, BP, BP, BP, BP, BP,
+                        BR, BN, BB, BQ, BK, BB, BN, BR
+                    ];
+                    var _simTurn = W, _simEP = -1, _simCas = CAS_ALL;
+                    for (var _ui = 0; _ui < s.gUciHist.length; _ui++) {
+                        var _smv = uciToMove(s.gUciHist[_ui], _simB, _simTurn, _simEP, _simCas);
+                        if (!_smv) break;
+                        if (_smv[2]) {
+                            if (col(_smv[2]) === B) gCapturedBlack.push(_smv[2]);
+                            else gCapturedWhite.push(_smv[2]);
+                        }
+                        _simCas = newCasBit(_simCas, _simB, _smv, _simTurn);
+                        _simB = applyMv(_simB, _smv);
+                        _simEP = (typeof _smv[6] === 'number') ? _smv[6] : -1;
+                        _simTurn = -_simTurn;
+                    }
+                } else {
+                    gCapturedBlack = s.gCapturedBlack || [];
+                    gCapturedWhite = s.gCapturedWhite || [];
+                }
                 gGameStarted = !!s.gGameStarted;
                 gActive = true;
                 gSel = -1;
@@ -3008,7 +3012,7 @@
                 gLast = mv;
                 if (mv[2]) {
                     var ct = typ(mv[2]);
-                    if (ct >= 2 && ct <= 5) {
+                    if (ct >= 1 && ct <= 5) {
                         if (col(mv[2]) === B) gCapturedBlack.push(mv[2]);
                         else gCapturedWhite.push(mv[2]);
                     }
@@ -3328,6 +3332,10 @@
             var inner = document.getElementById('status-text-inner');
             if (inner) {
                 if (inner.textContent !== txt) inner.textContent = txt;
+                if (inner.title !== txt) inner.title = txt;
+                var isCompact = (txt && txt.length > 22);
+                var innerCls = isCompact ? 'status-text-inner compact' : 'status-text-inner';
+                if (inner.className !== innerCls) inner.className = innerCls;
             } else {
                 if (el.textContent !== txt) el.textContent = txt;
             }
@@ -4087,7 +4095,7 @@
             gLast = mv;
             if (mv[2]) {
                 var ct = typ(mv[2]);
-                if (ct >= 2 && ct <= 5) {
+                if (ct >= 1 && ct <= 5) {
                     if (col(mv[2]) === B) gCapturedBlack.push(mv[2]);
                     else gCapturedWhite.push(mv[2]);
                 }
