@@ -99,9 +99,11 @@
   - Tự động dịch toàn bộ giao diện: Header, Menu, thanh điều khiển Footer (`Undo`, `Resign`, `Flip`, `Refresh`, `New Game`), Modal Cấu hình ván đấu, Modal Thông tin trận đấu, Modal Thống kê, Modal PGN, Khung phong cấp, và trạng thái lượt đi / chiếu / kết thúc ván cờ.
   - **Hỗ trợ song ngữ cho hệ thống câu thoại Bot (Bot Chat Banter i18n):** Tích hợp song song 2 từ điển câu thoại (`CHAT_TEXT_VI` và `CHAT_TEXT_EN`) gồm 34 danh mục cảm xúc, nhận xét khai cuộc, tàn cuộc, chiếu tướng, phản ứng blunder/brilliant và câu giục đi cờ tự động thích ứng theo ngôn ngữ được chọn qua `randChat()`.
 - **Lựa Chọn Phiên Bản Bot & Tiếp Tục Ván Đấu Đa Chế Độ Từ Trang Chủ (Multi-mode Bot Launcher & Dual Continue Match):**
-  - Modal chọn cấu hình ván cờ trên `index.html` cung cấp 2 lựa chọn khởi động:
-    - Nút **`Bot v1`**: Điều hướng tới `play-bot-v2.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
-    - Nút **`Play Bot V2`**: Điều hướng tới `chess.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
+  - Modal chọn cấu hình ván cờ trên `index.html` (`#home-setup-modal`) cung cấp các tùy chọn:
+    - **1. Cấp độ AI:** 10 cấp độ từ Cấp 1 đến Cấp 10.
+    - **2. Bên cầm quân:** Trắng (đi trước) hoặc Đen (đi sau).
+    - **3. Phiên bản Bot:** Nút chọn chuyển đổi giữa **`Bot v1`** (`play-bot-v2.html`) và **`Bot v2`** (`chess.html`) theo dạng segmented selector (mặc định là Bot v2).
+    - **Footer Modal:** Bố trí nút "Hủy" ở bên trái và nút **"Bắt Đầu"** ở bên phải (viền đen `border: 2px solid #000000`) để khởi động ván mới theo đúng phiên bản Bot và cấu hình đã chọn.
   - Trang `chess.html` hỗ trợ nhận các tham số URL (`?new=1&lvl=...&side=...`) để tự động khởi tạo đúng cấp độ AI và bên cầm quân theo yêu cầu.
   - **Cơ chế Tiếp tục ván đấu đa phiên bản (Dual-mode Continue Match):**
     - `ChessStorage.getBotSavedStatus()` tự động kiểm tra trạng thái ván dở ở cả Bot v1 (`play-bot-v2.html`) và Bot v2 (`chess.html`) kèm theo `savedAt` timestamp.

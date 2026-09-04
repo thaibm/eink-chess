@@ -25,6 +25,7 @@
         QUOTA: 'einkchess_quota',
         DEFAULT_BOT_LEVEL: 'einkchess_default_bot_lvl',
         DEFAULT_BOT_LEVEL_V2: 'einkchess_default_bot_lvl_v2',
+        DEFAULT_BOT_VERSION: 'einkchess_default_bot_version',
         DEFAULT_SIDE: 'einkchess_default_side',
         DEFAULT_BOT_REVIEW: 'einkchess_default_bot_review',
         ALLOW_UNDO: 'einkchess_allow_undo',
@@ -414,6 +415,14 @@
         
         getDefaultBotLevelV2: function() { return this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, 1); },
         setDefaultBotLevelV2: function(lvl) { this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, parseInt(lvl, 10)); },
+
+        getDefaultBotVersion: function() {
+            return this.get(STORAGE_KEYS.DEFAULT_BOT_VERSION, 'v2');
+        },
+
+        setDefaultBotVersion: function(ver) {
+            return this.set(STORAGE_KEYS.DEFAULT_BOT_VERSION, ver);
+        },
 
         getDefaultSide: function() {
             return this.get(STORAGE_KEYS.DEFAULT_SIDE, 'w');
