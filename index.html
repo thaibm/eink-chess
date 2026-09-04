@@ -117,17 +117,22 @@
                         </button>
                     </div>
                 </div>
-                <div class="modal-footer" style="display: table; width: 100%;">
-                    <div style="display: table-cell; width: 45%; padding-right: 4px;">
-                        <button class="btn btn-block" onclick="closeHomeSetupModal()"
-                            style="margin: 0; padding: 11px 8px; font-size: 15px;"
-                            data-i18n="game.btn_cancel">Cancel</button>
+                <div class="modal-footer" style="padding-top: 10px;">
+                    <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 4px 0; margin-bottom: 6px;">
+                        <div style="display: table-cell; width: 50%; padding: 0;">
+                            <button class="btn btn-block" onclick="launchBotV1()"
+                                style="margin: 0; width: 100%; padding: 11px 4px; font-size: 14px; font-weight: bold;"
+                                data-i18n="home.btn_play_bot_v1">Bot v1</button>
+                        </div>
+                        <div style="display: table-cell; width: 50%; padding: 0;">
+                            <button class="btn btn-primary btn-block" onclick="launchBotV2()"
+                                style="margin: 0; width: 100%; padding: 11px 4px; font-size: 14px; font-weight: bold;"
+                                data-i18n="home.btn_play_bot_v2">Play Bot V2</button>
+                        </div>
                     </div>
-                    <div style="display: table-cell; width: 55%; padding-left: 4px;">
-                        <button class="btn btn-primary btn-block" onclick="launchGame()"
-                            style="margin: 0; padding: 11px 8px; font-size: 15px;" data-i18n="home.btn_launch">Start
-                            Game</button>
-                    </div>
+                    <button class="btn btn-block" onclick="closeHomeSetupModal()"
+                        style="width: 100%; padding: 8px; font-size: 13px; background-color: #ffffff; color: #000000; border: 1px solid #000000;"
+                        data-i18n="game.btn_cancel">Cancel</button>
                 </div>
             </div>
         </div>
@@ -387,8 +392,16 @@
             items[1].className = 'btn-group-item' + (side === 'b' ? ' active' : '');
         }
 
-        function launchGame() {
+        function launchBotV1() {
             location.href = 'play-bot-v2.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide;
+        }
+
+        function launchBotV2() {
+            location.href = 'chess.html?new=1&lvl=' + selectedLvl + '&side=' + selectedSide;
+        }
+
+        function launchGame() {
+            launchBotV2();
         }
 
         // Run safely once

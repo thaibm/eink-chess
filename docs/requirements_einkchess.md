@@ -52,6 +52,44 @@
 - **Tỉ lệ phân bổ:** Mỗi khối chế độ chiếm xấp xỉ ~30% không gian dọc màn hình (`min-height: 25-28vh`), tăng kích thước chữ (Title 16-17px, Desc 14px, Button 15px) và touch target (nút bấm chính min 44px) giúp người dùng Kindle dễ nhìn và chạm chính xác tuyệt đối mà không cần cuộn trang.
 - **Chân trang (Footer):** Hiển thị thông tin ghi nhận "Powered by sendwebtokindle.xyz" (`https://sendwebtokindle.xyz`) có hỗ trợ đa ngôn ngữ (`footer.powered_by`).
 
+### 2.6. Chuẩn Giao Diện Zero-Scroll Monolith (`chess.html`)
+- **Định hướng thiết kế:** Đồng bộ 100% ngôn ngữ thiết kế từ `play-bot` / `play-bot-v2.html` vào phiên bản engine monolith `chess.html`, đảm bảo vừa khít khung nhìn tuyệt đối không xuất hiện thanh cuộn trên mọi màn hình E-ink (Kindle 6", Paperwhite, Kobo, Oasis...).
+- **Cấu trúc phân bổ 4 tầng dọc:**
+  1. **Header Bar:** Thu nhỏ thành 1 dòng (Logo EinkChess, nút xem PGN Overlay, nút Menu trở về `index.html`).
+  2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị quân cờ bị bắt (Trắng bên trái, Đen bên phải) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa.
+  3. **Bàn Cờ Auto-Scaling:** Tự động tính toán kích thước số nguyên pixel chia hết cho 8 dựa trên chiều cao còn lại của viewport, sử dụng `box-sizing: content-box` để 64 ô cờ nằm vừa khít 8x8 không bị rớt dòng.
+  4. **Thanh Điều Khiển Dưới Bàn Cờ (Action Controls - Chuẩn Play-Bot-v2 5 Nút):** 
+     - 5 nút cân đối 20% mỗi nút: `Xin thua` (Resign), `Lật bàn` (Flip), nút thông tin trận đấu ở giữa `#bot-meta` (`Cấp X · ELO`, `.puzzle-meta-box`), `Refresh` (Xử lý lưu ảnh ghosting), `Ván mới` (New Game).
+     - Chiều cao tối ưu 42px, viền đơn sắc 2px solid, nút Ván mới nổi bật nền đen `btn-primary`, nút bot-meta nền xám `#f0f0f0`.
+- **Modal Thông Tin Trận Đấu (Match Information Modal `#bot-info-modal` - tương tự Play-Bot-v2):**
+  - Mở ra khi người chơi nhấn vào nút `#bot-meta` ở giữa thanh điều khiển Footer.
+  - Hiển thị Bảng Matchup (Người chơi ELO + Bên cầm quân vs Tên Bot, Cấp độ & ELO tương ứng), Thẻ dự tính điểm ELO cược FIDE (Thắng / Hòa / Thua tính động theo chênh lệch trình độ), và Đặc tính Bot (mô tả phong cách, thời gian nghĩ và tỷ lệ blunder theo từng cấp độ), kèm nút "Đóng" không làm gián đoạn ván cờ.
+- **Modal Cấu Hình Ván Đấu (Match Setup Modal `#setup-modal`):**
+  - Gộp toàn bộ tùy chọn chọn Cấp độ (10 cấp từ Cấp 1 đến Cấp 10 kèm nhãn ELO tương ứng) và Chọn bên cầm quân (Trắng đi trước, Đen đi sau, Ngẫu nhiên) vào Modal Popup `#setup-modal`.
+  - Nút "Ván mới" tại Footer và trong Popup Thống kê khi bấm sẽ mở Modal Cấu hình này. Sau khi người chơi bấm "Bắt Đầu", hệ thống lưu cấp độ, cập nhật nhãn nút `#bot-meta` ở giữa thanh Footer và khởi tạo ván cờ với màu quân đã chọn (nếu chọn Đen, AI cầm Trắng và tự động đi trước).
+- **Thanh PGN/History:** Ẩn khỏi màn hình chính để tiết kiệm không gian dọc, xem lại qua nút PGN trên Header.
+- **Thống Kê Ván Đấu (Stats Modal Popup):** Chuyển bảng thống kê Brilliant / Great / Best / Blunder khi kết thúc ván thành Modal Popup (`#stats-overlay`), giữ nguyên các tính năng xem lại nước đi (`jumpToClassify`, nút tua ◀/▶, ⏮/⏭) mà không làm vỡ bố cục bàn cờ chính.
+- **Cơ Chế Tự Động Lưu & Khôi Phục Ván Đấu (Auto-Save / Resume Game tương tự Play-Bot-v2):**
+  - Tự động lưu toàn bộ trạng thái ván cờ (`gRank`, `gPC`, `gFlip`, `gB`, `gTurn`, `gEP`, `gCasB`, `gHalf`, `gFull`, `gHist`, `gUciHist`, `gLast`, `gCapturedBlack`, `gCapturedWhite`) vào `localStorage` (`einkchess_monolith_saved_game`) sau mỗi nước đi hợp lệ.
+  - Khi người dùng tải lại trang (F5/Refresh) hoặc mở lại trình duyệt, hệ thống tự động khôi phục đúng trạng thái bàn cờ, highlight nước đi cuối và tự kích hoạt Bot tính toán nếu đến lượt đi của Bot.
+  - Tự động dọn dẹp bộ nhớ lưu trữ khi ván cờ kết thúc (Chiếu hết, Stalemate, Hòa luật 50 nước, Lặp lại 3 lần, Hết quân chiếu hết, hoặc khi một bên Đầu hàng / bấm Ván mới).
+- **Đồng Bộ & Áp Dụng Toàn Diện Cấu Hình Từ Trang Settings (Settings Configurations Support tương tự Play-Bot-v2):**
+  - **Piece Theme (Kiểu quân cờ):** Hỗ trợ 3 theme thông qua `ChessStorage.getPieceTheme()`: Chess.com (PNG `ejgfv`), Lichess (SVG `cburnett`), và Unicode (`unicode`) hiển thị trên 64 ô bàn cờ, modal phong cấp và thanh quân bị bắt.
+  - **Show Move Hints (Gợi ý nước đi):** Bật/tắt các chấm tròn gợi ý nước đi hợp lệ (`.dot-marker`, `.ring-marker`) theo `ChessStorage.getShowHints()`.
+  - **Allow Undo (Cho phép đi lại):** Hiển thị/ẩn nút `[Đi lại]` trên thanh Footer theo `ChessStorage.getAllowUndo()`. Khi kích hoạt, hoàn tác 2 nước đi (nước Bot và nước người chơi) qua cơ chế replay stack sạch sẽ.
+  - **Auto Refresh on Modal Close (Tự động làm mới khi đóng popup):** Tự động gọi `handleRefresh(120)` xóa bóng mờ E-ink khi đóng các popup Modal (Cấu hình ván đấu, Thông tin trận đấu, Thống kê, PGN) theo `ChessStorage.getAutoRefreshModal()`.
+  - **Default Bot Level & Side:** Tự động áp dụng cấp độ và bên cầm quân mặc định từ `ChessStorage` khi mở Setup Modal.
+- **Hỗ Trợ Song Ngữ Toàn Diện (Multi-language i18n Support tương tự Play-Bot-v2):**
+  - Tích hợp `js/chess-i18n.js` với 2 ngôn ngữ: Tiếng Việt (`vi`) và Tiếng Anh (`en`).
+  - Nút chuyển đổi ngôn ngữ (`#btn-lang-toggle`) trên Header cho phép đổi nhanh `EN` / `VI` không cần tải lại trang.
+  - Tự động dịch toàn bộ giao diện: Header, Menu, thanh điều khiển Footer (`Undo`, `Resign`, `Flip`, `Refresh`, `New Game`), Modal Cấu hình ván đấu, Modal Thông tin trận đấu, Modal Thống kê, Modal PGN, Khung phong cấp, và trạng thái lượt đi / chiếu / kết thúc ván cờ.
+  - **Hỗ trợ song ngữ cho hệ thống câu thoại Bot (Bot Chat Banter i18n):** Tích hợp song song 2 từ điển câu thoại (`CHAT_TEXT_VI` và `CHAT_TEXT_EN`) gồm 34 danh mục cảm xúc, nhận xét khai cuộc, tàn cuộc, chiếu tướng, phản ứng blunder/brilliant và câu giục đi cờ tự động thích ứng theo ngôn ngữ được chọn qua `randChat()`.
+- **Lựa Chọn Phiên Bản Bot Từ Modal Trang Chủ (Bot Version Launcher from Home Modal):**
+  - Modal chọn cấu hình ván cờ trên `index.html` cung cấp 2 lựa chọn khởi động:
+    - Nút **`Bot v1`**: Điều hướng tới `play-bot-v2.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
+    - Nút **`Play Bot V2`**: Điều hướng tới `chess.html?new=1&lvl=...&side=...` với thông số cấp độ và bên cầm quân đã chọn.
+  - Trang `chess.html` hỗ trợ nhận các tham số URL (`?new=1&lvl=...&side=...`) để tự động khởi tạo đúng cấp độ AI và bên cầm quân theo yêu cầu.
+
 ---
 
 ## 3. RÀNG BUỘC KỸ THUẬT & TƯƠNG THÍCH (TECHNICAL CONSTRAINTS)

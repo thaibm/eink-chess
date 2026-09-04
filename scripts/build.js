@@ -50,7 +50,7 @@ fs.mkdirSync(distDir, { recursive: true });
 // Copy root HTML files
 // Note: vercel.json is deliberately absent — Vercel reads it from the repository
 // root, not from the output directory, so copying it into dist/ has no effect.
-const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'analysis.html', 'puzzles.html', 'settings.html', 'stats.html', 'chess-old.html', 'puzzles-old.html', 'robots.txt', 'sitemap.xml'];
+const filesToCopy = ['index.html', 'play-bot.html', 'play-bot-v2.html', 'analysis.html', 'puzzles.html', 'settings.html', 'stats.html', 'chess.html', 'chess-old.html', 'puzzles-old.html', 'robots.txt', 'sitemap.xml'];
 filesToCopy.forEach((file) => {
   const src = path.join(__dirname, '..', file);
   if (fs.existsSync(src)) {
