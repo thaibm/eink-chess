@@ -272,10 +272,10 @@
         <div class="detail-box" onclick="event.stopPropagation()">
             <div class="detail-title">&#9812; PGN</div>
             <div class="detail-moves" id="detail-moves"></div>
-            <div class="detail-section-title" id="detail-log-title">&#8987; Log</div>
+            <div class="detail-section-title" id="detail-log-title" data-i18n="game.detail_log_title">&#8987; Log</div>
             <div class="detail-summary" id="detail-summary"></div>
             <div class="detail-log" id="detail-log"></div>
-            <div class="detail-section-title" id="detail-syslog-title">&#9888; System log</div>
+            <div class="detail-section-title" id="detail-syslog-title" data-i18n="game.detail_syslog_title">&#9888; System log</div>
             <div class="detail-log" id="detail-syslog"></div>
             <button class="detail-close" onclick="hideDetailOverlay()" data-i18n="game.btn_close">Đóng</button>
         </div>
@@ -294,7 +294,7 @@
 
     <script src="js/tomitank-source.js?v=1"></script>
     <script src="js/chess-storage.js?v=41"></script>
-    <script src="js/chess-i18n.js?v=68"></script>
+    <script src="js/chess-i18n.js?v=69"></script>
     <script src="js/chess-book.js?v=1"></script>
     <script src="js/chess-persona.js?v=1"></script>
     <script src="js/chess-review.js?v=1"></script>
@@ -1781,12 +1781,29 @@
             brilliant: '!! Brilliant \u2014 N\u01b0\u1edbc \u0111i thi\u00ean t\u00e0i!',
             great: '! Great Move \u2014 N\u01b0\u1edbc \u0111i xu\u1ea5t s\u1eafc!',
             best: '\u2605 Best Move',
-            greatDef: '\ud83d\udee1 Great Defense \u2014 Ph\u00f2ng th\u1ee7 xu\u1ea5t s\u1eafc!',
+            greatDef: '[!] Great Defense \u2014 Ph\u00f2ng th\u1ee7 xu\u1ea5t s\u1eafc!',
             missedWin: '\u2297 Missed Win \u2014 B\u1ecf l\u1ee1 c\u01a1 h\u1ed9i th\u1eafng!',
             missedMate: '\u2620 Missed Mate \u2014 B\u1ecf l\u1ee1 chi\u1ebfu h\u1ebft!',
             mistake: '? Mistake \u2014 C\u00f3 n\u01b0\u1edbc t\u1ed1t h\u01a1n',
             blunder: '?? Blunder \u2014 Sai l\u1ea7m nghi\u00eam tr\u1ecdng!'
         };
+        function getFeedbackLabel(label) {
+            var lang = (typeof ChessI18n !== 'undefined') ? ChessI18n.getLang() : 'vi';
+            if (lang === 'en') {
+                var enMap = {
+                    brilliant: '!! Brilliant Move!',
+                    great: '! Great Move!',
+                    best: '\u2605 Best Move',
+                    greatDef: '[!] Great Defense!',
+                    missedWin: '\u2297 Missed Win!',
+                    missedMate: '\u2620 Missed Mate!',
+                    mistake: '? Mistake \u2014 Better move exists',
+                    blunder: '?? Blunder \u2014 Severe mistake!'
+                };
+                return enMap[label] || LABEL_TEXT[label] || label;
+            }
+            return LABEL_TEXT[label] || label;
+        }
         var LABEL_CSS = {
             brilliant: 'brilliant', great: 'great', best: 'best',
             greatDef: 'great', missedWin: 'mistake', missedMate: 'blunder',
@@ -1809,7 +1826,7 @@
             gDramaticChat = chat;
             gDramaticLabel = label;
             gPlayerDramatic = label;
-            if (el) setStatusText(el, 'status ' + LABEL_CSS[label], LABEL_TEXT[label]);
+            if (el) setStatusText(el, 'status ' + LABEL_CSS[label], getFeedbackLabel(label));
             var _fbTok = gGameToken;
             feedbackTimer = setTimeout(function () {
                 feedbackTimer = null;
@@ -1899,6 +1916,9 @@
             if (bodyEl) bodyEl.innerHTML = bodyHtml;
             var modal = document.getElementById('gameover-modal');
             if (modal) {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.applyTranslations(modal);
+                }
                 modal.className = 'modal-overlay active';
                 modal.style.display = 'block';
             }
@@ -2441,15 +2461,16 @@
         function clearDrawOffer() {
             if (!gDrawOffer) return;
             gDrawOffer = false; gChatMsg = '';
-            setMainButton('V\u00e1n m\u1edbi');
+            setMainButton((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.btn_new_game') : 'V\u00e1n m\u1edbi');
         }
         function acceptDrawOffer() {
             if (!gDrawOffer || !gActive) { newGame(); return; }
             gDrawOffer = false; gChatMsg = ''; gActive = false;
             gGameToken++;  // [FIX] hủy mọi tomiSearch/workerEval/workerPending đang chạy dở
-            setMainButton('V\u00e1n m\u1edbi');
+            setMainButton((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.btn_new_game') : 'V\u00e1n m\u1edbi');
             var el = document.getElementById('status');
-            if (el) { setStatusText(el, 'status gameover', '\u00bd H\u00f2a c\u1edd \u2014 ' + randChat('acceptDraw')); }
+            var drawTxt = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.draw_title') : 'H\u00f2a c\u1edd';
+            if (el) { setStatusText(el, 'status gameover', '\u00bd ' + drawTxt + ' \u2014 ' + randChat('acceptDraw')); }
             clearSavedGame();
             var eloResult = rankUpdate(0);
             saveGameForAnalysis('draw', null);
@@ -2504,7 +2525,7 @@
             if (!bareKings && gEqualEvalStreak < DRAW_STREAK) return;
             gDrawOffer = true;
             gChatMsg = randChat('offerDraw');
-            setMainButton('\u0110\u1ed3ng \u00fd');
+            setMainButton((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.btn_accept_draw') : '\u0110\u1ed3ng \u00fd');
             var el = document.getElementById('status');
             if (el) { setStatusText(el, 'status', gChatMsg); }
         }
@@ -2532,7 +2553,7 @@
             gPlayerMoveTotal = 0; gEvalSkipCount = 0; gEvalPlayerCount = 0; gBookHistMax = 0; gBookStreak = 0;
             tReset();
             clearThinkTimer();
-            setMainButton('V\u00e1n m\u1edbi');
+            setMainButton((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.btn_new_game') : 'V\u00e1n m\u1edbi');
             var box = document.getElementById('stats-box');
             if (box) box.style.display = 'none';
             var ps = document.getElementById('perf-stats');
@@ -2985,7 +3006,12 @@
             }
 
             var modal = document.getElementById('bot-info-modal');
-            if (modal) modal.className = 'modal-overlay active';
+            if (modal) {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.applyTranslations(modal);
+                }
+                modal.className = 'modal-overlay active';
+            }
         }
 
         function closeBotInfoModal() {
@@ -5119,6 +5145,9 @@
         /* ── Promotion ── */
         function showPromo(targets) {
             var overlay = document.getElementById('promo-bg');
+            if (overlay && typeof ChessI18n !== 'undefined') {
+                ChessI18n.applyTranslations(overlay);
+            }
             var row = document.getElementById('promo-row');
             row.innerHTML = '';
             for (var i = 0; i < targets.length; i++) {
@@ -5308,7 +5337,7 @@
             var movesEl = document.getElementById('detail-moves');
             if (movesEl) {
                 if (!gHist.length) {
-                    movesEl.innerHTML = '<span style="color:#888">Ch\u01b0a c\u00f3 n\u01b0\u1edbc \u0111i n\u00e0o.</span>';
+                    movesEl.innerHTML = '<span style="color:#888">' + ((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.no_moves_yet') : 'Ch\u01b0a c\u00f3 n\u01b0\u1edbc \u0111i n\u00e0o.') + '</span>';
                 } else {
                     var html = '';
                     for (var i = 0; i < gHist.length; i++) {
@@ -5331,7 +5360,7 @@
             var dst = document.getElementById('detail-log');
             if (dst) {
                 if (!_tAllLog.length) {
-                    dst.innerHTML = '<span style="color:#aaa">Ch\u01b0a c\u00f3 log n\u00e0o.</span>';
+                    dst.innerHTML = '<span style="color:#aaa">' + ((typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.no_logs_yet') : 'Ch\u01b0a c\u00f3 log n\u00e0o.') + '</span>';
                 } else {
                     var logHtml = '';
                     for (var j = _tAllLog.length - 1; j >= 0; j--) {
@@ -5360,7 +5389,12 @@
                 }
             }
             var ov = document.getElementById('detail-overlay');
-            if (ov) ov.className = 'detail-overlay show';
+            if (ov) {
+                if (typeof ChessI18n !== 'undefined') {
+                    ChessI18n.applyTranslations(ov);
+                }
+                ov.className = 'detail-overlay show';
+            }
         }
         function hideDetailOverlay() {
             var ov = document.getElementById('detail-overlay');

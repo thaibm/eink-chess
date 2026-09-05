@@ -110,7 +110,8 @@
 - **Hỗ Trợ Song Ngữ Toàn Diện (Multi-language i18n Support tương tự Play-Bot-v2):**
   - Tích hợp `js/chess-i18n.js` với 2 ngôn ngữ: Tiếng Việt (`vi`) và Tiếng Anh (`en`).
   - Nút chuyển đổi ngôn ngữ (`#btn-lang-toggle`) trên Header cho phép đổi nhanh `EN` / `VI` không cần tải lại trang.
-  - Tự động dịch toàn bộ giao diện: Header, Menu, thanh điều khiển Footer (`Undo`, `Resign`, `Flip`, `Refresh`, `New Game`), Modal Cấu hình ván đấu, Modal Thông tin trận đấu, Modal Thống kê, Modal PGN, Khung phong cấp, và trạng thái lượt đi / chiếu / kết thúc ván cờ.
+  - Tự động dịch toàn bộ giao diện: Header, Menu, thanh điều khiển Footer (`Undo`, `Resign`, `Flip`, `Refresh`, `New Game`), Modal Cấu hình ván đấu, Modal Thông tin trận đấu, Modal Thống kê, Modal PGN (`#detail-overlay`), Khung phong cấp (`#promo-bg`), và trạng thái lượt đi / chiếu / hòa cờ / kết thúc ván cờ.
+  - Đồng bộ đầy đủ các key i18n trong `js/chess-i18n.js`: `game.promo_title` (tiêu đề phong cấp), `game.draw_title` & `game.draw_agreed_msg` (thông báo hòa cờ), `game.btn_accept_draw` (nút Đồng ý hòa cờ), `game.no_moves_yet` / `game.no_logs_yet` (trạng thái rỗng bảng PGN/Log), `stats.total_device_views_all_time` (bảng thống kê hệ thống), và tự động gọi `ChessI18n.applyTranslations()` khi kích hoạt các overlay/modal (`bot-info-modal`, `promo-bg`, `detail-overlay`, `gameover-modal`).
   - **Hỗ trợ song ngữ cho hệ thống câu thoại Bot (Bot Chat Banter i18n):** Tích hợp song song 2 từ điển câu thoại (`CHAT_TEXT_VI` và `CHAT_TEXT_EN`) gồm 34 danh mục cảm xúc, nhận xét khai cuộc, tàn cuộc, chiếu tướng, phản ứng blunder/brilliant và câu giục đi cờ tự động thích ứng theo ngôn ngữ được chọn qua `randChat()`.
 - **Lựa Chọn Phiên Bản Bot & Tiếp Tục Ván Đấu Đa Chế Độ Từ Trang Chủ (Multi-mode Bot Launcher & Dual Continue Match):**
   - Modal chọn cấu hình ván cờ trên `index.html` (`#home-setup-modal`) cung cấp các tùy chọn:
