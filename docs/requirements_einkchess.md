@@ -197,6 +197,7 @@
 | **Level 9** | Đại kiện tướng (Grandmaster) | ~2200 | Giới hạn 8000ms (Max sức mạnh, không Noise) | Offline |
 | **Level 10** | Siêu cấp (Super GM) | ~2400 | Giới hạn 12000ms (Max sức mạnh, không Noise) | Offline |
 
+- **Tự động chọn cấp độ mặc định theo ELO người chơi (Nearest-Neighbor Elo Matching):** Khi mở Match Setup modal (ở trang chủ `index.html`, `chess.html` hoặc `play-bot-v2.html`), hệ thống tự động xác định và kích hoạt sẵn cấp độ Bot có mốc ELO gần nhất với điểm ELO hiện tại của người chơi (`ChessStorage.getClosestBotLevel()`). Người chơi mới bắt đầu với 1200 ELO sẽ tự động được chọn sẵn Cấp 5 (~1200 ELO) thay vì Cấp 1. Khi điểm ELO tăng hoặc giảm sau các trận đấu, cấp độ gợi ý mặc định trong modal sẽ tự động thích ứng theo trình độ hiện tại.
 - **Tùy chọn Đánh giá nước đi (Move Review: Bật/Tắt):** Người chơi có thể bật hoặc tắt tính năng đánh giá nước đi trong modal Cài đặt ván đấu (lưu tự động vào `ChessStorage`).
 
 ***Giải thích về thuật toán tạo độ khó tự nhiên & Đánh giá nước đi cho Offline Bot V2 (Tomitank):***
@@ -280,7 +281,8 @@
        - Khi hết 5 giây, hiển thị popup kết quả: *"Giải đố thành công! ♔"* (hoặc *"Solved with mistakes"* nếu có nước đi sai trước đó).
        - Cập nhật điểm ELO và chuỗi giải đúng (Streak).
        - Cung cấp 2 nút bấm: **`[Tiếp theo]`** và **`[Trang chủ]`**.
-   - **TRƯỜNG HỢP ĐI SAI:**
+       - Khi người dùng bấm **`[Tiếp theo]`** (`nextPuzzle()`) hoặc khi hệ thống khởi tạo/phục hồi puzzle mới (`startPuzzle()`, `resumePuzzle()`), bàn cờ tự động kích hoạt lại tương tác (`setInteractive(true)`), xóa class `read-only`, dọn dẹp badge tick xanh và cho phép người chơi chọn quân cờ di chuyển bình thường.
+    - **TRƯỜNG HỢP ĐI SAI:**
      - Status bar hiển thị nhãn cross lớn `✖`: *"Chưa chính xác! ✖"*.
      - Đánh dấu trạng thái `hasFailed = true` (phán quyết 1 lần duy nhất), reset chuỗi Streak.
      - **KHÔNG trừ ELO ngay** — cho phép người chơi thử lại.

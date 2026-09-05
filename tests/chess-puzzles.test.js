@@ -642,6 +642,82 @@ describe('Chess Puzzle ELO & UX Mechanics', () => {
         expect(PuzzleManager.selectedInitialElo).toBe(1600);
         expect(buttons[3].className).toBe('puzzle-skill-btn active');
     });
+
+    test('Board interactivity is disabled on puzzleSolved and restored on nextPuzzle/startPuzzle/resumePuzzle', () => {
+        let isInteractive = true;
+        PuzzleManager.board = {
+            selectedSquare: null,
+            validMoves: [],
+            setInteractive: (val) => { isInteractive = !!val; },
+            clearReviewBadge: () => {},
+            setReviewBadge: () => {},
+            setEngine: () => {},
+            orientation: 'w'
+        };
+
+        PuzzleManager.currentPuzzle = {
+            PuzzleId: 'test_interactivity',
+            FEN: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+            Moves: 'f3e5 c6e5',
+            Rating: 1200
+        };
+        PuzzleManager.solutionMoves = ['f3e5', 'c6e5'];
+
+        // 1. Solving puzzle disables board interactivity
+        PuzzleManager.puzzleSolved();
+        expect(isInteractive).toBe(false);
+
+        // 2. Calling nextPuzzle restores board interactivity
+        // Mock loadPuzzle so it doesn't trigger network request
+        const origLoad = PuzzleManager.loadPuzzle;
+        PuzzleManager.loadPuzzle = () => {};
+        try {
+            PuzzleManager.nextPuzzle();
+            expect(isInteractive).toBe(true);
+        } finally {
+            PuzzleManager.loadPuzzle = origLoad;
+        }
+
+        // 3. Solving again and calling startPuzzle restores board interactivity
+        PuzzleManager.puzzleSolved();
+        expect(isInteractive).toBe(false);
+
+        PuzzleManager.engine = {
+            loadFEN: () => {},
+            turn: 'w',
+            getLegalMoves: () => []
+        };
+        const origApply = PuzzleManager.applyUciMove;
+        PuzzleManager.applyUciMove = () => {};
+        try {
+            PuzzleManager.startPuzzle({
+                PuzzleId: 'test_start',
+                FEN: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+                Moves: 'f3e5 c6e5',
+                Rating: 1200
+            });
+            expect(isInteractive).toBe(true);
+        } finally {
+            PuzzleManager.applyUciMove = origApply;
+        }
+
+        // 4. Solving again and calling resumePuzzle restores board interactivity
+        PuzzleManager.puzzleSolved();
+        expect(isInteractive).toBe(false);
+
+        PuzzleManager.resumePuzzle({
+            puzzle: {
+                PuzzleId: 'test_resume',
+                FEN: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+                Moves: 'f3e5 c6e5',
+                Rating: 1200
+            },
+            currentMoveIndex: 1,
+            hasFailed: false,
+            hintUsed: false
+        });
+        expect(isInteractive).toBe(true);
+    });
 });
 
 

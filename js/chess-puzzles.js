@@ -378,7 +378,10 @@
             this.hasFailed = false;
             if (this.board) {
                 this.board.selectedSquare = null;
-                this.board.validDestinations = [];
+                this.board.validMoves = [];
+                if (this.board.setInteractive) {
+                    this.board.setInteractive(true);
+                }
             }
             this.closeSkillModal();
             this.updateHeaderUI();
@@ -572,6 +575,9 @@
 
             if (this.board) {
                 this.board.orientation = this.puzzleColor;
+                if (this.board.setInteractive) {
+                    this.board.setInteractive(true);
+                }
                 this.board.setEngine(this.engine);
             }
 
@@ -760,6 +766,9 @@
             this.puzzleColor = this.engine.turn === 'w' ? 'b' : 'w';
             if (this.board) {
                 this.board.orientation = this.puzzleColor;
+                if (this.board.setInteractive) {
+                    this.board.setInteractive(true);
+                }
                 this.board.setEngine(this.engine);
             }
 
@@ -1063,9 +1072,12 @@
             this.hasFailed = false;
             if (this.board) {
                 this.board.selectedSquare = null;
-                this.board.validDestinations = [];
+                this.board.validMoves = [];
                 if (this.board.clearReviewBadge) {
                     this.board.clearReviewBadge();
+                }
+                if (this.board.setInteractive) {
+                    this.board.setInteractive(true);
                 }
             }
             var storage = getStorage();

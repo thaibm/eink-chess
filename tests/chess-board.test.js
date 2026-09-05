@@ -154,4 +154,25 @@ describe('ChessBoard DOM & Touch/Click Delegation (ChessTwinkle pattern)', () =>
         board.handleSquareClick(1, 3);
         expect(board.selectedSquare).toEqual({ r: 6, c: 4 });
     });
+
+    test('setInteractive(false) prevents square selection and setInteractive(true) restores it', () => {
+        board.setInteractive(false);
+        expect(board.interactive).toBe(false);
+        board.handleSquareClick(6, 4);
+        expect(board.selectedSquare).toBeNull();
+
+        board.setInteractive(true);
+        expect(board.interactive).toBe(true);
+        board.handleSquareClick(6, 4);
+        expect(board.selectedSquare).toEqual({ r: 6, c: 4 });
+    });
+
+    test('setEngine restores interactivity on non-readOnly boards', () => {
+        board.setInteractive(false);
+        expect(board.interactive).toBe(false);
+
+        const newEngine = new ChessEngine();
+        board.setEngine(newEngine);
+        expect(board.interactive).toBe(true);
+    });
 });

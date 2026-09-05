@@ -414,7 +414,33 @@
         getDefaultBotLevel: function() { return this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL, 1); },
         setDefaultBotLevel: function(lvl) { this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL, lvl); },
         
-        getDefaultBotLevelV2: function() { return this.get(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, 1); },
+        getClosestBotLevel: function(elo) {
+            var targetElo = (typeof elo === 'number' && !isNaN(elo)) ? elo : this.getBotElo();
+            var levels = [
+                { level: 1, elo: 400 },
+                { level: 2, elo: 600 },
+                { level: 3, elo: 800 },
+                { level: 4, elo: 1000 },
+                { level: 5, elo: 1200 },
+                { level: 6, elo: 1400 },
+                { level: 7, elo: 1600 },
+                { level: 8, elo: 1800 },
+                { level: 9, elo: 2200 },
+                { level: 10, elo: 2400 }
+            ];
+            var bestLevel = 1;
+            var minDiff = 999999;
+            for (var i = 0; i < levels.length; i++) {
+                var diff = Math.abs(levels[i].elo - targetElo);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestLevel = levels[i].level;
+                }
+            }
+            return bestLevel;
+        },
+
+        getDefaultBotLevelV2: function() { return this.getClosestBotLevel(); },
         setDefaultBotLevelV2: function(lvl) { this.set(STORAGE_KEYS.DEFAULT_BOT_LEVEL_V2, parseInt(lvl, 10)); },
 
         getDefaultBotVersion: function() {

@@ -132,6 +132,9 @@
         this.validMoves = [];
         this.lastMove = null;
         this.reviewBadge = null;
+        if (this.options.interactive !== false && !this.options.readOnly) {
+            this.setInteractive(true);
+        }
         this.render();
     };
 
