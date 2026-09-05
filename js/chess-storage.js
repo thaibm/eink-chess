@@ -35,7 +35,8 @@
         SAVED_MONOLITH_GAME: 'einkchess_monolith_saved_game',
         ANALYSIS_GAME: 'einkchess_analysis_game',
         AUTO_REFRESH_MODAL: 'einkchess_auto_refresh_modal',
-        BOT_CAN_RESIGN: 'einkchess_bot_can_resign'
+        BOT_CAN_RESIGN: 'einkchess_bot_can_resign',
+        TIME_CONTROL_MODE: 'einkchess_time_control_mode'
     };
 
     function generateUUID() {
@@ -515,6 +516,22 @@
 
         setBotCanResign: function(enabled) {
             return this.set(STORAGE_KEYS.BOT_CAN_RESIGN, !!enabled);
+        },
+
+        // --- Time Control Mode Setting (default: 'rapid', options: 'rapid', 'blitz', 'untimed') ---
+        getTimeControlMode: function() {
+            var mode = this.get(STORAGE_KEYS.TIME_CONTROL_MODE, 'rapid');
+            if (mode !== 'blitz' && mode !== 'rapid' && mode !== 'untimed') {
+                mode = 'rapid';
+            }
+            return mode;
+        },
+
+        setTimeControlMode: function(mode) {
+            if (mode !== 'blitz' && mode !== 'rapid' && mode !== 'untimed') {
+                mode = 'rapid';
+            }
+            return this.set(STORAGE_KEYS.TIME_CONTROL_MODE, mode);
         },
 
         // --- Local Quota Management ---

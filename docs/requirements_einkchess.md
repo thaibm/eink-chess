@@ -100,6 +100,12 @@
   - **Allow Undo (Cho phép đi lại):** Hiển thị/ẩn nút `[Đi lại]` trên thanh Footer theo `ChessStorage.getAllowUndo()`. Khi kích hoạt, hoàn tác 2 nước đi (nước Bot và nước người chơi) qua cơ chế replay stack sạch sẽ.
   - **Auto Refresh on Modal Close (Tự động làm mới khi đóng popup):** Tự động gọi `handleRefresh(120)` xóa bóng mờ E-ink khi đóng các popup Modal (Cấu hình ván đấu, Thông tin trận đấu, Thống kê, PGN) theo `ChessStorage.getAutoRefreshModal()`.
   - **Bot Resignation (Bot Xin Thua):** Cho phép bật/tắt quyền đầu hàng của Bot qua `ChessStorage.getBotCanResign()` / `setBotCanResign()` (key `einkchess_bot_can_resign`, mặc định `false` / TẮT).
+  - **Time Control Mode (Thể thức Thời gian Chơi với Bot):** Hỗ trợ 3 thể thức nhịp độ qua `ChessStorage.getTimeControlMode()` / `setTimeControlMode()` (key `einkchess_time_control_mode`, mặc định `'rapid'`):
+    1. **Cờ nhanh 15' (Rapid 15m) [Mặc định]:** Khai cuộc (trong sách 8 ply) đi nhanh **2.5s – 4.5s / nước**. Trung cuộc: nước phản xạ/ăn lại quân 8–12s, nước bình thường 12–16s, nước phức tạp/giằng co 16–22s (trung bình 10–20s/nước).
+    2. **Cờ chớp (Blitz):** Khai cuộc (trong sách 8 ply) đi nhanh **1.2s – 2.0s / nước**. Trung cuộc: sử dụng thời gian gốc của engine `cfg.t`. Ở các cấp thấp (Cấp 1–5), áp dụng sàn tối thiểu 1.5s–2.5s để tránh phản xạ 200ms giật cục gây cuốn nhịp. Ở các cấp cao (Cấp 6–10), `cfg.t` làm giá trị tối thiểu cộng thêm Jitter $[+0\%, +25\%]$.
+    3. **Cờ tự do (Untimed / Casual):** Khai cuộc (trong sách 8 ply) đi thong thả **6s – 10s / nước**. Trung cuộc: nước phản xạ 25–35s, nước bình thường 35–45s, nước phức tạp 45–60s (trung bình 30–60s/nước).
+    - **Cơ chế Phản ứng Nước lạ (Off-book Hesitation):** Khi người chơi đi nước lệch khỏi 1.084 vị trí của sách khai cuộc (`BOOK_MAP`), Bot lập tức tự động rời sách (`isBook = false`), kích hoạt Worker Search và khựng lại suy nghĩ theo nhịp độ trung cuộc (12s–16s ở Rapid) để dò bẫy và tìm cách trừng phạt.
+    - **Tối ưu E-ink:** Hoàn toàn không hiển thị đồng hồ đếm ngược trên bàn cờ để tránh nhấp nháy màn hình và hao pin Kindle. Màn hình tĩnh tuyệt đối trong lúc Bot suy nghĩ, toàn bộ thời gian chờ sau search là `setTimeout` nhàn rỗi (0% hao thêm pin).
   - **Default Bot Level & Side:** Tự động áp dụng cấp độ và bên cầm quân mặc định từ `ChessStorage` khi mở Setup Modal.
 - **Hỗ Trợ Song Ngữ Toàn Diện (Multi-language i18n Support tương tự Play-Bot-v2):**
   - Tích hợp `js/chess-i18n.js` với 2 ngôn ngữ: Tiếng Việt (`vi`) và Tiếng Anh (`en`).

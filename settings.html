@@ -143,7 +143,7 @@
                     </div>
                 </div>
             </div>
-            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 2px;">
+            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 8px;">
                 <div style="display: table; width: 100%;">
                     <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
                         <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.bot_resign_label">Bot Resignation (Play Bot)</div>
@@ -153,6 +153,21 @@
                         <div class="btn-group" id="setting-bot-resign-group" style="margin: 0; width: 110px;">
                             <div class="btn-group-item" id="btn-bot-resign-on" onclick="setBotCanResignSetting(true)" data-i18n="settings.on">ON</div>
                             <div class="btn-group-item active" id="btn-bot-resign-off" onclick="setBotCanResignSetting(false)" data-i18n="settings.off">OFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="border-top: 1px dashed #cccccc; padding-top: 8px; margin-bottom: 2px;">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; vertical-align: middle; padding-right: 8px;">
+                        <div style="font-weight: bold; font-size: 14px;" data-i18n="settings.time_control_label">Time Control (Play Bot)</div>
+                        <div class="settings-desc" data-i18n="settings.time_control_desc">Select Bot thinking pace: Rapid 15m (default, 10–20s/move), Blitz (fast), or Casual (30–60s/move).</div>
+                    </div>
+                    <div style="display: table-cell; vertical-align: middle; text-align: right; width: 190px;">
+                        <div class="btn-group" id="setting-time-control-group" style="margin: 0; width: 190px;">
+                            <div class="btn-group-item active" id="btn-tc-rapid" onclick="setTimeControlSetting('rapid')" data-i18n="settings.tc_rapid" style="padding: 6px 2px; font-size: 12px;">Rapid 15m</div>
+                            <div class="btn-group-item" id="btn-tc-blitz" onclick="setTimeControlSetting('blitz')" data-i18n="settings.tc_blitz" style="padding: 6px 2px; font-size: 12px;">Blitz</div>
+                            <div class="btn-group-item" id="btn-tc-untimed" onclick="setTimeControlSetting('untimed')" data-i18n="settings.tc_untimed" style="padding: 6px 2px; font-size: 12px;">Casual</div>
                         </div>
                     </div>
                 </div>
@@ -187,8 +202,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="js/chess-storage.js?v=40"></script>
-    <script src="js/chess-i18n.js?v=67"></script>
+    <script src="js/chess-storage.js?v=41"></script>
+    <script src="js/chess-i18n.js?v=68"></script>
     <script src="js/chess-backend.js?v=13"></script>
     <script>
         function renderSettingsUI() {
@@ -266,6 +281,23 @@
                     btnResignOff.className = 'btn-group-item active';
                 }
             }
+
+            var tcMode = typeof ChessStorage !== 'undefined' ? ChessStorage.getTimeControlMode() : 'rapid';
+            var btnTcRapid = document.getElementById('btn-tc-rapid');
+            var btnTcBlitz = document.getElementById('btn-tc-blitz');
+            var btnTcUntimed = document.getElementById('btn-tc-untimed');
+            if (btnTcRapid && btnTcBlitz && btnTcUntimed) {
+                btnTcRapid.className = tcMode === 'rapid' ? 'btn-group-item active' : 'btn-group-item';
+                btnTcBlitz.className = tcMode === 'blitz' ? 'btn-group-item active' : 'btn-group-item';
+                btnTcUntimed.className = tcMode === 'untimed' ? 'btn-group-item active' : 'btn-group-item';
+            }
+        }
+
+        function setTimeControlSetting(mode) {
+            if (typeof ChessStorage !== 'undefined') {
+                ChessStorage.setTimeControlMode(mode);
+            }
+            renderSettingsUI();
         }
 
         function setAllowUndoSetting(allow) {

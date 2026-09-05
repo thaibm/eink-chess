@@ -254,6 +254,11 @@
             'settings.auto_refresh_modal_desc': 'Tự động nháy trắng màn hình để khử bóng mờ sau khi đóng các popup/hộp thoại.',
             'settings.bot_resign_label': 'Bot đầu hàng (Play Bot)',
             'settings.bot_resign_desc': 'Cho phép Bot tự động xin thua khi cờ vào tàn cuộc và thua quá đậm. Mặc định Tắt (Bot chiến đấu tới cùng).',
+            'settings.time_control_label': 'Thể thức thời gian (Chơi với Bot)',
+            'settings.time_control_desc': 'Chọn nhịp độ suy nghĩ của Bot: Cờ nhanh 15\' (mặc định, 10–20s/nước), Cờ chớp (nhanh), hoặc Cờ tự do (30–60s/nước).',
+            'settings.tc_rapid': 'Cờ nhanh 15\'',
+            'settings.tc_blitz': 'Cờ chớp',
+            'settings.tc_untimed': 'Cờ tự do',
 
             'puzzle.btn_level': 'Cấp độ',
             'puzzle.btn_hint': '♙ Gợi ý',
@@ -663,6 +668,11 @@
             'settings.auto_refresh_modal_desc': 'Automatically flash screen white to clear ghosting after closing popups.',
             'settings.bot_resign_label': 'Bot Resignation (Play Bot)',
             'settings.bot_resign_desc': 'Allow Bot to resign in hopeless endgame positions. Default is OFF (Bot fights until checkmate/draw).',
+            'settings.time_control_label': 'Time Control (Play Bot)',
+            'settings.time_control_desc': 'Select Bot thinking pace: Rapid 15m (default, 10–20s/move), Blitz (fast), or Casual (30–60s/move).',
+            'settings.tc_rapid': 'Rapid 15m',
+            'settings.tc_blitz': 'Blitz',
+            'settings.tc_untimed': 'Casual',
 
             'puzzle.btn_level': 'Level',
             'puzzle.btn_hint': '♙ Hint',
