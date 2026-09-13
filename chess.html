@@ -7,7 +7,7 @@
     <title>Play vs Bot - Kindle Chess</title>
     <meta name="description" content="Play Chess vs AI Bot on Kindle - EinkChess">
     <link rel="stylesheet" href="css/einkchess.css?v=66">
-    <link rel="stylesheet" href="css/chess-game.css?v=6">
+    <link rel="stylesheet" href="css/chess-game.css?v=8">
     <link rel="canonical" href="https://einkchess.fun/chess.html">
     <link rel="alternate" type="text/markdown" href="md/chess.md" title="Markdown version for AI agents">
 </head>
@@ -294,10 +294,10 @@
 
     <script src="js/tomitank-source.js?v=1"></script>
     <script src="js/chess-storage.js?v=41"></script>
-    <script src="js/chess-i18n.js?v=69"></script>
+    <script src="js/chess-i18n.js?v=70"></script>
     <script src="js/chess-book.js?v=1"></script>
     <script src="js/chess-persona.js?v=1"></script>
-    <script src="js/chess-review.js?v=1"></script>
+    <script src="js/chess-review.js?v=2"></script>
     <script src="js/chess-coach.js?v=1"></script>
     <script src="js/chess-backend.js?v=13"></script>
     <script>
@@ -1337,6 +1337,80 @@
             return null;
         }
 
+        function formatMoveSan(mv, board, turn, ep, casB) {
+            if (!mv) return '';
+            var p = board[mv[0]];
+            var pt = typ(p);
+            var isCap = !!mv[2];
+            var f = mv[0], t = mv[1];
+            var ff = fl(f), rf = rk(f);
+            var ft = fl(t), rt = rk(t);
+
+            if (pt === 6 && Math.abs(ft - ff) === 2) {
+                return (ft > ff) ? 'O-O' : 'O-O-O';
+            }
+
+            var P_SYM = ['', '', 'N', 'B', 'R', 'Q', 'K'];
+            var san = P_SYM[pt] || '';
+
+            if (pt === 1) {
+                if (isCap) {
+                    san = FLS[ff] + 'x' + FLS[ft] + (rt + 1);
+                } else {
+                    san = FLS[ft] + (rt + 1);
+                }
+            } else {
+                var legals = legalMoves(board, turn, ep, casB);
+                var samePieceMoves = [];
+                for (var i = 0; i < legals.length; i++) {
+                    var m = legals[i];
+                    if (m[1] === t && typ(board[m[0]]) === pt && m[0] !== f) {
+                        samePieceMoves.push(m);
+                    }
+                }
+                var disambig = '';
+                if (samePieceMoves.length > 0) {
+                    var sameFile = false, sameRank = false;
+                    for (var j = 0; j < samePieceMoves.length; j++) {
+                        if (fl(samePieceMoves[j][0]) === ff) sameFile = true;
+                        if (rk(samePieceMoves[j][0]) === rf) sameRank = true;
+                    }
+                    if (!sameFile) {
+                        disambig = FLS[ff];
+                    } else if (!sameRank) {
+                        disambig = String(rf + 1);
+                    } else {
+                        disambig = FLS[ff] + (rf + 1);
+                    }
+                }
+                san += disambig;
+                if (isCap) san += 'x';
+                san += FLS[ft] + (rt + 1);
+            }
+
+            if (mv[3]) {
+                var promoNames = ['', 'P', 'N', 'B', 'R', 'Q', 'K'];
+                san += '=' + (promoNames[typ(mv[3])] || 'Q');
+            }
+
+            var nextB = applyMv(board, mv);
+            var nextTurn = -turn;
+            var nextCasB = newCasBit(casB, board, mv, turn);
+            var nextEP = mv[6];
+            if (inCheck(nextB, nextTurn)) {
+                var nextLegals = legalMoves(nextB, nextTurn, nextEP, nextCasB);
+                san += (nextLegals.length === 0) ? '#' : '+';
+            }
+            return san;
+        }
+
+        function uciToSan(uci, board, turn, ep, casB) {
+            if (!uci || !board) return '';
+            var mv = uciToMove(uci, board, turn, ep, casB);
+            if (!mv) return uci;
+            return formatMoveSan(mv, board, turn, ep, casB);
+        }
+
         /* ════════════════════════════════════════════════════════════════════════
            SECTION 3C — TOMI WORKER (AI moves)
            Uses tomitankChess 7.0 (ES5) running in a Web Worker via Blob.
@@ -1807,7 +1881,7 @@
         var LABEL_CSS = {
             brilliant: 'brilliant', great: 'great', best: 'best',
             greatDef: 'great', missedWin: 'mistake', missedMate: 'blunder',
-            mistake: 'mistake', blunder: 'blunder'
+            mistake: 'mistake', blunder: 'blunder', inaccuracy: 'inaccuracy'
         };
 
         var feedbackTimer = null;
@@ -1834,6 +1908,131 @@
                 setStatus();
                 if (!gActive) showStats();
             }, 2500);
+        }
+
+        /* ── Move Review State & Functions (In-game Best Move & Tactical Explanation) ── */
+        var gShowMoveReview = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
+        var gReviewActive = false;
+        var gReviewStatusText = '';
+        var gReviewStatusClass = '';
+        var gReviewBestUci = null;
+        var gReviewBadge = null;
+        var gReviewBadgeMarkers = [];
+
+        function setReviewBadge(sq, symbol, isDark) {
+            gReviewBadge = { s: sq, symbol: symbol, isDark: !!isDark };
+            if (gReviewBadgeMarkers && gReviewBadgeMarkers[sq]) {
+                var bCls = 'sq-review-badge' + (isDark ? ' bg-dark' : '');
+                gReviewBadgeMarkers[sq].className = bCls;
+                gReviewBadgeMarkers[sq].textContent = symbol;
+            }
+        }
+
+        function clearReviewBadge() {
+            if (gReviewBadge && gReviewBadgeMarkers && gReviewBadgeMarkers[gReviewBadge.s]) {
+                gReviewBadgeMarkers[gReviewBadge.s].className = 'sq-review-badge hidden';
+                gReviewBadgeMarkers[gReviewBadge.s].textContent = '';
+            }
+            gReviewBadge = null;
+        }
+
+        function showBestMoveArrow(uci) {
+            if (!uci || uci.length < 4) return;
+            var fromF = uci.charCodeAt(0) - 97;
+            var fromR = uci.charCodeAt(1) - 49;
+            var toF = uci.charCodeAt(2) - 97;
+            var toR = uci.charCodeAt(3) - 49;
+            if (fromF < 0 || fromF > 7 || fromR < 0 || fromR > 7 || toF < 0 || toF > 7 || toR < 0 || toR > 7) return;
+            var fromSq = sq(fromR, fromF);
+            var toSq = sq(toR, toF);
+            gReviewBestUci = uci;
+            if (typeof drawCoachArrow === 'function') {
+                if (typeof clearCoachArrows === 'function') clearCoachArrows();
+                drawCoachArrow(fromSq, toSq, 'green', gFlip);
+            }
+        }
+
+        function clearBestMoveArrow() {
+            gReviewBestUci = null;
+            if (typeof clearCoachArrows === 'function') {
+                clearCoachArrows();
+            }
+        }
+
+        function clearMoveReview() {
+            gReviewActive = false;
+            gReviewStatusText = '';
+            gReviewStatusClass = '';
+            clearReviewBadge();
+            clearBestMoveArrow();
+        }
+
+        function showMoveReview(label, cpLoss, bestUci, mvSnap, boardBefore) {
+            var reviewEnabled = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
+            if (!reviewEnabled) return;
+
+            var isOptimal = (label === 'best' || label === 'brilliant' || label === 'great' || label === 'greatDef');
+            var isMate = (label === 'missedMate');
+            var toSq = mvSnap ? mvSnap[1] : -1;
+
+            var badgeInfo = {
+                brilliant: { sym: '!!', isDark: true, key: 'game.eval_brilliant' },
+                great: { sym: '!', isDark: true, key: 'game.eval_great' },
+                greatDef: { sym: '!', isDark: true, key: 'game.eval_great_def' },
+                best: { sym: '★', isDark: true, key: 'game.eval_best' },
+                inaccuracy: { sym: '?!', isDark: false, key: 'game.eval_inaccuracy' },
+                mistake: { sym: '?', isDark: false, key: 'game.eval_mistake' },
+                blunder: { sym: '??', isDark: true, key: 'game.eval_blunder' },
+                missedWin: { sym: '[+]', isDark: false, key: 'game.eval_missed_win' },
+                missedMate: { sym: '[#]', isDark: true, key: 'game.eval_missed_mate' }
+            }[label] || { sym: '★', isDark: true, key: 'game.eval_best' };
+
+            if (toSq >= 0) {
+                setReviewBadge(toSq, badgeInfo.sym, badgeInfo.isDark);
+            }
+
+            var bestSan = '';
+            if (bestUci && boardBefore) {
+                bestSan = uciToSan(bestUci, boardBefore, gPC, mvSnap ? mvSnap._epBefore : -1, mvSnap ? mvSnap._casBefore : CAS_ALL);
+            }
+
+            if (!isOptimal && bestUci) {
+                showBestMoveArrow(bestUci);
+            } else {
+                clearBestMoveArrow();
+            }
+
+            var playedSan = _tCurSan || (mvSnap && boardBefore ? formatMoveSan(mvSnap, boardBefore, gPC, mvSnap._epBefore, mvSnap._casBefore) : '');
+            var item = {
+                move: mvSnap,
+                san: playedSan,
+                moveNumber: gMoveNum,
+                board: boardBefore
+            };
+            var reason = '';
+            if (typeof ChessReview !== 'undefined' && ChessReview.getTacticalExplanation) {
+                reason = ChessReview.getTacticalExplanation(item, bestSan, cpLoss || 0, isMate);
+            }
+
+            var evalTitle = (typeof ChessI18n !== 'undefined') ? ChessI18n.t(badgeInfo.key) : badgeInfo.sym;
+            var prefix = (typeof ChessI18n !== 'undefined') ? ChessI18n.t('game.review_best_prefix') : 'Best:';
+            var fullText = '';
+            if (isOptimal) {
+                fullText = '[' + badgeInfo.sym + ' ' + evalTitle + ']' + (reason ? ' ' + reason : '');
+            } else {
+                var bestPart = bestSan ? (' ' + prefix + ' ' + bestSan) : '';
+                var reasonPart = reason ? (' — ' + reason) : '';
+                fullText = '[' + badgeInfo.sym + ' ' + evalTitle + ']' + bestPart + reasonPart;
+            }
+
+            var el = document.getElementById('status');
+            var cssClass = LABEL_CSS[label] || 'best';
+            gReviewActive = true;
+            gReviewStatusText = fullText;
+            gReviewStatusClass = 'status-bar-new ' + cssClass + ' has-review';
+            if (el) {
+                setStatusText(el, gReviewStatusClass, fullText);
+            }
         }
 
         function saveGameForAnalysis(result, winner) {
@@ -2531,6 +2730,8 @@
         }
 
         function resetStats() {
+            clearMoveReview();
+            gShowMoveReview = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
             gMoveStats = { brilliant: 0, great: 0, best: 0, greatDef: 0, missedWin: 0, missedMate: 0, mistake: 0, blunder: 0 };
             gPendingBest = null; gPendingEval = 0; gPendingEval2nd = null; gPendingMateN = null; gBestMoveScore = 0;
             gPendingEvalComplete = false;
@@ -2687,6 +2888,9 @@
         function handleFlip() {
             gFlip = !gFlip;
             renderBoard();
+            if (gReviewActive && gReviewBestUci) {
+                showBestMoveArrow(gReviewBestUci);
+            }
         }
 
         var BOT_ELOS = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2200, 2400];
@@ -3039,6 +3243,7 @@
         function handleUndo() {
             if (typeof ChessStorage !== 'undefined' && ChessStorage.getAllowUndo && !ChessStorage.getAllowUndo()) return;
             if (!gActive || gUciHist.length === 0) return;
+            clearMoveReview();
 
             // Xác định số nước cần quay lui
             var movesToRollback = 1;
@@ -3333,9 +3538,13 @@
                     var ring = document.createElement('div');
                     ring.className = 'ring-marker hidden';
                     cell.appendChild(ring);
+                    var badge = document.createElement('div');
+                    badge.className = 'sq-review-badge hidden';
+                    cell.appendChild(badge);
                     bd.appendChild(cell);
                     gCells[s] = cell; gPieceSpans[s] = sp;
                     gDotMarkers[s] = dot; gRingMarkers[s] = ring;
+                    gReviewBadgeMarkers[s] = badge;
                 }
             }
             gBoardBuilt = true; gLastFlip = gFlip; gCellH = 0;
@@ -3383,6 +3592,16 @@
                     var _dc = 'dot-marker hidden', _rc = 'ring-marker hidden';
                     if (gDotMarkers[s].className !== _dc) gDotMarkers[s].className = _dc;
                     if (gRingMarkers[s].className !== _rc) gRingMarkers[s].className = _rc;
+                    if (gReviewBadgeMarkers && gReviewBadgeMarkers[s]) {
+                        if (gReviewBadge && gReviewBadge.s === s) {
+                            var _bCls = 'sq-review-badge' + (gReviewBadge.isDark ? ' bg-dark' : '');
+                            if (gReviewBadgeMarkers[s].className !== _bCls) gReviewBadgeMarkers[s].className = _bCls;
+                            if (gReviewBadgeMarkers[s].textContent !== gReviewBadge.symbol) gReviewBadgeMarkers[s].textContent = gReviewBadge.symbol;
+                        } else {
+                            if (gReviewBadgeMarkers[s].className !== 'sq-review-badge hidden') gReviewBadgeMarkers[s].className = 'sq-review-badge hidden';
+                            if (gReviewBadgeMarkers[s].textContent !== '') gReviewBadgeMarkers[s].textContent = '';
+                        }
+                    }
                 }
             }
             renderSelectionHints();
@@ -3416,13 +3635,24 @@
 
         function setStatusText(el, cls, txt) {
             if (!el) return;
-            var newCls = cls ? cls.replace(/\bstatus\b/, 'status-bar-new') : 'status-bar-new';
+            var newCls = 'status-bar-new';
+            if (cls) {
+                var parts = cls.split(/\s+/);
+                var filtered = [];
+                for (var i = 0; i < parts.length; i++) {
+                    var p = parts[i];
+                    if (p && p !== 'status' && p !== 'status-bar-new') {
+                        filtered.push(p);
+                    }
+                }
+                newCls = 'status-bar-new' + (filtered.length ? ' ' + filtered.join(' ') : '');
+            }
             if (el.className !== newCls) el.className = newCls;
             var inner = document.getElementById('status-text-inner');
             if (inner) {
                 if (inner.textContent !== txt) inner.textContent = txt;
                 if (inner.title !== txt) inner.title = txt;
-                var isCompact = (txt && txt.length > 22);
+                var isCompact = (txt && txt.length > 22 && newCls.indexOf('has-review') < 0);
                 var innerCls = isCompact ? 'status-text-inner compact' : 'status-text-inner';
                 if (inner.className !== innerCls) inner.className = innerCls;
             } else {
@@ -3538,6 +3768,8 @@
                     ? ChessI18n.t('game.status_check', { turn: tn, player: playerName })
                     : ('\u26a0 ' + tn + ' \u0111ang b\u1ecb chi\u1ebfu!' + (yours ? ' H\u00e3y \u0111i!' : ''));
                 setStatusText(el, 'status check', chkTxt);
+            } else if (gReviewActive && gReviewStatusText) {
+                setStatusText(el, gReviewStatusClass || 'status-bar-new best has-review', gReviewStatusText);
             } else if (yours) {
                 gThinkingText = ''; gDramaticChat = ''; gDramaticLabel = '';
                 if (gDrawOffer) { setStatusText(el, 'status', gChatMsg || randChat('offerDraw')); return; }
@@ -3613,6 +3845,10 @@
         function onSqClick(e, fromTouch) {
             if (!fromTouch && gLastFastInputTime && Date.now() - gLastFastInputTime < 700) return false;
             if (!gActive || gTurn !== gPC) return;
+            if (gReviewActive) {
+                clearMoveReview();
+                setStatus();
+            }
             var tgt = e.target || e.srcElement;
             while (tgt && tgt.getAttribute && !tgt.getAttribute('data-s')) tgt = tgt.parentNode;
             if (!tgt || !tgt.getAttribute) return;
@@ -3978,14 +4214,25 @@
             return gap >= 60;
         }
 
-        function _classifyFinish(label, cpLoss, tok, clfyT0, matchedBest, bestUci, punishUci) {
+        function _classifyFinish(label, cpLoss, tok, clfyT0, matchedBest, bestUci, punishUci, mvSnap, boardBefore) {
             if (tok !== gGameToken) return;
             var LABEL_UP = {
                 brilliant: 'BRILLIANT', great: 'GREAT', greatDef: 'GREAT_DEF',
-                missedMate: 'MISSED_MATE', missedWin: 'MISSED_WIN', blunder: 'BLUNDER'
+                missedMate: 'MISSED_MATE', missedWin: 'MISSED_WIN', blunder: 'BLUNDER',
+                best: 'BEST', mistake: 'MISTAKE'
             };
-            if (label) {
-                gMoveStats[label]++;
+            var resolvedLabel = label;
+            if (!resolvedLabel) {
+                if (matchedBest) resolvedLabel = 'best';
+                else if (typeof cpLoss === 'number' && cpLoss <= 50) resolvedLabel = 'best';
+                else if (typeof cpLoss === 'number' && cpLoss <= 150) resolvedLabel = 'inaccuracy';
+                else resolvedLabel = 'mistake';
+            }
+
+            var reviewEnabled = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
+
+            if (resolvedLabel) {
+                gMoveStats[resolvedLabel] = (gMoveStats[resolvedLabel] || 0) + 1;
                 /* [REVIEW] Ghi lại nước vừa được classify — gUciHist.length-1 luôn là
                    đúng ply của nước này tại đây: gUciHist.push() đã chạy sớm trong
                    execMove (trước cả nhánh classify), và AI không thể đi tiếp (đẩy
@@ -3995,13 +4242,21 @@
                    (bestUci = nước lẽ ra nên đi; punishUci = nước đối phương tận dụng
                    sai lầm) — undefined ở mọi nhãn khác, không ảnh hưởng gì. */
                 gClassifyLog.push({
-                    ply: gUciHist.length - 1, label: label, uci: gUciHist[gUciHist.length - 1],
+                    ply: gUciHist.length - 1, label: resolvedLabel, uci: gUciHist[gUciHist.length - 1],
                     bestUci: bestUci || null, punishUci: punishUci || null
                 });
-                var streakChat = _trackAccuracyStreak(label);
-                tMark(LABEL_UP[label] || label);
-                if (LABEL_UP[label]) {
-                    showFeedback(label, cpLoss);
+                var streakChat = _trackAccuracyStreak(resolvedLabel);
+                tMark(LABEL_UP[resolvedLabel] || resolvedLabel);
+
+                if (reviewEnabled) {
+                    showMoveReview(resolvedLabel, cpLoss, bestUci, mvSnap, boardBefore);
+                    tFlush(null);
+                    if (gActive) kickAiMoveAfter(2200);
+                    return;
+                }
+
+                if (LABEL_UP[resolvedLabel] && resolvedLabel !== 'best' && resolvedLabel !== 'mistake') {
+                    showFeedback(resolvedLabel, cpLoss);
                     tFlush(null);
                     /* [FIX] banner cosmetic, không phụ thuộc repaint — bestMove/pBe/shB
                        tính song song với 2600ms hiển thị. */
@@ -4239,13 +4494,55 @@
                  → classifyMove() v2.6 — band-based Missed Win + dynamic thresholds.
                ────────────────────────────────────────────────────────────────────────── */
             var isCapture = !!(mv[2] !== undefined && mv[2]);
-            if (isPlayerMove && savedBest !== null) {
+            var reviewEnabled = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
+            if (isPlayerMove && (savedBest !== null || reviewEnabled)) {
                 var _clfyTok = gGameToken;
                 (function (mvSnap, boardBefore) {
                     setTimeout(function () {
                         if (_clfyTok !== gGameToken) return;
                         var _clfyT0 = Date.now();   /* [FIX] mốc ngay khi UI_REPAINT_DELAY đầu vừa trôi xong —
                                       dùng để tính phần buffer còn thiếu trước khi aiMove() */
+
+                        /* Khai cuộc / không có savedBest: kiểm tra Opening Book hoặc Shallow Eval */
+                        if (savedBest === null) {
+                            var histBefore = gUciHist.slice(0, -1);
+                            var keyBefore = histBefore.join(' ');
+                            var bookEntry = (typeof BOOK_MAP !== 'undefined') ? BOOK_MAP[keyBefore] : null;
+                            var playedUci = gUciHist[gUciHist.length - 1];
+                            var isBookMove = false;
+                            var topBookMove = null;
+                            if (bookEntry) {
+                                var bParts = bookEntry.split('|');
+                                topBookMove = bParts[0].split(':')[0];
+                                for (var b = 0; b < bParts.length; b++) {
+                                    if (bParts[b].split(':')[0] === playedUci) {
+                                        isBookMove = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (isBookMove) {
+                                savedBest = topBookMove || playedUci;
+                                _classifyFinish('best', 0, _clfyTok, _clfyT0, true, savedBest, null, mvSnap, boardBefore);
+                                return;
+                            }
+                            if (topBookMove) {
+                                savedBest = topBookMove;
+                            } else if (mvSnap && mvSnap._boardBefore) {
+                                var _fenBefore = boardToFenFromState(
+                                    mvSnap._boardBefore, gPC, mvSnap._epBefore, mvSnap._casBefore, 0, 1);
+                                workerEval(_fenBefore, SHALLOW_EVAL_TIME, 'opSh', function (opr) {
+                                    if (_clfyTok !== gGameToken) return;
+                                    var opBest = opr ? opr.uci : null;
+                                    var opEq = opBest && mvEq(mvSnap, opBest);
+                                    _classifyFinish(opEq ? 'best' : 'inaccuracy', 0, _clfyTok, _clfyT0, opEq, opBest, null, mvSnap, boardBefore);
+                                });
+                                return;
+                            } else {
+                                _classifyFinish('best', 0, _clfyTok, _clfyT0, true, null, null, mvSnap, boardBefore);
+                                return;
+                            }
+                        }
 
                         /* ── Blunder quick-check (board-based, đồng bộ — giữ nguyên CF9) ── */
                         var isBestMove = mvEq(mvSnap, savedBest);
@@ -4301,7 +4598,15 @@
                                 })(gUciHist.length - 1);
                                 _trackAccuracyStreak('blunder');   /* cắt streak, bỏ qua text trả về */
                                 var _hangVal = PVAL[typ(gB[mvSnap[1]])] || 0;   /* ước lượng mức độ nặng */
-                                tMark('BLUNDER'); showFeedback('blunder', _hangVal); tFlush(null);
+                                tMark('BLUNDER');
+                                var reviewEnabled = (typeof ChessStorage !== 'undefined' && ChessStorage.getDefaultBotReview) ? ChessStorage.getDefaultBotReview() : false;
+                                if (reviewEnabled) {
+                                    showMoveReview('blunder', _hangVal, savedBest, mvSnap, boardBefore);
+                                    tFlush(null);
+                                    if (gActive) kickAiMoveAfter(2200);
+                                    return;
+                                }
+                                showFeedback('blunder', _hangVal); tFlush(null);
                                 if (gActive) kickAiMoveAfter(2600);  /* [FIX] banner cosmetic, không phụ thuộc repaint */
                                 return;
                             }
@@ -4328,7 +4633,7 @@
                                giống hệt pattern đã dùng cho đường phát hiện blunder nhanh
                                (xem [FIX punish-arrow-fastpath-v1]) — không chặn feedback tức
                                thời, chỉ vá mũi tên cho lúc xem lại sau khi ván kết thúc. */
-                            _classifyFinish('missedMate', 0, _clfyTok, _clfyT0, isBestMove, savedBest, null);
+                            _classifyFinish('missedMate', 0, _clfyTok, _clfyT0, isBestMove, savedBest, null, mvSnap, boardBefore);
                             (function (_pnPly) {
                                 var _pnFen = boardToFenFromState(gB, gTurn, gEP, gCasB, 0, 1);
                                 var _pnTok = gGameToken;
@@ -4366,12 +4671,12 @@
                                     /* [FIX aiBlunder chat] matchedBest chỉ nên true khi thực sự "AI lo
                                        ngại" (không phải đổi quân ngang giá bình thường trùng dự đoán,
                                        và phải cách biệt rõ với lựa chọn thứ 2 — xem _matchedBestNotable). */
-                                    _classifyFinish(label2, 0, _clfyTok, _clfyT0, isBestMove && !normalTrade && _matchedBestNotable(savedEval, savedEval2nd));
+                                    _classifyFinish(label2, 0, _clfyTok, _clfyT0, isBestMove && !normalTrade && _matchedBestNotable(savedEval, savedEval2nd), savedBest, null, mvSnap, boardBefore);
                                 });
                                 return;
                             }
                             var lbl = _classifyBestLabel(mvSnap, savedPlayerLegalCount, savedEval, playerGivesCheck, savedEval2nd);
-                            _classifyFinish(lbl, 0, _clfyTok, _clfyT0, isBestMove && !normalTrade && _matchedBestNotable(savedEval, savedEval2nd));
+                            _classifyFinish(lbl, 0, _clfyTok, _clfyT0, isBestMove && !normalTrade && _matchedBestNotable(savedEval, savedEval2nd), savedBest, null, mvSnap, boardBefore);
                             return;
                         }
 
@@ -4483,7 +4788,7 @@
                                         _lbl2 === 'missedWin' || _lbl2 === 'missedMate');
                                     var _bestUciArrow = _arrowLabels ? savedBest : null;
                                     var _punishUciArrow = _arrowLabels ? (epr2 && epr2.uci) : null;
-                                    _classifyFinish(_lbl2, _cpLoss, _clfyTok, _clfyT0, isBestMove, _bestUciArrow, _punishUciArrow);
+                                    _classifyFinish(_lbl2, _cpLoss, _clfyTok, _clfyT0, isBestMove, _bestUciArrow, _punishUciArrow, mvSnap, boardBefore);
                                 };
 
                                 if (_needShallow && mvSnap._boardBefore) {
@@ -4519,7 +4824,7 @@
                         }
                         gEvalSkipCount++;
                         tMark('evalSkip');
-                        _classifyFinish(null, 0, _clfyTok, _clfyT0, isBestMove);
+                        _classifyFinish(isBestMove ? 'best' : null, 0, _clfyTok, _clfyT0, isBestMove, savedBest, null, mvSnap, boardBefore);
 
                     }, UI_REPAINT_DELAY);  /* 250ms thay 650ms */
                 })(mv, mv._boardBefore);

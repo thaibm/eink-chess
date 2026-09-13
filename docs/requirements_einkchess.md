@@ -65,7 +65,7 @@
   8. `chess.html`: Controller mỏng điều phối DOM và vòng đời trò chơi.
 - **Cấu trúc phân bổ 4 tầng dọc:**
   1. **Header Bar:** Thu nhỏ thành 1 dòng (Logo EinkChess, nút xem PGN Overlay, nút Menu trở về `index.html`).
-  2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị toàn bộ quân cờ đã bị ăn của hai bên (quân Trắng bị ăn ở `#status-cap-white` bên trái, quân Đen bị ăn ở `#status-cap-black` bên phải, sắp xếp đầy đủ theo thứ tự giá trị quân Hậu -> Xe -> Tượng -> Mã -> Tốt) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa. Khóa cứng chiều cao 1 dòng (28px, `table-layout: fixed`), giới hạn chống tràn văn bản (`white-space: nowrap; text-overflow: ellipsis`) và tự động co nhỏ font chữ (`.compact`) khi thông điệp dài, đảm bảo tuyệt đối không bị nhảy thành 2 dòng làm lệch hay đè bàn cờ E-ink. Cập nhật và lưu trữ đồng bộ khi thực hiện nước đi, hoàn tác (undo) và khôi phục ván cờ dở.
+  2. **Thanh Trạng Thái Tích Hợp (Status Bar 3 Cột):** Gộp hiển thị toàn bộ quân cờ đã bị ăn của hai bên (quân Trắng bị ăn ở `#status-cap-white` bên trái, quân Đen bị ăn ở `#status-cap-black` bên phải, sắp xếp đầy đủ theo thứ tự giá trị quân Hậu -> Xe -> Tượng -> Mã -> Tốt) và thông báo lượt đi / phản hồi phân tích nước đi ở chính giữa. Khi bật Move Review, thanh trạng thái chuyển sang chế độ hiển thị đánh giá kèm giải thích chiến thuật (hỗ trợ cả khai cuộc qua Opening Book và các giai đoạn sau của ván cờ), đồng thời luôn bảo lưu 2 cột quân cờ bị ăn ở hai bên mà không làm đè hay giấu các biểu tượng quân bị ăn. Giữ nguyên trên màn hình cho đến khi người chơi chạm chọn quân tiếp theo.
   3. **Bàn Cờ Auto-Scaling & Viền 4 Phía Sắc Nét:** Tự động tính toán kích thước số nguyên pixel chia hết cho 8 dựa trên chiều cao và chiều rộng còn lại của viewport (trừ đi 12px padding hai bên và 4px viền 2px mỗi bên), sử dụng `box-sizing: content-box` để 64 ô cờ nằm vừa khít 8x8 không bị rớt dòng hay tràn màn hình bên phải, căn thẳng hàng tuyệt đối với thanh trạng thái và thanh điều khiển, hiển thị trọn vẹn viền đen 2px sắc nét trên cả 4 cạnh.
   4. **Thanh Điều Khiển Dưới Bàn Cờ (Action Controls - Chuẩn Play-Bot-v2 5 Nút):** 
      - 5 nút cân đối 20% mỗi nút: `Xin thua` (Resign), `Lật bàn` (Flip), nút thông tin trận đấu ở giữa `#bot-meta` (`Cấp X · ELO`, `.puzzle-meta-box`), `Refresh` (Xử lý lưu ảnh ghosting), `Ván mới` (New Game).
@@ -210,15 +210,13 @@
 ***Giải thích về thuật toán tạo độ khó tự nhiên & Đánh giá nước đi cho Offline Bot V2 (Tomitank):***
 - **Sử dụng Engine Tomitank 100% Offline qua Web Worker:** Tất cả 10 cấp độ đều hoạt động offline bằng engine Tomitank (đã tối ưu Hash 16MB cho Kindle).
 - **Thuật toán MultiPV & Noise Injection:** Khác với AI Minimax cũ (ngây ngô và dễ bị bắt bài), Bot V2 mô phỏng tư duy con người bằng cách dùng MultiPV để tìm top 4 nước đi tốt nhất (`best4rootmoves`). Ở các cấp độ thấp (1-8), Bot có tỷ lệ (chance) cố ý chọn nước đi sai lầm trong ngưỡng điểm hao hụt (noiseCp) để "giả lập" con người đánh hỏng.
-- **Phân tích nước đi (Move Evaluation & Badges):** Ứng dụng theo dõi chênh lệch điểm số (Centipawn Loss: $\Delta cp$) sau khi Bot tính toán nước phản hồi để phân loại chất lượng nước đi của người chơi:
-  - $\le 10\text{ cp}$: **`★` Nước đi tốt nhất (Best Move)**
-  - $11 - 50\text{ cp}$: **`✔` Nước đi tốt (Good Move)**
-  - $51 - 150\text{ cp}$: **`?!` Kém chính xác (Inaccuracy)**
-  - $151 - 300\text{ cp}$: **`?` Sai lầm (Mistake)**
-  - $> 300\text{ cp}$: **`??` Đại sai lầm (Blunder)**
-- **Hiển thị kép (Dual Display):**
-  - **Huy hiệu trên bàn cờ (`.sq-review-badge`):** Gắn tại góc ô cờ đích mà người chơi vừa đi tới (tương thích khi xoay bàn cờ và reset khi Đi lại/Ván mới).
-  - **Nhãn trên Thanh trạng thái (Status Bar):** Hiển thị trực tiếp nhãn đánh giá tương ứng (ví dụ: `[★ Nước đi tốt nhất] - Lượt của Bạn`).
+- **Phân tích nước đi & Đánh giá tức thời (Move Review & Best Move Arrow):**
+  - Khi bật tùy chọn **Move Review (Play Bot)** trong Cài đặt (`settings.html`), sau mỗi nước đi của người chơi, hệ thống tự động phân loại chất lượng nước đi và hiển thị phản hồi chiến thuật trực quan:
+    - **Huy hiệu trên bàn cờ (`.sq-review-badge`):** Gắn tại góc ô cờ đích mà người chơi vừa đi tới (`★` Best, `!` Great, `!!` Brilliant, `?!` Inaccuracy, `?` Mistake, `??` Blunder, `[+]` Missed Win, `[#]` Missed Mate).
+    - **Mũi tên chỉ nước tốt nhất (Best Move Arrow):** Nếu nước đi chưa tối ưu (không phải Best/Brilliant/Great), hệ thống tự động vẽ một mũi tên màu xanh lá cây (`#coach-svg`) chỉ từ ô xuất phát tới ô đích của nước đi tốt nhất (`bestUci`). Nếu người chơi đã đi nước tốt nhất (`★`), không vẽ mũi tên thừa.
+    - **Thanh trạng thái chi tiết (Status Bar Review):** Hiển thị ký hiệu đánh giá, nước đi tốt nhất (dưới dạng ký hiệu SAN chuẩn như `Nf3`, `Qxd4+`, `O-O`) kèm theo lời giải thích chiến thuật ngắn gọn, súc tích (ví dụ: `[?? Sai lầm nghiêm trọng] Tốt nhất: Nf3 — Treo Mã`, `[★ Nước đi tốt nhất] Kiểm soát trung tâm`).
+    - **Cơ chế hiển thị trên E-ink:** Huy hiệu, mũi tên và thông tin nước đi tốt nhất được giữ nguyên trên màn hình cho người chơi đọc trong suốt thời gian Bot tính toán và đi quân, và chỉ biến mất khi người chơi chủ động chạm vào quân cờ để chuẩn bị cho nước đi tiếp theo (hoặc khi Đi lại / Ván mới / Xoay bàn cờ). Giúp người chơi đọc thoải mái mà không gây chớp nháy màn hình (ghosting).
+    - Khi tắt tùy chọn Move Review, hệ thống không hiển thị mũi tên, huy hiệu ô cờ hay dòng giải thích Best Move.
 
 #### B. Giao diện Status Bar & Quân cờ bị ăn:
 - **Thanh trạng thái 3 phần (Compact 3-column table):**

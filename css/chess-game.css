@@ -185,6 +185,11 @@ body {
     color: #ffffff;
 }
 
+.status-bar-new.inaccuracy {
+    background-color: #e0e0e0;
+    color: #000000;
+}
+
 .status-bar-new.mistake {
     background-color: #888888;
     color: #ffffff;
@@ -193,6 +198,43 @@ body {
 .status-bar-new.blunder {
     background-color: #444444;
     color: #ffffff;
+}
+
+.status-bar-new.has-review {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    height: auto;
+    min-height: 28px;
+    max-height: 52px;
+    padding: 2px 4px;
+    text-align: center;
+}
+
+.status-bar-new.has-review .status-cap-side {
+    display: table-cell;
+    vertical-align: middle;
+    width: 18%;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.status-bar-new.has-review .status-text-inner {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 64%;
+    max-width: 0;
+    white-space: normal;
+    font-size: 11px;
+    line-height: 1.25;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    color: #000000;
 }
 
 .status-cap-side {

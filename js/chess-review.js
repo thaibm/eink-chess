@@ -566,6 +566,150 @@
         }
     }
 
+    var PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+    var TYP_NAMES = ['', 'p', 'n', 'b', 'r', 'q', 'k'];
+
+    function normalizeMoveInfo(item) {
+        if (!item) return { move: {}, san: '', moveNumber: 1 };
+        var mv = item.move || {};
+        var san = item.san || '';
+        var moveNumber = item.moveNumber || 1;
+
+        if (Object.prototype.toString.call(mv) === '[object Array]') {
+            var f = mv[0], t = mv[1];
+            var fr = rk(f), fc = fl(f);
+            var tr = rk(t), tc = fl(t);
+            var capTyp = mv[2] ? typ(mv[2]) : 0;
+            var promoTyp = mv[3] ? typ(mv[3]) : 0;
+            var pieceTyp = item.piece ? typ(item.piece) : (item.board ? typ(item.board[f] || item.board[t]) : 1);
+            mv = {
+                from: { r: fr, c: fc },
+                to: { r: tr, c: tc },
+                piece: (TYP_NAMES[pieceTyp] || 'p').toUpperCase(),
+                captured: capTyp ? (TYP_NAMES[capTyp] || 'p').toUpperCase() : null,
+                promotion: promoTyp ? (TYP_NAMES[promoTyp] || 'q').toUpperCase() : null
+            };
+        }
+        return { move: mv, san: san, moveNumber: moveNumber };
+    }
+
+    function determineTacticalReason(item, bestMove, cpLoss, isMate) {
+        var norm = normalizeMoveInfo(item);
+        var move = norm.move || {};
+        var san = norm.san || '';
+        var moveNumber = norm.moveNumber || 1;
+        var to = move.to || {};
+
+        if (san.indexOf('#') !== -1) {
+            return { key: 'analysis.reason_delivered_mate' };
+        }
+
+        if (isMate && cpLoss > 150) {
+            return { key: 'analysis.reason_missed_mate' };
+        }
+
+        if (san === 'O-O' || san === 'O-O-O') {
+            return { key: 'analysis.reason_castling' };
+        }
+
+        if (move.promotion) {
+            return { key: 'analysis.reason_promotion' };
+        }
+
+        var pieceLetter = (move.piece || 'P').toUpperCase();
+
+        if (cpLoss > 200) {
+            if (move.captured) {
+                return {
+                    key: 'analysis.reason_bad_trade',
+                    pieceKey1: 'analysis.piece_' + pieceLetter.toLowerCase(),
+                    pieceKey2: 'analysis.piece_' + move.captured.toLowerCase()
+                };
+            }
+            return {
+                key: 'analysis.reason_hanging_blunder',
+                pieceKey: 'analysis.piece_' + pieceLetter.toLowerCase()
+            };
+        }
+
+        if (move.captured) {
+            var capPts = PIECE_VALUES[move.captured.toLowerCase()] || 1;
+            var movePts = PIECE_VALUES[pieceLetter.toLowerCase()] || 1;
+
+            if (capPts > movePts) {
+                return { key: 'analysis.reason_good_trade' };
+            } else if (cpLoss <= 20) {
+                return { key: 'analysis.reason_free_piece', params: { pts: capPts } };
+            }
+        }
+
+        if (san.indexOf('+') !== -1) {
+            if (pieceLetter === 'N') {
+                return {
+                    key: 'analysis.reason_royal_fork',
+                    pieceKey: 'analysis.piece_' + pieceLetter.toLowerCase()
+                };
+            }
+        }
+
+        if (pieceLetter === 'P' && (to.r <= 2 || to.r >= 5)) {
+            return { key: 'analysis.reason_passed_pawn' };
+        }
+
+        if (moveNumber <= 8) {
+            var centralSquares = [[3, 3], [3, 4], [4, 3], [4, 4], [3, 2], [4, 2]];
+            for (var i = 0; i < centralSquares.length; i++) {
+                if (to.r === centralSquares[i][0] && to.c === centralSquares[i][1]) {
+                    return { key: 'analysis.reason_center' };
+                }
+            }
+            if (pieceLetter === 'N' || pieceLetter === 'B') {
+                return { key: 'analysis.reason_development' };
+            }
+        }
+
+        if (pieceLetter === 'R' && typeof to.c === 'number') {
+            var fileLetter = String.fromCharCode(97 + to.c);
+            return { key: 'analysis.reason_open_file', params: { file: fileLetter.toUpperCase() } };
+        }
+
+        if (pieceLetter === 'N' && (to.r === 3 || to.r === 4)) {
+            return {
+                key: 'analysis.reason_outpost',
+                pieceKey: 'analysis.piece_' + pieceLetter.toLowerCase()
+            };
+        }
+
+        if (move.captured && moveNumber > 25) {
+            return { key: 'analysis.reason_simplification' };
+        }
+
+        return { key: 'analysis.reason_solid' };
+    }
+
+    function getTacticalExplanation(item, bestMove, cpLoss, isMate) {
+        var rObj = determineTacticalReason(item, bestMove, cpLoss, isMate);
+        if (!rObj) return '';
+        var params = {};
+        if (rObj.params) {
+            for (var k in rObj.params) {
+                if (rObj.params.hasOwnProperty(k)) {
+                    params[k] = rObj.params[k];
+                }
+            }
+        }
+        if (rObj.pieceKey && typeof ChessI18n !== 'undefined') {
+            params.piece = ChessI18n.t(rObj.pieceKey);
+        }
+        if (rObj.pieceKey1 && typeof ChessI18n !== 'undefined') {
+            params.piece1 = ChessI18n.t(rObj.pieceKey1);
+        }
+        if (rObj.pieceKey2 && typeof ChessI18n !== 'undefined') {
+            params.piece2 = ChessI18n.t(rObj.pieceKey2);
+        }
+        return (typeof ChessI18n !== 'undefined') ? ChessI18n.t(rObj.key, params) : (rObj.key || '');
+    }
+
     root.LABEL_TEXT = LABEL_TEXT;
     root.LABEL_CSS = LABEL_CSS;
     root.REVIEW_BADGE_MAP = REVIEW_BADGE_MAP;
@@ -580,6 +724,8 @@
     root.drawArrow = drawArrow;
     root.clearArrows = clearArrows;
     root.renderTacticalArrows = renderTacticalArrows;
+    root.determineTacticalReason = determineTacticalReason;
+    root.getTacticalExplanation = getTacticalExplanation;
 
     root.ChessReview = {
         LABEL_TEXT: LABEL_TEXT,
@@ -596,7 +742,9 @@
         sqCoords: sqCoords,
         drawArrow: drawArrow,
         clearArrows: clearArrows,
-        renderTacticalArrows: renderTacticalArrows
+        renderTacticalArrows: renderTacticalArrows,
+        determineTacticalReason: determineTacticalReason,
+        getTacticalExplanation: getTacticalExplanation
     };
 
 })(typeof window !== "undefined" ? window : this);
