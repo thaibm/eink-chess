@@ -488,14 +488,14 @@
         if (!defs) {
             defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
             defs.innerHTML =
-                '<marker id="arr-grn" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">' +
-                    '<polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(26,122,26,0.85)" />' +
+                '<marker id="arr-grn" markerWidth="2.4" markerHeight="2.4" refX="0.6" refY="1.2" orient="auto">' +
+                    '<polygon points="0 0.1,2.4 1.2,0 2.3" fill="#166534" />' +
                 '</marker>' +
-                '<marker id="arr-teal" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">' +
-                    '<polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(0,150,136,0.85)" />' +
+                '<marker id="arr-teal" markerWidth="2.4" markerHeight="2.4" refX="0.6" refY="1.2" orient="auto">' +
+                    '<polygon points="0 0.1,2.4 1.2,0 2.3" fill="#0f766e" />' +
                 '</marker>' +
-                '<marker id="arr-pur" markerWidth="2.2" markerHeight="2.2" refX="1.5" refY="1.1" orient="auto">' +
-                    '<polygon points="0 0,2.2 1.1,0 2.2" fill="rgba(120,26,154,0.85)" />' +
+                '<marker id="arr-pur" markerWidth="2.4" markerHeight="2.4" refX="0.6" refY="1.2" orient="auto">' +
+                    '<polygon points="0 0.1,2.4 1.2,0 2.3" fill="#7e22ce" />' +
                 '</marker>';
             svgEl.insertBefore(defs, svgEl.firstChild);
         }
@@ -524,13 +524,14 @@
         var px = -dy / len * curveFactor, py = dx / len * curveFactor;
         var markMap = { green: 'arr-grn', teal: 'arr-teal', purple: 'arr-pur' };
         var markId = markMap[color] || 'arr-grn';
-        var stroke = { green: 'rgba(26,122,26,0.85)', teal: 'rgba(0,150,136,0.85)', purple: 'rgba(120,26,154,0.85)' }[color] || 'rgba(26,122,26,0.85)';
+        var stroke = { green: '#166534', teal: '#0f766e', purple: '#7e22ce' }[color] || '#166534';
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         var d = len < 1.5 ? 'M' + sx + ',' + sy + ' L' + ex + ',' + ey
             : 'M' + sx + ',' + sy + ' Q' + (mid.x + px) + ',' + (mid.y + py) + ' ' + ex + ',' + ey;
         path.setAttribute('d', d);
         path.setAttribute('stroke', stroke);
         path.setAttribute('stroke-width', String(sw));
+        path.setAttribute('stroke-linecap', 'round');
         path.setAttribute('fill', 'none');
         path.setAttribute('marker-end', 'url(#' + markId + ')');
         g.appendChild(path);

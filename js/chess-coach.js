@@ -37,13 +37,18 @@
         var px = -dy / len * curveFactor, py = dx / len * curveFactor;
         var markMap = { green: 'arr-grn', teal: 'arr-teal', purple: 'arr-pur' };
         var markId = markMap[color] || 'arr-grn';
-        var stroke = { green: 'rgba(0,0,0,0.85)', teal: 'rgba(80,80,80,0.8)', purple: 'rgba(120,120,120,0.8)' }[color] || 'rgba(0,0,0,0.85)';
+        var stroke = {
+            green: '#166534',
+            teal: '#0f766e',
+            purple: '#7e22ce'
+        }[color] || '#166534';
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         var d = len < 1.5 ? 'M' + sx + ',' + sy + ' L' + ex + ',' + ey
             : 'M' + sx + ',' + sy + ' Q' + (mid.x + px) + ',' + (mid.y + py) + ' ' + ex + ',' + ey;
         path.setAttribute('d', d);
         path.setAttribute('stroke', stroke);
         path.setAttribute('stroke-width', String(sw));
+        path.setAttribute('stroke-linecap', 'round');
         path.setAttribute('fill', 'none');
         path.setAttribute('marker-end', 'url(#' + markId + ')');
         g.appendChild(path);
